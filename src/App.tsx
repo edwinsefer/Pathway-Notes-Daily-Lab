@@ -5,6 +5,7 @@ import { multiBookTest } from './data/scripture/multiBookTest'
 import { genesisChapter1 } from './data/scripture/genesis'
 import { bibleBooks } from './data/scripture/bibleBooks'
 import { philippians } from './data/scripture/philippians'
+import { john } from './data/scripture/john'
 import type { ScriptureChapter } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
@@ -60,7 +61,7 @@ function App() {
   const currentBook = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
   )
-  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest, ...philippians]
+  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest, ...philippians, ...john]
     .filter((chapter, index, chapters) =>
       chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
     )
