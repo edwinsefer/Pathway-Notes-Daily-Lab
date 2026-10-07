@@ -180,6 +180,14 @@ a {
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
 }
 
+.pathway-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .eyebrow {
   margin: 0 0 0.65rem;
   font-size: 0.72rem;
@@ -189,6 +197,30 @@ a {
 }
 
 :root[data-theme="dark"] .eyebrow {
+  color: #aab5c9;
+}
+
+.pathway-category {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: #eef2f8;
+  color: #596276;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .pathway-category {
+  background: #27344a;
+  color: #c5cede;
+}
+
+.pathway-date {
+  margin: 0.15rem 0 0.75rem;
+  color: #687085;
+  font-size: 0.8rem;
+}
+
+:root[data-theme="dark"] .pathway-date {
   color: #aab5c9;
 }
 
