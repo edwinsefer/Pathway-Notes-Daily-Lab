@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
 
 type Theme = 'light' | 'dark'
+type Page = 'home' | 'library' | 'search'
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('pathway-theme')
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
+  const [page, setPage] = useState<Page>('home')
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
@@ -28,6 +30,11 @@ function App() {
 
   const toggleBookmark = () => {
     setIsBookmarked((currentValue) => !currentValue)
+  }
+
+  const openPage = (nextPage: Page) => {
+    setPage(nextPage)
+    setIsFullPathwayOpen(false)
   }
 
   return (
@@ -54,72 +61,121 @@ function App() {
       </header>
 
       <nav className="site-nav" aria-label="Main navigation">
-        <a href="#home">Home</a>
-        <a href="#library">Library</a>
-        <a href="#search">Search</a>
+        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>
+          Home
+        </button>
+        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>
+          Library
+        </button>
+        <button className={page === 'search' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('search')}>
+          Search
+        </button>
       </nav>
 
       <main className="main-content">
-        <section className="pathway-card" aria-labelledby="today-pathway-title">
-          <div className="pathway-meta">
-            <p className="eyebrow">{todaysPathway.label}</p>
-            <span className="pathway-category">{todaysPathway.category}</span>
-          </div>
-
-          <p className="pathway-date">{todaysPathway.dateLabel}</p>
-
-          <div className="pathway-title-row">
-            <div>
-              <h1 id="today-pathway-title">{todaysPathway.title}</h1>
-              <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
+        {page === 'home' && (
+          <section className="pathway-card" aria-labelledby="today-pathway-title">
+            <div className="pathway-meta">
+              <p className="eyebrow">{todaysPathway.label}</p>
+              <span className="pathway-category">{todaysPathway.category}</span>
             </div>
 
-            <button
-              className={`bookmark-button${isBookmarked ? ' is-bookmarked' : ''}`}
-              type="button"
-              onClick={toggleBookmark}
-              aria-pressed={isBookmarked}
-              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
-              title={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
-            >
-              {isBookmarked ? 'Saved' : 'Save'}
-            </button>
-          </div>
+            <p className="pathway-date">{todaysPathway.dateLabel}</p>
 
-          <div className="pathway-section">
-            <h2>Reflection</h2>
-            <p>{todaysPathway.reflection}</p>
-          </div>
-
-          {!isFullPathwayOpen && (
-            <button
-              className="pathway-read-button"
-              type="button"
-              onClick={() => setIsFullPathwayOpen(true)}
-              aria-expanded="false"
-            >
-              Read Full Pathway
-            </button>
-          )}
-
-          {isFullPathwayOpen && (
-            <>
-              <div className="pathway-section">
-                <h2>Prayer</h2>
-                <p>{todaysPathway.prayer}</p>
+            <div className="pathway-title-row">
+              <div>
+                <h1 id="today-pathway-title">{todaysPathway.title}</h1>
+                <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
               </div>
 
               <button
+                className={`bookmark-button${isBookmarked ? ' is-bookmarked' : ''}`}
+                type="button"
+                onClick={toggleBookmark}
+                aria-pressed={isBookmarked}
+                aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
+                title={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
+              >
+                {isBookmarked ? 'Saved' : 'Save'}
+              </button>
+            </div>
+
+            <div className="pathway-section">
+              <h2>Reflection</h2>
+              <p>{todaysPathway.reflection}</p>
+            </div>
+
+            {!isFullPathwayOpen && (
+              <button
                 className="pathway-read-button"
                 type="button"
-                onClick={() => setIsFullPathwayOpen(false)}
-                aria-expanded="true"
+                onClick={() => setIsFullPathwayOpen(true)}
+                aria-expanded="false"
               >
-                Show Less
+                Read Full Pathway
               </button>
-            </>
-          )}
-        </section>
+            )}
+
+            {isFullPathwayOpen && (
+              <>
+                <div className="pathway-section">
+                  <h2>Prayer</h2>
+                  <p>{todaysPathway.prayer}</p>
+                </div>
+
+                <button
+                  className="pathway-read-button"
+                  type="button"
+                  onClick={() => setIsFullPathwayOpen(false)}
+                  aria-expanded="true"
+                >
+                  Show Less
+                </button>
+              </>
+            )}
+          </section>
+        )}
+
+        {page === 'library' && (
+          <section className="library-page" aria-labelledby="library-title">
+            <div className="page-heading">
+              <p className="eyebrow">PATHWAY LIBRARY</p>
+              <h1 id="library-title">Saved Pathways</h1>
+              <p>Your saved reflections stay on this device for now.</p>
+            </div>
+
+            {isBookmarked ? (
+              <article className="library-item">
+                <div>
+                  <span className="pathway-category">{todaysPathway.category}</span>
+                  <p className="pathway-date">{todaysPathway.dateLabel}</p>
+                  <h2>{todaysPathway.title}</h2>
+                  <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
+                </div>
+
+                <button className="library-open-button" type="button" onClick={() => openPage('home')}>
+                  Open Pathway
+                </button>
+              </article>
+            ) : (
+              <div className="empty-library">
+                <h2>No saved pathways yet</h2>
+                <p>Save a pathway from Home and it will appear here.</p>
+                <button className="pathway-read-button" type="button" onClick={() => openPage('home')}>
+                  Go to Today&apos;s Pathway
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {page === 'search' && (
+          <section className="placeholder-page" aria-labelledby="search-title">
+            <p className="eyebrow">SEARCH</p>
+            <h1 id="search-title">Search is coming next.</h1>
+            <p>We will build Scripture and pathway search after the Library foundation is tested.</p>
+          </section>
+        )}
       </main>
 
       <footer className="site-footer">
