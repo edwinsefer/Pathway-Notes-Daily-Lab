@@ -4,6 +4,8 @@ export type TodaysPathway = {
   category: string
   title: string
   scriptureReference: string
+  scriptureTranslation?: string
+  scriptureText?: string
   reflection: string
   prayer: string
 }
@@ -14,6 +16,8 @@ export const todaysPathway: TodaysPathway = {
   category: "Daily Reflection",
   title: "Be still and know",
   scriptureReference: "Psalm 46:10",
+  scriptureTranslation: "",
+  scriptureText: "",
   reflection:
     "A quiet moment with God can change the way we see the day. Before we rush into the next task, we can pause, listen, and remember that God is present.",
   prayer:
