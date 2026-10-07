@@ -50,3 +50,17 @@ Result:
 - The source is therefore suitable for the next import-validation stage.
 
 Important: this verifies the presence and numbering of the 66 book files. It does not yet prove that every chapter and verse inside every file is error-free. That will be checked during the import validation stage.
+
+
+## Psalm 46:10 verification — Step 14B
+
+Verified directly against the selected Tamil Bible 1957 USFM source:
+
+- Book: Psalms
+- Chapter: 46
+- Verse: 10
+- Source file: `usfm/19_Psalms.usfm`
+- Verified text:
+  "நீங்கள் அமர்ந்திருந்து, நானே தேவனென்று அறிந்துகொள்ளுங்கள்; ஜாதிகளுக்குள்ளே உயர்ந்திருப்பேன், பூமியிலே உயர்ந்திருப்பேன்."
+
+The verse is now confirmed as the exact source text for the Today's Pathway sample.
