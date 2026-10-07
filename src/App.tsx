@@ -3,6 +3,7 @@ import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { multiBookTest } from './data/scripture/multiBookTest'
 import { genesisChapter1 } from './data/scripture/genesis'
+import { bibleBooks } from './data/scripture/bibleBooks'
 import type { ScriptureChapter } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
@@ -181,58 +182,42 @@ function App() {
               <p>Local Scripture available in the Laboratory.</p>
             </div>
 
-            <section className="bible-testament" aria-labelledby="old-testament-title">
-              <div className="bible-testament-heading">
-                <span className="pathway-category">Old Testament</span>
-                <h2 id="old-testament-title">Old Testament</h2>
-              </div>
+            {(['Old Testament', 'New Testament'] as const).map((testament) => (
+              <section className="bible-testament" aria-labelledby={testament === 'Old Testament' ? 'old-testament-title' : 'new-testament-title'} key={testament}>
+                <div className="bible-testament-heading">
+                  <span className="pathway-category">{testament}</span>
+                  <h2 id={testament === 'Old Testament' ? 'old-testament-title' : 'new-testament-title'}>{testament}</h2>
+                </div>
 
-              <div className="bible-book-list">
-                <article className="scripture-library-item">
-                  <div>
-                    <h3>Psalms</h3>
-                    <p>Psalm 46 · {psalm46.translation}</p>
-                  </div>
+                <div className="bible-book-list">
+                  {bibleBooks.filter((book) => book.testament === testament).map((book) => {
+                    const availableChapter =
+                      book.id === 'psalms'
+                        ? psalm46
+                        : book.id === 'genesis'
+                          ? genesisChapter1Data
+                          : multiBookTest.find((chapter) => chapter.book.toLowerCase() === book.name.toLowerCase())
 
-                  <button className="library-open-button" type="button" onClick={() => openScripture(psalm46)}>
-                    Open Psalm 46
-                  </button>
-                </article>
+                    return (
+                      <article className="scripture-library-item" key={book.id}>
+                        <div>
+                          <h3>{book.name}</h3>
+                          <p>{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'} · Tamil Old Version (1957)</p>
+                        </div>
 
-                <article className="scripture-library-item">
-                  <div>
-                    <h3>Genesis</h3>
-                    <p>Chapter 1 · {genesisChapter1Data.translation}</p>
-                  </div>
-
-                  <button className="library-open-button" type="button" onClick={() => openScripture(genesisChapter1Data)}>
-                    Open Genesis 1
-                  </button>
-                </article>
-              </div>
-            </section>
-
-            <section className="bible-testament" aria-labelledby="new-testament-title">
-              <div className="bible-testament-heading">
-                <span className="pathway-category">New Testament</span>
-                <h2 id="new-testament-title">New Testament</h2>
-              </div>
-
-              <div className="bible-book-list">
-                {multiBookTest.filter((chapter) => chapter.book !== 'Genesis').map((chapter) => (
-                  <article className="scripture-library-item" key={chapter.book + '-' + chapter.chapter}>
-                    <div>
-                      <h3>{chapter.book}</h3>
-                      <p>Chapter {chapter.chapter} · {chapter.translation}</p>
-                    </div>
-
-                    <button className="library-open-button" type="button" onClick={() => openScripture(chapter)}>
-                      Open {chapter.book} {chapter.chapter}
-                    </button>
-                  </article>
-                ))}
-              </div>
-            </section>
+                        {availableChapter ? (
+                          <button className="library-open-button" type="button" onClick={() => openScripture(availableChapter)}>
+                            Open {book.name} {availableChapter.chapter}
+                          </button>
+                        ) : (
+                          <span className="pathway-category">Text next</span>
+                        )}
+                      </article>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
           </section>
         )}
 
