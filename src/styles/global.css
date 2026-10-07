@@ -623,3 +623,63 @@ h1 {
   margin: 0;
   font-size: 1.05rem;
 }
+
+
+.chapter-picker {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.chapter-picker-title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted-text);
+}
+
+.chapter-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.chapter-number-button {
+  min-height: 42px;
+  padding: 0.4rem 0.25rem;
+  border: 1px solid var(--card-border);
+  border-radius: 9px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chapter-number-button.active {
+  border-color: #4d67a1;
+  background: #4d67a1;
+  color: #ffffff;
+}
+
+.chapter-number-button.unavailable,
+.chapter-number-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.chapter-number-button:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
+@media (min-width: 520px) {
+  .chapter-picker-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
