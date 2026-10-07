@@ -1,5 +1,7 @@
 export type TodaysPathway = {
   label: string
+  dateLabel: string
+  category: string
   title: string
   scriptureReference: string
   reflection: string
@@ -8,6 +10,8 @@ export type TodaysPathway = {
 
 export const todaysPathway: TodaysPathway = {
   label: "TODAY'S PATHWAY",
+  dateLabel: "October 7, 2026",
+  category: "Daily Reflection",
   title: "Be still and know",
   scriptureReference: "Psalm 46:10",
   reflection:
