@@ -49,7 +49,13 @@ function App() {
 
       <main className="main-content">
         <section className="pathway-card" aria-labelledby="today-pathway-title">
-          <p className="eyebrow">{todaysPathway.label}</p>
+          <div className="pathway-meta">
+            <p className="eyebrow">{todaysPathway.label}</p>
+            <span className="pathway-category">{todaysPathway.category}</span>
+          </div>
+
+          <p className="pathway-date">{todaysPathway.dateLabel}</p>
+
           <h1 id="today-pathway-title">{todaysPathway.title}</h1>
           <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
 
