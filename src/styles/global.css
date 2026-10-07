@@ -265,6 +265,54 @@ h1 {
   color: #bdc7d8;
 }
 
+.pathway-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pathway-title-row > div {
+  min-width: 0;
+}
+
+.bookmark-button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #d9deea;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #596276;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bookmark-button.is-bookmarked {
+  border-color: #4d67a1;
+  background: #eef2f8;
+  color: #354b7b;
+}
+
+:root[data-theme="dark"] .bookmark-button {
+  border-color: #45536d;
+  background: #222e43;
+  color: #c5cede;
+}
+
+:root[data-theme="dark"] .bookmark-button.is-bookmarked {
+  border-color: #728bc8;
+  background: #2a3850;
+  color: #dce5ff;
+}
+
+.bookmark-button:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
 .pathway-read-button {
   width: 100%;
   min-height: 46px;
