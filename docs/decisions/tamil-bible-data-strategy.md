@@ -37,3 +37,16 @@ Before importing all 66 books:
 - define book/chapter metadata
 - test a small multi-book sample
 - then approve the full import
+
+
+## Source completeness check — Step 14
+
+Checked the source repository's `usfm/` directory at the selected source revision.
+
+Result:
+- 66 USFM book files found.
+- Numbered sequence 01 through 66 is complete.
+- No missing book number was detected.
+- The source is therefore suitable for the next import-validation stage.
+
+Important: this verifies the presence and numbering of the 66 book files. It does not yet prove that every chapter and verse inside every file is error-free. That will be checked during the import validation stage.
