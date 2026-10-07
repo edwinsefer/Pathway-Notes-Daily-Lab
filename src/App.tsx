@@ -8,6 +8,7 @@ function App() {
     const savedTheme = localStorage.getItem('pathway-theme')
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
+  const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -64,10 +65,34 @@ function App() {
             <p>{todaysPathway.reflection}</p>
           </div>
 
-          <div className="pathway-section">
-            <h2>Prayer</h2>
-            <p>{todaysPathway.prayer}</p>
-          </div>
+          {!isFullPathwayOpen && (
+            <button
+              className="pathway-read-button"
+              type="button"
+              onClick={() => setIsFullPathwayOpen(true)}
+              aria-expanded="false"
+            >
+              Read Full Pathway
+            </button>
+          )}
+
+          {isFullPathwayOpen && (
+            <>
+              <div className="pathway-section">
+                <h2>Prayer</h2>
+                <p>{todaysPathway.prayer}</p>
+              </div>
+
+              <button
+                className="pathway-read-button"
+                type="button"
+                onClick={() => setIsFullPathwayOpen(false)}
+                aria-expanded="true"
+              >
+                Show Less
+              </button>
+            </>
+          )}
         </section>
       </main>
 
