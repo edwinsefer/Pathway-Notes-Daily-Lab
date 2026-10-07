@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
+import { psalm46 } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
-type Page = 'home' | 'library' | 'search'
+type Page = 'home' | 'library' | 'search' | 'scripture'
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -108,6 +109,14 @@ function App() {
               <blockquote className="scripture-text">{todaysPathway.scriptureText}</blockquote>
             )}
 
+            <button
+              className="pathway-read-button scripture-reader-button"
+              type="button"
+              onClick={() => openPage('scripture')}
+            >
+              Read Psalm 46
+            </button>
+
             <div className="pathway-section">
               <h2>Reflection</h2>
               <p>{todaysPathway.reflection}</p>
@@ -141,6 +150,29 @@ function App() {
                 </button>
               </>
             )}
+          </section>
+        )}
+
+        {page === 'scripture' && (
+          <section className="scripture-reader" aria-labelledby="scripture-reader-title">
+            <div className="page-heading">
+              <p className="eyebrow">SCRIPTURE READER</p>
+              <h1 id="scripture-reader-title">{psalm46.book} {psalm46.chapter}</h1>
+              <p>{psalm46.translation}</p>
+            </div>
+
+            <div className="scripture-chapter">
+              {psalm46.verses.map((verse) => (
+                <p className="scripture-verse" key={verse.verse}>
+                  <span className="verse-number">{verse.verse}</span>
+                  <span>{verse.text}</span>
+                </p>
+              ))}
+            </div>
+
+            <button className="pathway-read-button" type="button" onClick={() => openPage('home')}>
+              Back to Today&apos;s Pathway
+            </button>
           </section>
         )}
 
