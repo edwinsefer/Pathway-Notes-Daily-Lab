@@ -16,8 +16,9 @@ export const todaysPathway: TodaysPathway = {
   category: "Daily Reflection",
   title: "Be still and know",
   scriptureReference: "Psalm 46:10",
-  scriptureTranslation: "",
-  scriptureText: "",
+  scriptureTranslation: "Tamil Old Version (1957)",
+  scriptureText:
+    "நீங்கள் அமர்ந்திருந்து, நானே தேவனென்று அறிந்துகொள்ளுங்கள்; ஜாதிகளுக்குள்ளே உயர்ந்திருப்பேன், பூமியிலே உயர்ந்திருப்பேன்.",
   reflection:
     "A quiet moment with God can change the way we see the day. Before we rush into the next task, we can pause, listen, and remember that God is present.",
   prayer:
