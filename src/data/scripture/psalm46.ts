@@ -1,14 +1,4 @@
-export type ScriptureVerse = {
-  verse: number
-  text: string
-}
-
-export type ScriptureChapter = {
-  book: string
-  chapter: number
-  translation: string
-  verses: ScriptureVerse[]
-}
+import type { ScriptureChapter } from "./types"
 
 export const psalm46: ScriptureChapter = {
   book: "Psalms",
