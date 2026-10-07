@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { todaysPathway } from './data/todaysPathway'
 
 type Theme = 'light' | 'dark'
 
@@ -47,13 +48,20 @@ function App() {
       </nav>
 
       <main className="main-content">
-        <section className="welcome-card">
-          <p className="eyebrow">LABORATORY • PHASE 1</p>
-          <h1>Foundation</h1>
-          <p>
-            A clean, mobile-first foundation for Edwin&apos;s Christian Reading
-            Experience.
-          </p>
+        <section className="pathway-card" aria-labelledby="today-pathway-title">
+          <p className="eyebrow">{todaysPathway.label}</p>
+          <h1 id="today-pathway-title">{todaysPathway.title}</h1>
+          <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
+
+          <div className="pathway-section">
+            <h2>Reflection</h2>
+            <p>{todaysPathway.reflection}</p>
+          </div>
+
+          <div className="pathway-section">
+            <h2>Prayer</h2>
+            <p>{todaysPathway.prayer}</p>
+          </div>
         </section>
       </main>
 
