@@ -61,7 +61,7 @@ function App() {
   const currentBook = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
   )
-  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest, ...philippians, ...john]
+  const availableChapters = [psalm46, genesisChapter1Data, ...philippians, ...john, ...multiBookTest]
     .filter((chapter, index, chapters) =>
       chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
     )
