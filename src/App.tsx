@@ -74,7 +74,7 @@ function App() {
         <button className={page === 'bible' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
           Bible
         </button>
-        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
+        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>
           Home
         </button>
         <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>
@@ -124,7 +124,7 @@ function App() {
             <button
               className="pathway-read-button scripture-reader-button"
               type="button"
-              onClick={() => openPage('scripture')}
+              onClick={() => openScripture(psalm46)}
             >
               Read Psalm 46
             </button>
@@ -228,7 +228,7 @@ function App() {
               ))}
             </div>
 
-            <button className="pathway-read-button" type="button" onClick={() => openPage('home')}>
+            <button className="pathway-read-button" type="button" onClick={() => openPage('bible')}>
               Back to Bible Library
             </button>
           </section>
