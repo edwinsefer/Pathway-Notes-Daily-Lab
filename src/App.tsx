@@ -3,7 +3,7 @@ import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
-type Page = 'home' | 'library' | 'search' | 'scripture'
+type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible'
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -62,6 +62,9 @@ function App() {
       </header>
 
       <nav className="site-nav" aria-label="Main navigation">
+        <button className={page === 'bible' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
+          Bible
+        </button>
         <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>
           Home
         </button>
@@ -150,6 +153,32 @@ function App() {
                 </button>
               </>
             )}
+          </section>
+        )}
+
+        {page === 'bible' && (
+          <section className="scripture-library-page" aria-labelledby="bible-title">
+            <div className="page-heading">
+              <p className="eyebrow">SCRIPTURE LIBRARY</p>
+              <h1 id="bible-title">Tamil Bible</h1>
+              <p>Local Scripture available in the Laboratory.</p>
+            </div>
+
+            <article className="scripture-library-item">
+              <div>
+                <span className="pathway-category">Psalms</span>
+                <h2>Psalm 46</h2>
+                <p>{psalm46.translation}</p>
+              </div>
+
+              <button
+                className="library-open-button"
+                type="button"
+                onClick={() => openPage('scripture')}
+              >
+                Open Chapter
+              </button>
+            </article>
           </section>
         )}
 
