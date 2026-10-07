@@ -265,6 +265,87 @@ h1 {
   color: #bdc7d8;
 }
 
+.nav-link {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.nav-link.active {
+  font-weight: 700;
+}
+
+.library-page,
+.placeholder-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.page-heading h1,
+.placeholder-page h1 {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.page-heading > p:last-child,
+.placeholder-page > p:last-child {
+  margin: 0;
+  color: var(--muted-text);
+}
+
+.library-item,
+.empty-library {
+  padding: 1.25rem;
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.library-item h2 {
+  margin: 0.65rem 0 0.25rem;
+}
+
+.library-item .pathway-date {
+  margin-bottom: 0;
+}
+
+.library-open-button {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 1rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty-library h2 {
+  margin-top: 0;
+}
+
+:root {
+  --muted-text: #697386;
+  --card-border: #e2e6ee;
+  --card-bg: #ffffff;
+  --card-shadow: 0 8px 24px rgba(20, 32, 55, 0.06);
+  --button-bg: #f7f8fb;
+}
+
+:root[data-theme="dark"] {
+  --muted-text: #aeb9ca;
+  --card-border: #344158;
+  --card-bg: #182338;
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --button-bg: #222e43;
+}
+
 .pathway-title-row {
   display: flex;
   align-items: flex-start;
