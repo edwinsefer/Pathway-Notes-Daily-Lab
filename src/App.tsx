@@ -9,14 +9,25 @@ function App() {
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(() => {
+    return localStorage.getItem('pathway-bookmarked') === 'true'
+  })
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('pathway-theme', theme)
   }, [theme])
 
+  useEffect(() => {
+    localStorage.setItem('pathway-bookmarked', String(isBookmarked))
+  }, [isBookmarked])
+
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
+  }
+
+  const toggleBookmark = () => {
+    setIsBookmarked((currentValue) => !currentValue)
   }
 
   return (
@@ -57,8 +68,23 @@ function App() {
 
           <p className="pathway-date">{todaysPathway.dateLabel}</p>
 
-          <h1 id="today-pathway-title">{todaysPathway.title}</h1>
-          <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
+          <div className="pathway-title-row">
+            <div>
+              <h1 id="today-pathway-title">{todaysPathway.title}</h1>
+              <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
+            </div>
+
+            <button
+              className={`bookmark-button${isBookmarked ? ' is-bookmarked' : ''}`}
+              type="button"
+              onClick={toggleBookmark}
+              aria-pressed={isBookmarked}
+              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
+              title={isBookmarked ? 'Remove bookmark' : 'Bookmark this pathway'}
+            >
+              {isBookmarked ? 'Saved' : 'Save'}
+            </button>
+          </div>
 
           <div className="pathway-section">
             <h2>Reflection</h2>
