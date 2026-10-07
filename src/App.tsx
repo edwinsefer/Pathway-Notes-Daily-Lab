@@ -4,6 +4,7 @@ import { psalm46 } from './data/scripture/psalm46'
 import { multiBookTest } from './data/scripture/multiBookTest'
 import { genesisChapter1 } from './data/scripture/genesis'
 import { bibleBooks } from './data/scripture/bibleBooks'
+import { philippians } from './data/scripture/philippians'
 import type { ScriptureChapter } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
@@ -59,7 +60,7 @@ function App() {
   const currentBook = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
   )
-  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest]
+  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest, ...philippians]
     .filter((chapter, index, chapters) =>
       chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
     )
@@ -207,7 +208,7 @@ function App() {
                         ? psalm46
                         : book.id === 'genesis'
                           ? genesisChapter1Data
-                          : multiBookTest.find((chapter) => chapter.book.toLowerCase() === book.name.toLowerCase())
+                          : availableChapters.find((chapter) => chapter.book.toLowerCase() === book.name.toLowerCase())
 
                     return (
                       <article className="scripture-library-item" key={book.id}>
