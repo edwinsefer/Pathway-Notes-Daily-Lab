@@ -56,6 +56,15 @@ function App() {
     setIsFullPathwayOpen(false)
   }
 
+  const currentBook = bibleBooks.find((book) => book.name === selectedChapter.book)
+  const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest]
+    .filter((chapter, index, chapters) =>
+      chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
+    )
+  const currentBookChapters = currentBook
+    ? Array.from({ length: currentBook.chapters }, (_, index) => index + 1)
+    : []
+
   return (
     <div className="site-shell">
       <header className="site-header">
@@ -228,6 +237,42 @@ function App() {
               <h1 id="scripture-reader-title">{selectedChapter.book} {selectedChapter.chapter}</h1>
               <p>{selectedChapter.translation}</p>
             </div>
+
+            {currentBook && (
+              <div className="chapter-picker" aria-label={`Chapters in ${selectedChapter.book}`}>
+                <p className="chapter-picker-title">Chapters</p>
+                <div className="chapter-picker-grid">
+                  {currentBookChapters.map((chapterNumber) => {
+                    const chapterData = availableChapters.find(
+                      (chapter) => chapter.book === selectedChapter.book && chapter.chapter === chapterNumber,
+                    )
+                    const isCurrent = selectedChapter.chapter === chapterNumber
+
+                    return chapterData ? (
+                      <button
+                        key={chapterNumber}
+                        className={`chapter-number-button${isCurrent ? ' active' : ''}`}
+                        type="button"
+                        onClick={() => openScripture(chapterData)}
+                        aria-current={isCurrent ? 'page' : undefined}
+                      >
+                        {chapterNumber}
+                      </button>
+                    ) : (
+                      <button
+                        key={chapterNumber}
+                        className="chapter-number-button unavailable"
+                        type="button"
+                        disabled
+                        title="Text not imported yet"
+                      >
+                        {chapterNumber}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="scripture-chapter">
               {selectedChapter.verses.map((verse) => (
