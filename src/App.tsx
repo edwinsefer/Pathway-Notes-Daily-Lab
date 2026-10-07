@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
+import { multiBookTest } from './data/scripture/multiBookTest'
+import type { ScriptureChapter } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
 type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible'
@@ -11,6 +13,7 @@ function App() {
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
   const [page, setPage] = useState<Page>('home')
+  const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
@@ -31,6 +34,12 @@ function App() {
 
   const toggleBookmark = () => {
     setIsBookmarked((currentValue) => !currentValue)
+  }
+
+  const openScripture = (chapter: ScriptureChapter) => {
+    setSelectedChapter(chapter)
+    setPage('scripture')
+    setIsFullPathwayOpen(false)
   }
 
   const openPage = (nextPage: Page) => {
@@ -65,7 +74,7 @@ function App() {
         <button className={page === 'bible' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
           Bible
         </button>
-        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>
+        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
           Home
         </button>
         <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>
@@ -174,11 +183,31 @@ function App() {
               <button
                 className="library-open-button"
                 type="button"
-                onClick={() => openPage('scripture')}
+                onClick={() => openScripture(psalm46)}
               >
                 Open Psalm 46
               </button>
             </article>
+
+            {multiBookTest.map((chapter) => (
+              <article className="scripture-library-item" key={`${chapter.book}-${chapter.chapter}`}>
+                <div>
+                  <span className="pathway-category">
+                    {chapter.book === 'Genesis' ? 'Old Testament' : 'New Testament'}
+                  </span>
+                  <h2>{chapter.book}</h2>
+                  <p>Chapter {chapter.chapter} · {chapter.translation}</p>
+                </div>
+
+                <button
+                  className="library-open-button"
+                  type="button"
+                  onClick={() => openScripture(chapter)}
+                >
+                  Open {chapter.book} {chapter.chapter}
+                </button>
+              </article>
+            ))}
           </section>
         )}
 
@@ -186,12 +215,12 @@ function App() {
           <section className="scripture-reader" aria-labelledby="scripture-reader-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE READER</p>
-              <h1 id="scripture-reader-title">{psalm46.book} {psalm46.chapter}</h1>
-              <p>{psalm46.translation}</p>
+              <h1 id="scripture-reader-title">{selectedChapter.book} {selectedChapter.chapter}</h1>
+              <p>{selectedChapter.translation}</p>
             </div>
 
             <div className="scripture-chapter">
-              {psalm46.verses.map((verse) => (
+              {selectedChapter.verses.map((verse) => (
                 <p className="scripture-verse" key={verse.verse}>
                   <span className="verse-number">{verse.verse}</span>
                   <span>{verse.text}</span>
@@ -200,7 +229,7 @@ function App() {
             </div>
 
             <button className="pathway-read-button" type="button" onClick={() => openPage('home')}>
-              Back to Today&apos;s Pathway
+              Back to Bible Library
             </button>
           </section>
         )}
