@@ -165,7 +165,7 @@ a {
   flex: 1;
 }
 
-.welcome-card {
+.pathway-card {
   background: #ffffff;
   border: 1px solid #e7e9ef;
   border-radius: 18px;
@@ -174,7 +174,7 @@ a {
   transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
-:root[data-theme="dark"] .welcome-card {
+:root[data-theme="dark"] .pathway-card {
   background: #1b2638;
   border-color: #2f3c54;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
@@ -198,14 +198,38 @@ h1 {
   line-height: 1.1;
 }
 
-.welcome-card p:last-child {
-  margin: 0.8rem 0 0;
-  max-width: 55ch;
-  line-height: 1.65;
+.scripture-reference {
+  margin: 0.55rem 0 0;
+  font-weight: 600;
+  color: #4d67a1;
+}
+
+:root[data-theme="dark"] .scripture-reference {
+  color: #a9bdf0;
+}
+
+.pathway-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e7e9ef;
+}
+
+:root[data-theme="dark"] .pathway-section {
+  border-top-color: #2f3c54;
+}
+
+.pathway-section h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.pathway-section p {
+  margin: 0.55rem 0 0;
+  line-height: 1.7;
   color: #596276;
 }
 
-:root[data-theme="dark"] .welcome-card p:last-child {
+:root[data-theme="dark"] .pathway-section p {
   color: #bdc7d8;
 }
 
@@ -246,7 +270,7 @@ h1 {
     padding: 2rem;
   }
 
-  .welcome-card {
+  .pathway-card {
     padding: 2rem;
   }
 }
@@ -273,7 +297,7 @@ h1 {
     padding-bottom: 3rem;
   }
 
-  .welcome-card {
+  .pathway-card {
     padding: 2.5rem;
     border-radius: 22px;
   }
@@ -282,7 +306,7 @@ h1 {
     font-size: clamp(2.25rem, 4vw, 3rem);
   }
 
-  .welcome-card p:last-child {
+  .pathway-section p {
     font-size: 1.05rem;
   }
 }
