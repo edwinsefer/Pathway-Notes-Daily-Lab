@@ -265,6 +265,40 @@ h1 {
   color: #bdc7d8;
 }
 
+.pathway-read-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #d9deea;
+  border-radius: 12px;
+  background: #f7f8fb;
+  color: #172033;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pathway-read-button:hover {
+  background: #eef2f8;
+}
+
+:root[data-theme="dark"] .pathway-read-button {
+  border-color: #45536d;
+  background: #222e43;
+  color: #eef2f9;
+}
+
+:root[data-theme="dark"] .pathway-read-button:hover {
+  background: #2a3850;
+}
+
+.pathway-read-button:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
 .site-footer {
   padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
   text-align: center;
