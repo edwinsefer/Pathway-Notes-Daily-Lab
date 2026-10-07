@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { multiBookTest } from './data/scripture/multiBookTest'
+import { genesisChapter1 } from './data/scripture/genesis'
 import type { ScriptureChapter } from './data/scripture/psalm46'
 
 type Theme = 'light' | 'dark'
@@ -15,6 +16,13 @@ function App() {
   const [page, setPage] = useState<Page>('home')
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
+
+  const genesisChapter1Data: ScriptureChapter = {
+    book: 'Genesis',
+    chapter: 1,
+    translation: 'Tamil Old Version (1957)',
+    verses: genesisChapter1,
+  }
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
   })
@@ -189,7 +197,7 @@ function App() {
               </button>
             </article>
 
-            {multiBookTest.map((chapter) => (
+            {[genesisChapter1Data, ...multiBookTest.filter((chapter) => !(chapter.book === 'Genesis' && chapter.chapter === 1))].map((chapter) => (
               <article className="scripture-library-item" key={`${chapter.book}-${chapter.chapter}`}>
                 <div>
                   <span className="pathway-category">
