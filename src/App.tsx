@@ -181,41 +181,58 @@ function App() {
               <p>Local Scripture available in the Laboratory.</p>
             </div>
 
-            <article className="scripture-library-item">
-              <div>
+            <section className="bible-testament" aria-labelledby="old-testament-title">
+              <div className="bible-testament-heading">
                 <span className="pathway-category">Old Testament</span>
-                <h2>Psalms</h2>
-                <p>Psalm 46 · {psalm46.translation}</p>
+                <h2 id="old-testament-title">Old Testament</h2>
               </div>
 
-              <button
-                className="library-open-button"
-                type="button"
-                onClick={() => openScripture(psalm46)}
-              >
-                Open Psalm 46
-              </button>
-            </article>
+              <div className="bible-book-list">
+                <article className="scripture-library-item">
+                  <div>
+                    <h3>Psalms</h3>
+                    <p>Psalm 46 · {psalm46.translation}</p>
+                  </div>
 
-            {[genesisChapter1Data, ...multiBookTest.filter((chapter) => !(chapter.book === 'Genesis' && chapter.chapter === 1))].map((chapter) => (
-              <article className="scripture-library-item" key={`${chapter.book}-${chapter.chapter}`}>
-                <div>
-                  <span className="pathway-category">
-                    {chapter.book === 'Genesis' ? 'Old Testament' : 'New Testament'}
-                  </span>
-                  <h2>{chapter.book}</h2>
-                  <p>Chapter {chapter.chapter} · {chapter.translation}</p>
-                </div>
+                  <button className="library-open-button" type="button" onClick={() => openScripture(psalm46)}>
+                    Open Psalm 46
+                  </button>
+                </article>
 
-                <button
-                  className="library-open-button"
-                  type="button"
-                  onClick={() => openScripture(chapter)}
-                >
-                  Open {chapter.book} {chapter.chapter}
-                </button>
-              </article>
-            ))}
+                <article className="scripture-library-item">
+                  <div>
+                    <h3>Genesis</h3>
+                    <p>Chapter 1 · {genesisChapter1Data.translation}</p>
+                  </div>
+
+                  <button className="library-open-button" type="button" onClick={() => openScripture(genesisChapter1Data)}>
+                    Open Genesis 1
+                  </button>
+                </article>
+              </div>
+            </section>
+
+            <section className="bible-testament" aria-labelledby="new-testament-title">
+              <div className="bible-testament-heading">
+                <span className="pathway-category">New Testament</span>
+                <h2 id="new-testament-title">New Testament</h2>
+              </div>
+
+              <div className="bible-book-list">
+                {multiBookTest.filter((chapter) => chapter.book !== 'Genesis').map((chapter) => (
+                  <article className="scripture-library-item" key={chapter.book + '-' + chapter.chapter}>
+                    <div>
+                      <h3>{chapter.book}</h3>
+                      <p>Chapter {chapter.chapter} · {chapter.translation}</p>
+                    </div>
+
+                    <button className="library-open-button" type="button" onClick={() => openScripture(chapter)}>
+                      Open {chapter.book} {chapter.chapter}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </section>
           </section>
         )}
 
