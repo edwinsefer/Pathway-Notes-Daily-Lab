@@ -1,4 +1,4 @@
-import type { ScriptureChapter } from "./scripture/psalm46"
+import type { ScriptureChapter } from "./types"
 
 export const multiBookTest: ScriptureChapter[] = [
   {
