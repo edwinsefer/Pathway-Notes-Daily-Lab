@@ -56,7 +56,9 @@ function App() {
     setIsFullPathwayOpen(false)
   }
 
-  const currentBook = bibleBooks.find((book) => book.name === selectedChapter.book)
+  const currentBook = bibleBooks.find(
+    (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
+  )
   const availableChapters = [psalm46, genesisChapter1Data, ...multiBookTest]
     .filter((chapter, index, chapters) =>
       chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
@@ -244,7 +246,9 @@ function App() {
                 <div className="chapter-picker-grid">
                   {currentBookChapters.map((chapterNumber) => {
                     const chapterData = availableChapters.find(
-                      (chapter) => chapter.book === selectedChapter.book && chapter.chapter === chapterNumber,
+                      (chapter) =>
+                        chapter.book.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase() &&
+                        chapter.chapter === chapterNumber,
                     )
                     const isCurrent = selectedChapter.chapter === chapterNumber
 
