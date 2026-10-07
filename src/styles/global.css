@@ -240,6 +240,36 @@ h1 {
   color: #a9bdf0;
 }
 
+.scripture-translation {
+  margin: 0.45rem 0 0;
+  color: #687085;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .scripture-translation {
+  color: #aab5c9;
+}
+
+.scripture-text {
+  margin: 1rem 0 0;
+  padding: 1rem 1rem 1.05rem;
+  border-left: 3px solid #4d67a1;
+  border-radius: 0 12px 12px 0;
+  background: #f7f8fb;
+  color: #26324a;
+  font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 2;
+}
+
+:root[data-theme="dark"] .scripture-text {
+  background: #222e43;
+  color: #e8ecf5;
+  border-left-color: #728bc8;
+}
+
 .pathway-section {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
