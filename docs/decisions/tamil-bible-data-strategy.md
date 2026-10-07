@@ -1,0 +1,39 @@
+# Tamil Bible Data Strategy
+
+## Decision
+
+Use the Tamil Bible 1957 Edition as the initial Scripture source for the Laboratory.
+
+Source:
+- Repository: berinaniesh/bible-tamil
+- Edition: Tamil Bible Old Version, 1957
+- Primary text source referenced by the repository: TFBF Tamil Bible repository
+
+## Rights note
+
+The source repository states that this Bible text is in the Public Domain in India.
+
+This statement is jurisdiction-specific. Before distributing the application internationally or commercially, rights should be reviewed for the intended jurisdictions.
+
+The repository's MIT License applies to its code/scripts; it should not be treated as a blanket MIT license for the Bible text.
+
+## Technical strategy
+
+1. Keep Scripture data local to the app.
+2. Use structured book → chapter → verse data.
+3. Do not depend on a live Bible API for the core reading experience.
+4. Import the full Bible only after the single-chapter test is stable.
+5. Preserve the source/version metadata with the imported data.
+
+## Current test
+
+Psalm 46 (11 verses) is the approved proof-of-concept.
+
+## Next gate
+
+Before importing all 66 books:
+- verify source completeness
+- choose the final machine-readable format
+- define book/chapter metadata
+- test a small multi-book sample
+- then approve the full import
