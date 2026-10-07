@@ -166,9 +166,9 @@ function App() {
 
             <article className="scripture-library-item">
               <div>
-                <span className="pathway-category">Psalms</span>
-                <h2>Psalm 46</h2>
-                <p>{psalm46.translation}</p>
+                <span className="pathway-category">Old Testament</span>
+                <h2>Psalms</h2>
+                <p>Psalm 46 · {psalm46.translation}</p>
               </div>
 
               <button
@@ -176,7 +176,7 @@ function App() {
                 type="button"
                 onClick={() => openPage('scripture')}
               >
-                Open Chapter
+                Open Psalm 46
               </button>
             </article>
           </section>
