@@ -275,6 +275,49 @@ h1 {
   border-left-color: #728bc8;
 }
 
+
+.scripture-reader {
+  display: grid;
+  gap: 1rem;
+}
+
+.scripture-chapter {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.15rem;
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.scripture-verse {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.55rem;
+  margin: 0;
+  font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text);
+}
+
+.verse-number {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4d67a1;
+  padding-top: 0.25rem;
+}
+
+:root[data-theme="dark"] .verse-number {
+  color: #a9bdf0;
+}
+
+.scripture-reader-button {
+  margin-top: 0;
+}
+
 .pathway-section {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
