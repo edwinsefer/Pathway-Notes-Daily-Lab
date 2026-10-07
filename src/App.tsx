@@ -86,12 +86,6 @@ function App() {
               <div>
                 <h1 id="today-pathway-title">{todaysPathway.title}</h1>
                 <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
-                {todaysPathway.scriptureTranslation && (
-                  <p className="scripture-translation">{todaysPathway.scriptureTranslation}</p>
-                )}
-                {todaysPathway.scriptureText && (
-                  <blockquote className="scripture-text">{todaysPathway.scriptureText}</blockquote>
-                )}
               </div>
 
               <button
@@ -105,6 +99,14 @@ function App() {
                 {isBookmarked ? 'Saved' : 'Save'}
               </button>
             </div>
+
+            {todaysPathway.scriptureTranslation && (
+              <p className="scripture-translation">{todaysPathway.scriptureTranslation}</p>
+            )}
+
+            {todaysPathway.scriptureText && (
+              <blockquote className="scripture-text">{todaysPathway.scriptureText}</blockquote>
+            )}
 
             <div className="pathway-section">
               <h2>Reflection</h2>
