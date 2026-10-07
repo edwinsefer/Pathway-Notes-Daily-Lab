@@ -600,15 +600,18 @@ h1 {
 }
 
 .bible-testament-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.25rem 0;
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.25rem 0 0.15rem;
+}
+
+.bible-testament-heading .pathway-category {
+  width: fit-content;
 }
 
 .bible-testament-heading h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
 }
 
 .bible-book-list {
