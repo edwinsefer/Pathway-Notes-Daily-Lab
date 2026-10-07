@@ -1,3 +1,5 @@
+import { psalm46 } from "./scripture/psalm46"
+
 export type TodaysPathway = {
   label: string
   dateLabel: string
@@ -10,15 +12,16 @@ export type TodaysPathway = {
   prayer: string
 }
 
+const psalm46Verse10 = psalm46.verses.find((verse) => verse.verse === 10)
+
 export const todaysPathway: TodaysPathway = {
   label: "TODAY'S PATHWAY",
   dateLabel: "October 7, 2026",
   category: "Daily Reflection",
   title: "Be still and know",
   scriptureReference: "Psalm 46:10",
-  scriptureTranslation: "Tamil Old Version (1957)",
-  scriptureText:
-    "நீங்கள் அமர்ந்திருந்து, நானே தேவனென்று அறிந்துகொள்ளுங்கள்; ஜாதிகளுக்குள்ளே உயர்ந்திருப்பேன், பூமியிலே உயர்ந்திருப்பேன்.",
+  scriptureTranslation: psalm46.translation,
+  scriptureText: psalm46Verse10?.text ?? "",
   reflection:
     "A quiet moment with God can change the way we see the day. Before we rush into the next task, we can pause, listen, and remember that God is present.",
   prayer:
