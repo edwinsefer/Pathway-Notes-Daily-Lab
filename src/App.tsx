@@ -1,10 +1,42 @@
+import { useEffect, useState } from 'react'
+
+type Theme = 'light' | 'dark'
+
 function App() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem('pathway-theme')
+    return savedTheme === 'dark' ? 'dark' : 'light'
+  })
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('pathway-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
+  }
+
   return (
     <div className="site-shell">
       <header className="site-header">
         <div className="brand">
-          <span className="brand-title">Pathway Notes Daily</span>
-          <span className="brand-subtitle">Creative Laboratory</span>
+          <div className="brand-row">
+            <div>
+              <span className="brand-title">Pathway Notes Daily</span>
+              <span className="brand-subtitle">Creative Laboratory</span>
+            </div>
+
+            <button
+              className="theme-toggle"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+              title={theme === 'light' ? 'Dark theme' : 'Light theme'}
+            >
+              {theme === 'light' ? 'Dark' : 'Light'}
+            </button>
+          </div>
         </div>
       </header>
 
