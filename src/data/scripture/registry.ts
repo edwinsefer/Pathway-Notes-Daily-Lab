@@ -2,6 +2,7 @@ import type { ScriptureChapter } from './types'
 import { genesisChapter1 } from './genesis'
 import { john } from './john'
 import { matthew } from './matthew'
+import { mark } from './mark'
 import { philippians } from './philippians'
 import { psalm46 } from './psalm46'
 
@@ -22,6 +23,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   ...philippians,
   ...john,
   ...matthew,
+  ...mark,
 ]
 
 export const findApprovedChapter = (bookName: string, chapterNumber: number) =>
