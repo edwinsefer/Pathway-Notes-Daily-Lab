@@ -2,6 +2,7 @@ import type { ScriptureChapter } from './types'
 import { acts } from './acts'
 import { firstCorinthians } from './1corinthians'
 import { secondCorinthians } from './2corinthians'
+import { ephesians } from './ephesians'
 import { galatians } from './galatians'
 import { genesisChapter1 } from './genesis'
 import { john } from './john'
@@ -31,6 +32,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   ...firstCorinthians,
   ...secondCorinthians,
   ...galatians,
+  ...ephesians,
   ...romans,
   ...john,
   ...matthew,
