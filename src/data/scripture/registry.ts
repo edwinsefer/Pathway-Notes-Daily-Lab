@@ -13,6 +13,7 @@ import { mark } from './mark'
 import { luke } from './luke'
 import { philippians } from './philippians'
 import { secondThessalonians } from './2thessalonians'
+import { firstTimothy } from './1timothy'
 import { psalm46 } from './psalm46'
 import { romans } from './romans'
 
@@ -32,6 +33,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   genesisChapter1Data,
   ...philippians,
   ...secondThessalonians,
+  ...firstTimothy,
   ...acts,
   ...firstCorinthians,
   ...secondCorinthians,
