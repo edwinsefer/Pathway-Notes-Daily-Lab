@@ -364,39 +364,7 @@ function App() {
               </button>
             </div>
 
-            {(['Old Testament', 'New Testament'] as const).map((testament) => (
-              <section className="bible-testament" aria-labelledby={testament === 'Old Testament' ? 'old-testament-title' : 'new-testament-title'} key={testament}>
-                <div className="bible-testament-heading">
-                  <span className="pathway-category">{testament}</span>
-                  <h2 id={testament === 'Old Testament' ? 'old-testament-title' : 'new-testament-title'}>{testament}</h2>
-                </div>
-
-                <div className="bible-book-list">
-                  {bibleBooks.filter((book) => book.testament === testament).map((book) => {
-                    const availableChapter = availableChapters.find(
-                      (chapter) => chapter.book.trim().toLowerCase() === book.name.trim().toLowerCase(),
-                    )
-
-                    return (
-                      <article className="scripture-library-item" key={book.id}>
-                        <div>
-                          <h3>{book.name}</h3>
-                          <p>{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'} · Tamil Old Version (1957)</p>
-                        </div>
-
-                        {availableChapter ? (
-                          <button className="library-open-button" type="button" onClick={() => openScripture(availableChapter)}>
-                            Open {book.name} {availableChapter.chapter}
-                          </button>
-                        ) : (
-                          <span className="pathway-category">Text next</span>
-                        )}
-                      </article>
-                    )
-                  })}
-                </div>
-              </section>
-            ))}
+            <p className="scripture-library-hint">Choose a Book, Chapter and Verse above to open Scripture.</p>
           </section>
         )}
 
