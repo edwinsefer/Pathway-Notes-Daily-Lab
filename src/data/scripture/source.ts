@@ -1,9 +1,10 @@
 export const tamilBibleSource = {
   name: "Tamil Bible Old Version (1957)",
-  repository: "berinaniesh/bible-tamil",
+  repository: "tfbf/Bible-Tamil-Sathiyavedam-1957",
   sourceFormat: "USFM",
   localMode: "Bundled local data",
+  license: "MIT (source repository)",
   rightsNote:
-    "The source repository README states that this 1957 Tamil Bible is in the public domain in India. Verify jurisdiction-specific rights before distributing outside India.",
-  sourceUrl: "https://github.com/berinaniesh/bible-tamil",
+    "The source repository is licensed under MIT. The repository contains the Tamil Bible 1957 Edition. Verify the underlying Bible-text rights and jurisdiction-specific distribution requirements before publishing or redistributing the text.",
+  sourceUrl: "https://github.com/tfbf/Bible-Tamil-Sathiyavedam-1957",
 } as const
