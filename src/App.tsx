@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
-import { multiBookTest } from './data/scripture/multiBookTest'
-import { genesisChapter1 } from './data/scripture/genesis'
 import { bibleBooks } from './data/scripture/bibleBooks'
-import { philippians } from './data/scripture/philippians'
-import { john } from './data/scripture/john'
-import type { ScriptureChapter } from './data/scripture/psalm46'
+import { approvedScriptureChapters, findApprovedChapter } from './data/scripture/registry'
+import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
 type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible'
@@ -20,12 +17,6 @@ function App() {
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
 
-  const genesisChapter1Data: ScriptureChapter = {
-    book: 'Genesis',
-    chapter: 1,
-    translation: 'Tamil Old Version (1957)',
-    verses: genesisChapter1,
-  }
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
   })
@@ -61,10 +52,7 @@ function App() {
   const currentBook = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
   )
-  const availableChapters = [psalm46, genesisChapter1Data, ...philippians, ...john, ...multiBookTest]
-    .filter((chapter, index, chapters) =>
-      chapters.findIndex((item) => item.book === chapter.book && item.chapter === chapter.chapter) === index,
-    )
+  const availableChapters = approvedScriptureChapters
   const currentBookChapters = currentBook
     ? Array.from({ length: currentBook.chapters }, (_, index) => index + 1)
     : []
@@ -204,12 +192,9 @@ function App() {
 
                 <div className="bible-book-list">
                   {bibleBooks.filter((book) => book.testament === testament).map((book) => {
-                    const availableChapter =
-                      book.id === 'psalms'
-                        ? psalm46
-                        : book.id === 'genesis'
-                          ? genesisChapter1Data
-                          : availableChapters.find((chapter) => chapter.book.toLowerCase() === book.name.toLowerCase())
+                    const availableChapter = availableChapters.find(
+                      (chapter) => chapter.book.trim().toLowerCase() === book.name.trim().toLowerCase(),
+                    )
 
                     return (
                       <article className="scripture-library-item" key={book.id}>
@@ -247,11 +232,7 @@ function App() {
                 <p className="chapter-picker-title">Chapters</p>
                 <div className="chapter-picker-grid">
                   {currentBookChapters.map((chapterNumber) => {
-                    const chapterData = availableChapters.find(
-                      (chapter) =>
-                        chapter.book.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase() &&
-                        chapter.chapter === chapterNumber,
-                    )
+                    const chapterData = findApprovedChapter(selectedChapter.book, chapterNumber)
                     const isCurrent = selectedChapter.chapter === chapterNumber
 
                     return chapterData ? (
