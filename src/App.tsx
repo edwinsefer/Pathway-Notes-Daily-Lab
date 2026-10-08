@@ -200,7 +200,8 @@ function App() {
   })()
 
   const scriptureSearchResults = useMemo(() => {
-    const query = scriptureSearch.trim().toLowerCase()
+    const rawQuery = scriptureSearch.trim()
+    const query = rawQuery.toLowerCase()
     if (!query) return []
 
     const results: Array<{
@@ -209,6 +210,35 @@ function App() {
       verse: number
       text: string
     }> = []
+
+    const referenceMatch = rawQuery.match(/^(.+?)\s+(\d+)(?::(\d+))?$/)
+
+    if (referenceMatch) {
+      const bookQuery = referenceMatch[1].trim().toLowerCase()
+      const chapterNumber = Number(referenceMatch[2])
+      const verseNumber = referenceMatch[3] ? Number(referenceMatch[3]) : null
+
+      const chapter = approvedScriptureChapters.find(
+        (item) =>
+          item.book.trim().toLowerCase() === bookQuery &&
+          item.chapter === chapterNumber,
+      )
+
+      if (chapter) {
+        for (const verse of chapter.verses) {
+          if (verseNumber === null || verse.verse === verseNumber) {
+            results.push({
+              book: chapter.book,
+              chapter: chapter.chapter,
+              verse: verse.verse,
+              text: verse.text,
+            })
+          }
+        }
+      }
+
+      return results
+    }
 
     for (const chapter of approvedScriptureChapters) {
       for (const verse of chapter.verses) {
