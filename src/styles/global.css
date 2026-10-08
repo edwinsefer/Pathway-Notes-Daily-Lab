@@ -1008,3 +1008,46 @@ h1 {
   color: var(--muted-text);
   line-height: 1.6;
 }
+
+
+.scripture-highlight-button {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scripture-highlight-button.is-highlighted {
+  border-color: #c8a33a;
+  background: #fff4bf;
+  color: #5f4b00;
+}
+
+:root[data-theme="dark"] .scripture-highlight-button.is-highlighted {
+  border-color: #a88b2c;
+  background: #403719;
+  color: #f3df88;
+}
+
+.scripture-highlight-button:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
+.scripture-verse.highlighted {
+  margin-inline: -0.35rem;
+  padding: 0.45rem 0.35rem;
+  border-radius: 10px;
+  background: #fff4bf;
+}
+
+:root[data-theme="dark"] .scripture-verse.highlighted {
+  background: #403719;
+}
