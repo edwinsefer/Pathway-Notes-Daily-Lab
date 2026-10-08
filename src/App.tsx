@@ -60,9 +60,6 @@ function App() {
     setIsFullPathwayOpen(false)
   }
 
-  const currentBook = bibleBooks.find(
-    (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
-  )
   const availableChapters = approvedScriptureChapters
   const navigationBookInfo = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === navigationBook.trim().toLowerCase(),
