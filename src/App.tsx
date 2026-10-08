@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
@@ -19,6 +19,7 @@ function App() {
   const [navigationBook, setNavigationBook] = useState('Psalms')
   const [navigationChapter, setNavigationChapter] = useState(46)
   const [navigationVerse, setNavigationVerse] = useState(1)
+  const [scriptureSearch, setScriptureSearch] = useState('')
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
 
   const [isBookmarked, setIsBookmarked] = useState(() => {
@@ -69,6 +70,33 @@ function App() {
     : []
   const navigationChapterData = findApprovedChapter(navigationBook, navigationChapter)
   const navigationVerses = navigationChapterData?.verses ?? []
+  const scriptureSearchResults = useMemo(() => {
+    const query = scriptureSearch.trim().toLowerCase()
+    if (!query) return []
+
+    const results: Array<{
+      book: string
+      chapter: number
+      verse: number
+      text: string
+    }> = []
+
+    for (const chapter of approvedScriptureChapters) {
+      for (const verse of chapter.verses) {
+        if (verse.text.toLowerCase().includes(query)) {
+          results.push({
+            book: chapter.book,
+            chapter: chapter.chapter,
+            verse: verse.verse,
+            text: verse.text,
+          })
+        }
+        if (results.length >= 50) return results
+      }
+    }
+
+    return results
+  }, [scriptureSearch])
 
   return (
     <div className="site-shell">
@@ -357,10 +385,63 @@ function App() {
         )}
 
         {page === 'search' && (
-          <section className="placeholder-page" aria-labelledby="search-title">
-            <p className="eyebrow">SEARCH</p>
-            <h1 id="search-title">Search is coming next.</h1>
-            <p>We will build Scripture and pathway search after the Library foundation is tested.</p>
+          <section className="search-page" aria-labelledby="search-title">
+            <div className="page-heading">
+              <p className="eyebrow">SCRIPTURE SEARCH</p>
+              <h1 id="search-title">Search the Bible</h1>
+              <p>Search the local Tamil Scripture text available in the Laboratory.</p>
+            </div>
+
+            <div className="search-card">
+              <label htmlFor="scripture-search">Search words or phrases</label>
+              <input
+                id="scripture-search"
+                type="search"
+                value={scriptureSearch}
+                onChange={(event) => setScriptureSearch(event.target.value)}
+                placeholder="Type a word or phrase…"
+                autoComplete="off"
+              />
+            </div>
+
+            {scriptureSearch.trim() && (
+              <div className="search-results" aria-live="polite">
+                <p className="search-result-count">
+                  {scriptureSearchResults.length} {scriptureSearchResults.length === 1 ? 'result' : 'results'} shown
+                </p>
+
+                {scriptureSearchResults.map((result) => {
+                  const chapter = findApprovedChapter(result.book, result.chapter)
+                  return (
+                    <article className="search-result-item" key={result.book + '-' + result.chapter + '-' + result.verse}>
+                      <div>
+                        <p className="search-result-reference">{result.book} {result.chapter}:{result.verse}</p>
+                        <p className="search-result-text">{result.text}</p>
+                      </div>
+                      <button
+                        className="library-open-button"
+                        type="button"
+                        onClick={() => chapter && openScripture(chapter, result.verse)}
+                        disabled={!chapter}
+                      >
+                        Open Verse
+                      </button>
+                    </article>
+                  )
+                })}
+
+                {scriptureSearchResults.length === 0 && (
+                  <div className="empty-library">
+                    <h2>No matches found</h2>
+                    <p>Try another word or phrase.</p>
+                  </div>
+                )}
+
+                {scriptureSearchResults.length >= 50 && (
+                  <p className="search-result-note">Showing the first 50 matches.</p>
+                )}
+              </div>
+            )}
           </section>
         )}
       </main>
