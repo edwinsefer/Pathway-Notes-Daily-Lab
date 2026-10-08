@@ -136,6 +136,20 @@ function App() {
     (item) => `${item.book}|${item.chapter}|${item.verse}` === selectedVerseKey,
   )
 
+  const highlightedVerseItems = useMemo(() => {
+    return Object.entries(highlightedVerses)
+      .filter(([, isHighlighted]) => isHighlighted)
+      .map(([key]) => {
+        const [book, chapterText, verseText] = key.split('|')
+        const chapter = Number(chapterText)
+        const verse = Number(verseText)
+        const chapterData = findApprovedChapter(book, chapter)
+        const verseData = chapterData?.verses.find((item) => item.verse === verse)
+        return { key, book, chapter, verse, text: verseData?.text ?? 'Verse text unavailable.' }
+      })
+      .filter((item) => item.text !== 'Verse text unavailable.')
+  }, [highlightedVerses])
+
   const isSelectedVerseHighlighted = Boolean(highlightedVerses[selectedVerseKey])
 
   const toggleVerseHighlight = () => {
@@ -716,6 +730,43 @@ function App() {
                 </article>
               ) : (
                 <p className="saved-empty-text">No saved pathways yet.</p>
+              )}
+            </section>
+
+            <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
+              <div className="saved-library-heading">
+                <h2 id="highlighted-verses-title">Highlighted Verses</h2>
+              </div>
+              {highlightedVerseItems.length > 0 ? (
+                <div className="saved-verse-list">
+                  {highlightedVerseItems.map((item) => {
+                    const chapter = findApprovedChapter(item.book, item.chapter)
+                    const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
+                    return (
+                      <article className="library-item saved-verse-item" key={item.key}>
+                        <div>
+                          <p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p>
+                          <p className="search-result-text">{item.text}</p>
+                          {verseNotes[item.key] && (
+                            <p className="saved-verse-note">
+                              <strong>My note:</strong> {verseNotes[item.key]}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          className="library-open-button"
+                          type="button"
+                          onClick={() => chapter && openScripture(chapter, item.verse)}
+                          disabled={!chapter || !verse}
+                        >
+                          Open Verse
+                        </button>
+                      </article>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="saved-empty-text">No highlighted verses yet. Highlight a verse from the Scripture Reader.</p>
               )}
             </section>
 
