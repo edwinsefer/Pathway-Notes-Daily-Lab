@@ -83,6 +83,13 @@ function App() {
   })
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
   const [auditIssues, setAuditIssues] = useState<AuditIssue[] | null>(null)
+  const [highlightedVerses, setHighlightedVerses] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('pathway-highlighted-verses') ?? '{}')
+    } catch {
+      return {}
+    }
+  })
   const [verseNotes, setVerseNotes] = useState<Record<string, string>>(() => {
     try {
       return JSON.parse(localStorage.getItem('pathway-verse-notes') ?? '{}')
@@ -112,6 +119,10 @@ function App() {
     localStorage.setItem('pathway-verse-notes', JSON.stringify(verseNotes))
   }, [verseNotes])
 
+  useEffect(() => {
+    localStorage.setItem('pathway-highlighted-verses', JSON.stringify(highlightedVerses))
+  }, [highlightedVerses])
+
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
   }
@@ -124,6 +135,15 @@ function App() {
   const isSelectedVerseSaved = savedVerses.some(
     (item) => `${item.book}|${item.chapter}|${item.verse}` === selectedVerseKey,
   )
+
+  const isSelectedVerseHighlighted = Boolean(highlightedVerses[selectedVerseKey])
+
+  const toggleVerseHighlight = () => {
+    setHighlightedVerses((current) => ({
+      ...current,
+      [selectedVerseKey]: !current[selectedVerseKey],
+    }))
+  }
 
   const updateVerseNote = (note: string) => {
     setVerseNotes((current) => {
@@ -603,6 +623,15 @@ function App() {
               >
                 {isSelectedVerseSaved ? 'Saved Verse ✓' : 'Save Verse'}
               </button>
+
+              <button
+                className={`scripture-highlight-button${isSelectedVerseHighlighted ? ' is-highlighted' : ''}`}
+                type="button"
+                onClick={toggleVerseHighlight}
+                aria-pressed={isSelectedVerseHighlighted}
+              >
+                {isSelectedVerseHighlighted ? 'Highlighted ✓' : 'Highlight Verse'}
+              </button>
             </div>
 
             <div className="verse-note-card">
@@ -620,7 +649,7 @@ function App() {
             <div className="scripture-chapter">
               {selectedChapter.verses.map((verse) => (
                 <p
-                  className={`scripture-verse${selectedVerse === verse.verse ? ' selected' : ''}`}
+                  className={`scripture-verse${selectedVerse === verse.verse ? ' selected' : ''}${highlightedVerses[selectedChapter.book + '|' + selectedChapter.chapter + '|' + verse.verse] ? ' highlighted' : ''}`}
                   id={`verse-${verse.verse}`}
                   key={verse.verse}
                 >
