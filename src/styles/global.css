@@ -765,3 +765,84 @@ h1 {
     grid-column: 1 / -1;
   }
 }
+
+
+.search-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.search-card,
+.search-result-item {
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.search-card {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.search-card label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted-text);
+}
+
+.search-card input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.search-card input:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
+.search-results {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.search-result-count,
+.search-result-note {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.search-result-item {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.search-result-reference {
+  margin: 0;
+  color: #4d67a1;
+  font-weight: 700;
+}
+
+.search-result-text {
+  margin: 0.4rem 0 0;
+  font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif;
+  line-height: 1.8;
+}
+
+.search-result-item .library-open-button {
+  margin-top: 0.35rem;
+}
+
+.search-result-item .library-open-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
