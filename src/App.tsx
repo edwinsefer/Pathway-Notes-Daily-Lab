@@ -16,8 +16,8 @@ function App() {
   const [page, setPage] = useState<Page>('home')
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [selectedVerse, setSelectedVerse] = useState(46)
-  const [navigationBook, setNavigationBook] = useState('Psalms')
-  const [navigationChapter, setNavigationChapter] = useState(46)
+  const [navigationBook, setNavigationBook] = useState('Genesis')
+  const [navigationChapter, setNavigationChapter] = useState(1)
   const [navigationVerse, setNavigationVerse] = useState(1)
   const [scriptureSearch, setScriptureSearch] = useState('')
   const [savedVerses, setSavedVerses] = useState<Array<{ book: string; chapter: number; verse: number }>>(() => {
@@ -295,6 +295,73 @@ function App() {
               <p className="eyebrow">SCRIPTURE LIBRARY</p>
               <h1 id="bible-title">Tamil Bible</h1>
               <p>Local Scripture available in the Laboratory.</p>
+            </div>
+
+            <div className="scripture-navigator" aria-label="Scripture navigator">
+              <div className="scripture-select-group">
+                <label htmlFor="bible-book-select">Book</label>
+                <select
+                  id="bible-book-select"
+                  value={navigationBook}
+                  onChange={(event) => {
+                    const nextBook = event.target.value
+                    const chapterData = findApprovedChapter(nextBook, 1)
+                    setNavigationBook(nextBook)
+                    setNavigationChapter(1)
+                    setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
+                  }}
+                >
+                  {bibleBooks.map((book) => (
+                    <option key={book.id} value={book.name}>{book.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="scripture-select-group">
+                <label htmlFor="bible-chapter-select">Chapter</label>
+                <select
+                  id="bible-chapter-select"
+                  value={navigationChapter}
+                  onChange={(event) => {
+                    const nextChapter = Number(event.target.value)
+                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    setNavigationChapter(nextChapter)
+                    setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
+                  }}
+                >
+                  {navigationChapterNumbers.map((chapterNumber) => (
+                    <option
+                      key={chapterNumber}
+                      value={chapterNumber}
+                      disabled={!findApprovedChapter(navigationBook, chapterNumber)}
+                    >
+                      {chapterNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="scripture-select-group">
+                <label htmlFor="bible-verse-select">Verse</label>
+                <select
+                  id="bible-verse-select"
+                  value={navigationVerse}
+                  onChange={(event) => setNavigationVerse(Number(event.target.value))}
+                >
+                  {navigationVerses.map((verse) => (
+                    <option key={verse.verse} value={verse.verse}>{verse.verse}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                className="scripture-go-button"
+                type="button"
+                onClick={() => navigationChapterData && openScripture(navigationChapterData, navigationVerse)}
+                disabled={!navigationChapterData}
+              >
+                Go to Scripture
+              </button>
             </div>
 
             {(['Old Testament', 'New Testament'] as const).map((testament) => (
