@@ -263,6 +263,9 @@ function App() {
         <button className={page === 'search' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('search')}>
           Search
         </button>
+        <button className={page === 'audit' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('audit')}>
+          Audit
+        </button>
       </nav>
 
       <main className="main-content">
