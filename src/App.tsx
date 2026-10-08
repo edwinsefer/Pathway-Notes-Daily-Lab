@@ -6,7 +6,61 @@ import { approvedScriptureChapters, findApprovedChapter } from './data/scripture
 import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
-type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible'
+type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
+
+type AuditIssue = {
+  book: string
+  chapter?: number
+  verse?: number
+  issue: string
+}
+
+const runScriptureAudit = (): AuditIssue[] => {
+  const issues: AuditIssue[] = []
+
+  for (const book of bibleBooks) {
+    const chapters = approvedScriptureChapters
+      .filter((chapter) => chapter.book.trim().toLowerCase() === book.name.trim().toLowerCase())
+      .sort((a, b) => a.chapter - b.chapter)
+
+    if (chapters.length !== book.chapters) {
+      issues.push({ book: book.name, issue: `chapter count ${chapters.length}; expected ${book.chapters}` })
+    }
+
+    chapters.forEach((chapter, index) => {
+      if (chapter.chapter !== index + 1) {
+        issues.push({ book: book.name, chapter: chapter.chapter, issue: `chapter sequence expected ${index + 1}` })
+      }
+
+      if (chapter.verses.length === 0) {
+        issues.push({ book: book.name, chapter: chapter.chapter, issue: 'no verses' })
+        return
+      }
+
+      const seen = new Set<number>()
+
+      for (const verse of chapter.verses) {
+        if (seen.has(verse.verse)) {
+          issues.push({ book: book.name, chapter: chapter.chapter, verse: verse.verse, issue: 'duplicate verse' })
+        }
+        seen.add(verse.verse)
+
+        if (!verse.text.trim()) {
+          issues.push({ book: book.name, chapter: chapter.chapter, verse: verse.verse, issue: 'empty verse text' })
+        }
+      }
+
+      const maxVerse = Math.max(...chapter.verses.map((verse) => verse.verse))
+      for (let verseNumber = 1; verseNumber <= maxVerse; verseNumber += 1) {
+        if (!seen.has(verseNumber)) {
+          issues.push({ book: book.name, chapter: chapter.chapter, verse: verseNumber, issue: 'missing verse number' })
+        }
+      }
+    })
+  }
+
+  return issues
+}
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -28,6 +82,7 @@ function App() {
     }
   })
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
+  const [auditIssues, setAuditIssues] = useState<AuditIssue[] | null>(null)
 
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
@@ -90,6 +145,7 @@ function App() {
   const openPage = (nextPage: Page) => {
     setPage(nextPage)
     setIsFullPathwayOpen(false)
+    if (nextPage === 'audit') setAuditIssues(runScriptureAudit())
   }
 
   const openChapter = (bookName: string, chapterNumber: number) => {
@@ -364,6 +420,54 @@ function App() {
               </button>
             </div>
 
+            <div className="pathway-section">
+              <h2>Scripture Integrity</h2>
+              <p>Run a local structural audit of all 66 Bible books without changing any Scripture data.</p>
+              <button className="pathway-read-button" type="button" onClick={() => openPage('audit')}>
+                Run Scripture Audit
+              </button>
+            </div>
+          </section>
+        )}
+
+        {page === 'audit' && (
+          <section className="library-page" aria-labelledby="audit-title">
+            <div className="page-heading">
+              <p className="eyebrow">SCRIPTURE AUDIT</p>
+              <h1 id="audit-title">Bible Integrity Check</h1>
+              <p>Runtime audit of the local Tamil Scripture registry. No Scripture data is modified.</p>
+            </div>
+
+            <section className="saved-library-section">
+              <div className="saved-library-heading">
+                <h2>{auditIssues?.length ? 'Review Required' : 'Audit Passed'}</h2>
+              </div>
+              <p><strong>Books:</strong> {bibleBooks.length}</p>
+              <p><strong>Chapters registered:</strong> {approvedScriptureChapters.length}</p>
+              <p><strong>Verses scanned:</strong> {approvedScriptureChapters.reduce((total, chapter) => total + chapter.verses.length, 0)}</p>
+              <p><strong>Issues found:</strong> {auditIssues?.length ?? 0}</p>
+
+              {auditIssues?.length ? (
+                <div className="search-results">
+                  {auditIssues.map((issue, index) => (
+                    <article className="search-result-item" key={index}>
+                      <div>
+                        <p className="search-result-reference">
+                          {issue.book}{issue.chapter ? ` ${issue.chapter}` : ''}{issue.verse ? `:${issue.verse}` : ''}
+                        </p>
+                        <p className="search-result-text">{issue.issue}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="saved-empty-text">No structural verse issues detected.</p>
+              )}
+
+              <button className="pathway-read-button" type="button" onClick={() => openPage('bible')}>
+                Back to Bible Library
+              </button>
+            </section>
           </section>
         )}
 
