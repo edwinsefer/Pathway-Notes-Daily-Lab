@@ -281,6 +281,65 @@ h1 {
   gap: 1rem;
 }
 
+.scripture-navigator {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.scripture-select-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.scripture-select-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-text);
+}
+
+.scripture-select-group select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+}
+
+.scripture-go-button {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.65rem 1rem;
+  border: 1px solid #4d67a1;
+  border-radius: 12px;
+  background: #4d67a1;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scripture-go-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.scripture-select-group select:focus-visible,
+.scripture-go-button:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
+
 .scripture-chapter {
   display: grid;
   gap: 0.9rem;
@@ -681,5 +740,28 @@ h1 {
 @media (min-width: 520px) {
   .chapter-picker-grid {
     grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+
+.scripture-verse.selected {
+  margin-inline: -0.35rem;
+  padding: 0.45rem 0.35rem;
+  border-radius: 10px;
+  background: #eef2f8;
+}
+
+:root[data-theme="dark"] .scripture-verse.selected {
+  background: #27344a;
+}
+
+@media (min-width: 520px) {
+  .scripture-navigator {
+    grid-template-columns: 1.3fr 0.8fr 0.8fr;
+    align-items: end;
+  }
+
+  .scripture-go-button {
+    grid-column: 1 / -1;
   }
 }
