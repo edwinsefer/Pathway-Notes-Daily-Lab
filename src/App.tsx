@@ -61,6 +61,11 @@ function App() {
     setIsFullPathwayOpen(false)
   }
 
+  const openChapter = (bookName: string, chapterNumber: number) => {
+    const chapter = findApprovedChapter(bookName, chapterNumber)
+    if (chapter) openScripture(chapter, 1)
+  }
+
   const availableChapters = approvedScriptureChapters
   const navigationBookInfo = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === navigationBook.trim().toLowerCase(),
@@ -70,6 +75,43 @@ function App() {
     : []
   const navigationChapterData = findApprovedChapter(navigationBook, navigationChapter)
   const navigationVerses = navigationChapterData?.verses ?? []
+
+  const currentBookIndex = bibleBooks.findIndex(
+    (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
+  )
+
+  const previousChapterTarget = (() => {
+    if (currentBookIndex < 0) return null
+    if (selectedChapter.chapter > 1) {
+      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter - 1) ?? null
+    }
+
+    for (let index = currentBookIndex - 1; index >= 0; index -= 1) {
+      const book = bibleBooks[index]
+      const chapter = findApprovedChapter(book.name, book.chapters)
+      if (chapter) return chapter
+    }
+
+    return null
+  })()
+
+  const nextChapterTarget = (() => {
+    if (currentBookIndex < 0) return null
+    const currentBook = bibleBooks[currentBookIndex]
+
+    if (selectedChapter.chapter < currentBook.chapters) {
+      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter + 1) ?? null
+    }
+
+    for (let index = currentBookIndex + 1; index < bibleBooks.length; index += 1) {
+      const book = bibleBooks[index]
+      const chapter = findApprovedChapter(book.name, 1)
+      if (chapter) return chapter
+    }
+
+    return null
+  })()
+
   const scriptureSearchResults = useMemo(() => {
     const query = scriptureSearch.trim().toLowerCase()
     if (!query) return []
@@ -343,6 +385,31 @@ function App() {
                   <span>{verse.text}</span>
                 </p>
               ))}
+            </div>
+
+            <div className="chapter-navigation" aria-label="Chapter navigation">
+              <button
+                className="chapter-navigation-button"
+                type="button"
+                onClick={() => previousChapterTarget && openScripture(previousChapterTarget, 1)}
+                disabled={!previousChapterTarget}
+              >
+                ← Previous Chapter
+              </button>
+
+              <div className="chapter-navigation-label">
+                <span>{selectedChapter.book}</span>
+                <strong>{selectedChapter.chapter}</strong>
+              </div>
+
+              <button
+                className="chapter-navigation-button"
+                type="button"
+                onClick={() => nextChapterTarget && openScripture(nextChapterTarget, 1)}
+                disabled={!nextChapterTarget}
+              >
+                Next Chapter →
+              </button>
             </div>
 
             <button className="pathway-read-button" type="button" onClick={() => openPage('bible')}>
