@@ -15,6 +15,10 @@ function App() {
   })
   const [page, setPage] = useState<Page>('home')
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
+  const [selectedVerse, setSelectedVerse] = useState(46)
+  const [navigationBook, setNavigationBook] = useState('Psalms')
+  const [navigationChapter, setNavigationChapter] = useState(46)
+  const [navigationVerse, setNavigationVerse] = useState(1)
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
 
   const [isBookmarked, setIsBookmarked] = useState(() => {
@@ -38,10 +42,17 @@ function App() {
     setIsBookmarked((currentValue) => !currentValue)
   }
 
-  const openScripture = (chapter: ScriptureChapter) => {
+  const openScripture = (chapter: ScriptureChapter, verseNumber = 1) => {
     setSelectedChapter(chapter)
+    setSelectedVerse(verseNumber)
+    setNavigationBook(chapter.book)
+    setNavigationChapter(chapter.chapter)
+    setNavigationVerse(verseNumber)
     setPage('scripture')
     setIsFullPathwayOpen(false)
+    window.setTimeout(() => {
+      document.getElementById(`verse-${verseNumber}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 0)
   }
 
   const openPage = (nextPage: Page) => {
@@ -53,9 +64,14 @@ function App() {
     (book) => book.name.trim().toLowerCase() === selectedChapter.book.trim().toLowerCase(),
   )
   const availableChapters = approvedScriptureChapters
-  const currentBookChapters = currentBook
-    ? Array.from({ length: currentBook.chapters }, (_, index) => index + 1)
+  const navigationBookInfo = bibleBooks.find(
+    (book) => book.name.trim().toLowerCase() === navigationBook.trim().toLowerCase(),
+  )
+  const navigationChapterNumbers = navigationBookInfo
+    ? Array.from({ length: navigationBookInfo.chapters }, (_, index) => index + 1)
     : []
+  const navigationChapterData = findApprovedChapter(navigationBook, navigationChapter)
+  const navigationVerses = navigationChapterData?.verses ?? []
 
   return (
     <div className="site-shell">
@@ -227,43 +243,77 @@ function App() {
               <p>{selectedChapter.translation}</p>
             </div>
 
-            {currentBook && (
-              <div className="chapter-picker" aria-label={`Chapters in ${selectedChapter.book}`}>
-                <p className="chapter-picker-title">Chapters</p>
-                <div className="chapter-picker-grid">
-                  {currentBookChapters.map((chapterNumber) => {
-                    const chapterData = findApprovedChapter(selectedChapter.book, chapterNumber)
-                    const isCurrent = selectedChapter.chapter === chapterNumber
-
-                    return chapterData ? (
-                      <button
-                        key={chapterNumber}
-                        className={`chapter-number-button${isCurrent ? ' active' : ''}`}
-                        type="button"
-                        onClick={() => openScripture(chapterData)}
-                        aria-current={isCurrent ? 'page' : undefined}
-                      >
-                        {chapterNumber}
-                      </button>
-                    ) : (
-                      <button
-                        key={chapterNumber}
-                        className="chapter-number-button unavailable"
-                        type="button"
-                        disabled
-                        title="Text not imported yet"
-                      >
-                        {chapterNumber}
-                      </button>
-                    )
-                  })}
-                </div>
+            <div className="scripture-navigator" aria-label="Scripture navigator">
+              <div className="scripture-select-group">
+                <label htmlFor="book-select">Book</label>
+                <select
+                  id="book-select"
+                  value={navigationBook}
+                  onChange={(event) => {
+                    const nextBook = event.target.value
+                    const nextChapter = 1
+                    const chapterData = findApprovedChapter(nextBook, nextChapter)
+                    setNavigationBook(nextBook)
+                    setNavigationChapter(nextChapter)
+                    setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
+                  }}
+                >
+                  {bibleBooks.map((book) => (
+                    <option key={book.id} value={book.name}>{book.name}</option>
+                  ))}
+                </select>
               </div>
-            )}
+
+              <div className="scripture-select-group">
+                <label htmlFor="chapter-select">Chapter</label>
+                <select
+                  id="chapter-select"
+                  value={navigationChapter}
+                  onChange={(event) => {
+                    const nextChapter = Number(event.target.value)
+                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    setNavigationChapter(nextChapter)
+                    setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
+                  }}
+                >
+                  {navigationChapterNumbers.map((chapterNumber) => (
+                    <option key={chapterNumber} value={chapterNumber} disabled={!findApprovedChapter(navigationBook, chapterNumber)}>
+                      {chapterNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="scripture-select-group">
+                <label htmlFor="verse-select">Verse</label>
+                <select
+                  id="verse-select"
+                  value={navigationVerse}
+                  onChange={(event) => setNavigationVerse(Number(event.target.value))}
+                >
+                  {navigationVerses.map((verse) => (
+                    <option key={verse.verse} value={verse.verse}>{verse.verse}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                className="scripture-go-button"
+                type="button"
+                onClick={() => navigationChapterData && openScripture(navigationChapterData, navigationVerse)}
+                disabled={!navigationChapterData}
+              >
+                Go to Scripture
+              </button>
+            </div>
 
             <div className="scripture-chapter">
               {selectedChapter.verses.map((verse) => (
-                <p className="scripture-verse" key={verse.verse}>
+                <p
+                  className={`scripture-verse${selectedVerse === verse.verse ? ' selected' : ''}`}
+                  id={`verse-${verse.verse}`}
+                  key={verse.verse}
+                >
                   <span className="verse-number">{verse.verse}</span>
                   <span>{verse.text}</span>
                 </p>
