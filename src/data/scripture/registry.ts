@@ -4,6 +4,7 @@ import { firstCorinthians } from './1corinthians'
 import { secondCorinthians } from './2corinthians'
 import { ephesians } from './ephesians'
 import { colossians } from './colossians'
+import { firstThessalonians } from './1thessalonians'
 import { galatians } from './galatians'
 import { genesisChapter1 } from './genesis'
 import { john } from './john'
@@ -35,6 +36,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   ...galatians,
   ...ephesians,
   ...colossians,
+  ...firstThessalonians,
   ...romans,
   ...john,
   ...matthew,
