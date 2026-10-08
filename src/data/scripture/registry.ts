@@ -7,6 +7,7 @@ import { mark } from './mark'
 import { luke } from './luke'
 import { philippians } from './philippians'
 import { psalm46 } from './psalm46'
+import { romans } from './romans'
 
 const genesisChapter1Data: ScriptureChapter = {
   book: 'Genesis',
@@ -24,6 +25,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   genesisChapter1Data,
   ...philippians,
   ...acts,
+  ...romans,
   ...john,
   ...matthew,
   ...mark,
