@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit:scripture": "node scripts/audit-scripture.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
