@@ -30,6 +30,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   ...acts,
   ...firstCorinthians,
   ...secondCorinthians,
+  ...galatians,
   ...romans,
   ...john,
   ...matthew,
