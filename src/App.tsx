@@ -364,7 +364,6 @@ function App() {
               </button>
             </div>
 
-            <p className="scripture-library-hint">Choose a Book, Chapter and Verse above to open Scripture.</p>
           </section>
         )}
 
