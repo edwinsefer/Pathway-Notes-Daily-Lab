@@ -3,6 +3,7 @@ import { genesisChapter1 } from './genesis'
 import { john } from './john'
 import { matthew } from './matthew'
 import { mark } from './mark'
+import { luke } from './luke'
 import { philippians } from './philippians'
 import { psalm46 } from './psalm46'
 
@@ -24,6 +25,7 @@ export const approvedScriptureChapters: ScriptureChapter[] = [
   ...john,
   ...matthew,
   ...mark,
+  ...luke,
 ]
 
 export const findApprovedChapter = (bookName: string, chapterNumber: number) =>
