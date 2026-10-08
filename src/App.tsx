@@ -83,6 +83,13 @@ function App() {
   })
   const [isFullPathwayOpen, setIsFullPathwayOpen] = useState(false)
   const [auditIssues, setAuditIssues] = useState<AuditIssue[] | null>(null)
+  const [verseNotes, setVerseNotes] = useState<Record<string, string>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('pathway-verse-notes') ?? '{}')
+    } catch {
+      return {}
+    }
+  })
 
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
@@ -101,6 +108,10 @@ function App() {
     localStorage.setItem('pathway-saved-verses', JSON.stringify(savedVerses))
   }, [savedVerses])
 
+  useEffect(() => {
+    localStorage.setItem('pathway-verse-notes', JSON.stringify(verseNotes))
+  }, [verseNotes])
+
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
   }
@@ -113,6 +124,15 @@ function App() {
   const isSelectedVerseSaved = savedVerses.some(
     (item) => `${item.book}|${item.chapter}|${item.verse}` === selectedVerseKey,
   )
+
+  const updateVerseNote = (note: string) => {
+    setVerseNotes((current) => {
+      const next = { ...current }
+      if (note.trim()) next[selectedVerseKey] = note
+      else delete next[selectedVerseKey]
+      return next
+    })
+  }
 
   const toggleSelectedVerse = () => {
     setSavedVerses((current) => {
@@ -585,6 +605,18 @@ function App() {
               </button>
             </div>
 
+            <div className="verse-note-card">
+              <label htmlFor="verse-note">Personal note for {selectedChapter.book} {selectedChapter.chapter}:{selectedVerse}</label>
+              <textarea
+                id="verse-note"
+                value={verseNotes[selectedVerseKey] ?? ''}
+                onChange={(event) => updateVerseNote(event.target.value)}
+                placeholder="Write your personal reflection or note…"
+                rows={4}
+              />
+              <p className="verse-note-help">Your note is stored on this device. It does not change the Bible text.</p>
+            </div>
+
             <div className="scripture-chapter">
               {selectedChapter.verses.map((verse) => (
                 <p
@@ -672,6 +704,11 @@ function App() {
                         <div>
                           <p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p>
                           <p className="search-result-text">{verse?.text ?? 'Verse text unavailable.'}</p>
+                          {verseNotes[item.book + '|' + item.chapter + '|' + item.verse] && (
+                            <p className="saved-verse-note">
+                              <strong>My note:</strong> {verseNotes[item.book + '|' + item.chapter + '|' + item.verse]}
+                            </p>
+                          )}
                         </div>
                         <button
                           className="library-open-button"
