@@ -70,6 +70,13 @@ Previously completed functional checks are treated as approved and are not repea
 5. [ ] Runtime verification.
 6. [ ] Approve and keep.
 
+### Phase 4 verification notes
+- [x] Re-verified Library → Reader context handoff after implementation fixes.
+- [x] Re-verified Notes workspace derivation order and All-filter inclusion.
+- [x] Confirmed existing chapter navigation and Reader context indicators remain present.
+- [ ] Runtime/browser verification still required.
+- [ ] GitHub Actions build verification still required.
+
 ## Safety boundary
 
 - Blog V12: **DO NOT TOUCH**
