@@ -233,14 +233,14 @@ function App() {
     })
   }
 
-  const openScripture = (chapter: ScriptureChapter, verseNumber = 1) => {
+  const openScripture = (chapter: ScriptureChapter, verseNumber = 1, context: string | null = null) => {
     setSelectedChapter(chapter)
     setSelectedVerse(verseNumber)
     setNavigationBook(chapter.book)
     setNavigationChapter(chapter.chapter)
     setNavigationVerse(verseNumber)
     setPage('scripture')
-    setLibraryContext(null)
+    setLibraryContext(context)
     setIsFullPathwayOpen(false)
     window.setTimeout(() => {
       document.getElementById(`verse-${verseNumber}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -810,7 +810,7 @@ function App() {
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p>{verseNotes[item.key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[item.key]}</p>}</div>
-                    <button className="library-open-button" type="button" onClick={() => chapter && (setLibraryContext('Opened from Highlighted Verses'), openScripture(chapter, item.verse))} disabled={!chapter || !verse}>Open Verse</button>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse, 'Opened from Highlighted Verses')} disabled={!chapter || !verse}>Open Verse</button>
                   </article>
                 })}</div> : <p className="saved-empty-text">No highlighted verses yet. Highlight a verse in the Scripture Reader to collect it here.</p>}
               </section>
@@ -825,7 +825,7 @@ function App() {
                   const key = item.book + '|' + item.chapter + '|' + item.verse
                   return <article className="library-item saved-verse-item" key={key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{verse?.text ?? 'Verse text unavailable.'}</p>{verseNotes[key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[key]}</p>}</div>
-                    <button className="library-open-button" type="button" onClick={() => chapter && (setLibraryContext('Opened from Saved Verses'), openScripture(chapter, item.verse))} disabled={!chapter || !verse}>Open Verse</button>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse, 'Opened from Saved Verses')} disabled={!chapter || !verse}>Open Verse</button>
                   </article>
                 })}</div> : <p className="saved-empty-text">No saved verses yet. Save a verse from the Scripture Reader to build your personal library.</p>}
               </section>
@@ -838,7 +838,7 @@ function App() {
                   const chapter = findApprovedChapter(item.book, item.chapter)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p><p className="saved-verse-note"><strong>My note:</strong> {item.note}</p></div>
-                    <button className="library-open-button" type="button" onClick={() => chapter && (setLibraryContext('Opened from My Notes'), openScripture(chapter, item.verse))} disabled={!chapter}>Open Verse</button>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse, 'Opened from My Notes')} disabled={!chapter}>Open Verse</button>
                   </article>
                 })}</div> : <p className="saved-empty-text">No notes yet. Add a personal note from the Scripture Reader.</p>}
               </section>
