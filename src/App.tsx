@@ -103,6 +103,7 @@ function App() {
     return localStorage.getItem('pathway-bookmarked') === 'true'
   })
   const [libraryFilter, setLibraryFilter] = useState<LibraryFilter>('all')
+  const [libraryQuery, setLibraryQuery] = useState('')
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -160,6 +161,34 @@ function App() {
     highlighted: libraryFilter === 'all' || libraryFilter === 'highlighted',
     noted: libraryFilter === 'noted',
   }
+
+  const normalizedLibraryQuery = libraryQuery.trim().toLowerCase()
+  const matchesLibraryQuery = (book: string, chapter: number, verse: number, text: string, note = '') => {
+    if (!normalizedLibraryQuery) return true
+    return [book, String(chapter), String(verse), text, note]
+      .join(' ')
+      .toLowerCase()
+      .includes(normalizedLibraryQuery)
+  }
+
+  const filteredSavedVerses = useMemo(
+    () => savedVerses.filter((item) => {
+      const chapter = findApprovedChapter(item.book, item.chapter)
+      const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
+      return matchesLibraryQuery(item.book, item.chapter, item.verse, verse?.text ?? '', verseNotes[item.book + '|' + item.chapter + '|' + item.verse] ?? '')
+    }),
+    [savedVerses, verseNotes, normalizedLibraryQuery],
+  )
+
+  const filteredHighlightedVerses = useMemo(
+    () => highlightedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, verseNotes[item.key] ?? '')),
+    [highlightedVerseItems, verseNotes, normalizedLibraryQuery],
+  )
+
+  const filteredNotedVerses = useMemo(
+    () => notedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, item.note)),
+    [notedVerseItems, normalizedLibraryQuery],
+  )
 
   const notedVerseItems = useMemo(() => {
     return Object.entries(verseNotes).map(([key, note]) => {
@@ -745,6 +774,18 @@ function App() {
               ))}
             </div>
 
+            <div className="library-search-card">
+              <label htmlFor="library-search">Find in your library</label>
+              <input
+                id="library-search"
+                type="search"
+                value={libraryQuery}
+                onChange={(event) => setLibraryQuery(event.target.value)}
+                placeholder="Book, verse, word, or note…"
+                autoComplete="off"
+              />
+            </div>
+
             {filteredLibrarySections.pathways && (
               <section className="saved-library-section" aria-labelledby="saved-pathways-title">
                 <div className="saved-library-heading"><h2 id="saved-pathways-title">Saved Pathways</h2></div>
@@ -760,7 +801,7 @@ function App() {
             {filteredLibrarySections.highlighted && (
               <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
                 <div className="saved-library-heading"><h2 id="highlighted-verses-title">Highlighted Verses</h2></div>
-                {highlightedVerseItems.length > 0 ? <div className="saved-verse-list">{highlightedVerseItems.map((item) => {
+                {filteredHighlightedVerses.length > 0 ? <div className="saved-verse-list">{filteredHighlightedVerses.map((item) => {
                   const chapter = findApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   return <article className="library-item saved-verse-item" key={item.key}>
@@ -774,7 +815,7 @@ function App() {
             {filteredLibrarySections.saved && (
               <section className="saved-library-section" aria-labelledby="saved-verses-title">
                 <div className="saved-library-heading"><h2 id="saved-verses-title">Saved Verses</h2></div>
-                {savedVerses.length > 0 ? <div className="saved-verse-list">{savedVerses.map((item) => {
+                {filteredSavedVerses.length > 0 ? <div className="saved-verse-list">{filteredSavedVerses.map((item) => {
                   const chapter = findApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   const key = item.book + '|' + item.chapter + '|' + item.verse
@@ -789,7 +830,7 @@ function App() {
             {filteredLibrarySections.noted && (
               <section className="saved-library-section" aria-labelledby="noted-verses-title">
                 <div className="saved-library-heading"><h2 id="noted-verses-title">My Notes</h2></div>
-                {notedVerseItems.length > 0 ? <div className="saved-verse-list">{notedVerseItems.map((item) => {
+                {filteredNotedVerses.length > 0 ? <div className="saved-verse-list">{filteredNotedVerses.map((item) => {
                   const chapter = findApprovedChapter(item.book, item.chapter)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p><p className="saved-verse-note"><strong>My note:</strong> {item.note}</p></div>
