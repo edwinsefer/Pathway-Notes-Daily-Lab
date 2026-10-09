@@ -65,8 +65,8 @@ Previously completed functional checks are treated as approved and are not repea
 ### Phase 4 — Reading Flow
 1. [x] Make Library → Scripture Reader return flow clearer.
 2. [x] Add a compact reading-context indicator when opening a saved/highlighted/noted verse.
-3. [ ] Improve chapter continuation from a Library-opened verse without changing approved navigation behavior.
-4. [ ] Static verification.
+3. [x] Improve chapter continuation from a Library-opened verse without changing approved navigation behavior.
+4. [x] Static verification.
 5. [ ] Runtime verification.
 6. [ ] Approve and keep.
 
