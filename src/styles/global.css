@@ -558,6 +558,38 @@ h1 {
   box-shadow: var(--card-shadow);
 }
 
+.library-search-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+.library-search-card label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted-text);
+}
+
+.library-search-card input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.library-search-card input:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
 .library-item h2 {
   margin: 0.65rem 0 0.25rem;
 }
