@@ -435,6 +435,13 @@ h1 {
   font-size: 1rem;
 }
 
+.chapter-navigation-label small {
+  flex-basis: 100%;
+  color: var(--muted-text);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
 .pathway-section {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
