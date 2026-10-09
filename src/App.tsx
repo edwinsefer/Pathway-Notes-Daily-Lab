@@ -709,103 +709,70 @@ function App() {
             <div className="page-heading">
               <p className="eyebrow">PERSONAL LIBRARY</p>
               <h1 id="library-title">Saved Items</h1>
-              <p>Your saved pathways and Scripture verses stay on this device for now.</p>
+              <p>Your saved pathways, verses, highlights, and notes stay on this device for now.</p>
             </div>
 
-            <section className="saved-library-section" aria-labelledby="saved-pathways-title">
-              <div className="saved-library-heading">
-                <h2 id="saved-pathways-title">Saved Pathways</h2>
-              </div>
-              {isBookmarked ? (
-                <article className="library-item">
-                  <div>
-                    <span className="pathway-category">{todaysPathway.category}</span>
-                    <p className="pathway-date">{todaysPathway.dateLabel}</p>
-                    <h3>{todaysPathway.title}</h3>
-                    <p className="scripture-reference">{todaysPathway.scriptureReference}</p>
-                  </div>
-                  <button className="library-open-button" type="button" onClick={() => openPage('home')}>
-                    Open Pathway
-                  </button>
-                </article>
-              ) : (
-                <p className="saved-empty-text">No saved pathways yet.</p>
-              )}
-            </section>
+            <div className="library-filter-bar" aria-label="Personal Library filter">
+              {([['all', 'All'], ['saved', 'Saved'], ['highlighted', 'Highlighted'], ['noted', 'Noted']] as const).map(([value, label]) => (
+                <button key={value} className={libraryFilter === value ? 'library-filter active' : 'library-filter'} type="button" onClick={() => setLibraryFilter(value)} aria-pressed={libraryFilter === value}>
+                  {label}
+                </button>
+              ))}
+            </div>
 
-            <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
-              <div className="saved-library-heading">
-                <h2 id="highlighted-verses-title">Highlighted Verses</h2>
-              </div>
-              {highlightedVerseItems.length > 0 ? (
-                <div className="saved-verse-list">
-                  {highlightedVerseItems.map((item) => {
-                    const chapter = findApprovedChapter(item.book, item.chapter)
-                    const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
-                    return (
-                      <article className="library-item saved-verse-item" key={item.key}>
-                        <div>
-                          <p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p>
-                          <p className="search-result-text">{item.text}</p>
-                          {verseNotes[item.key] && (
-                            <p className="saved-verse-note">
-                              <strong>My note:</strong> {verseNotes[item.key]}
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          className="library-open-button"
-                          type="button"
-                          onClick={() => chapter && openScripture(chapter, item.verse)}
-                          disabled={!chapter || !verse}
-                        >
-                          Open Verse
-                        </button>
-                      </article>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="saved-empty-text">No highlighted verses yet. Highlight a verse from the Scripture Reader.</p>
-              )}
-            </section>
+            {filteredLibrarySections.pathways && (
+              <section className="saved-library-section" aria-labelledby="saved-pathways-title">
+                <div className="saved-library-heading"><h2 id="saved-pathways-title">Saved Pathways</h2></div>
+                {isBookmarked ? (
+                  <article className="library-item">
+                    <div><span className="pathway-category">{todaysPathway.category}</span><p className="pathway-date">{todaysPathway.dateLabel}</p><h3>{todaysPathway.title}</h3><p className="scripture-reference">{todaysPathway.scriptureReference}</p></div>
+                    <button className="library-open-button" type="button" onClick={() => openPage('home')}>Open Pathway</button>
+                  </article>
+                ) : <p className="saved-empty-text">No saved pathways yet.</p>}
+              </section>
+            )}
 
-            <section className="saved-library-section" aria-labelledby="saved-verses-title">
-              <div className="saved-library-heading">
-                <h2 id="saved-verses-title">Saved Verses</h2>
-              </div>
-              {savedVerses.length > 0 ? (
-                <div className="saved-verse-list">
-                  {savedVerses.map((item) => {
-                    const chapter = findApprovedChapter(item.book, item.chapter)
-                    const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
-                    return (
-                      <article className="library-item saved-verse-item" key={item.book + '-' + item.chapter + '-' + item.verse}>
-                        <div>
-                          <p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p>
-                          <p className="search-result-text">{verse?.text ?? 'Verse text unavailable.'}</p>
-                          {verseNotes[item.book + '|' + item.chapter + '|' + item.verse] && (
-                            <p className="saved-verse-note">
-                              <strong>My note:</strong> {verseNotes[item.book + '|' + item.chapter + '|' + item.verse]}
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          className="library-open-button"
-                          type="button"
-                          onClick={() => chapter && openScripture(chapter, item.verse)}
-                          disabled={!chapter || !verse}
-                        >
-                          Open Verse
-                        </button>
-                      </article>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="saved-empty-text">No saved verses yet. Save a verse from the Scripture Reader.</p>
-              )}
-            </section>
+            {filteredLibrarySections.highlighted && (
+              <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
+                <div className="saved-library-heading"><h2 id="highlighted-verses-title">Highlighted Verses</h2></div>
+                {highlightedVerseItems.length > 0 ? <div className="saved-verse-list">{highlightedVerseItems.map((item) => {
+                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
+                  return <article className="library-item saved-verse-item" key={item.key}>
+                    <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p>{verseNotes[item.key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[item.key]}</p>}</div>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse)} disabled={!chapter || !verse}>Open Verse</button>
+                  </article>
+                })}</div> : <p className="saved-empty-text">No highlighted verses yet.</p>}
+              </section>
+            )}
+
+            {filteredLibrarySections.saved && (
+              <section className="saved-library-section" aria-labelledby="saved-verses-title">
+                <div className="saved-library-heading"><h2 id="saved-verses-title">Saved Verses</h2></div>
+                {savedVerses.length > 0 ? <div className="saved-verse-list">{savedVerses.map((item) => {
+                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
+                  const key = item.book + '|' + item.chapter + '|' + item.verse
+                  return <article className="library-item saved-verse-item" key={key}>
+                    <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{verse?.text ?? 'Verse text unavailable.'}</p>{verseNotes[key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[key]}</p>}</div>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse)} disabled={!chapter || !verse}>Open Verse</button>
+                  </article>
+                })}</div> : <p className="saved-empty-text">No saved verses yet.</p>}
+              </section>
+            )}
+
+            {filteredLibrarySections.noted && (
+              <section className="saved-library-section" aria-labelledby="noted-verses-title">
+                <div className="saved-library-heading"><h2 id="noted-verses-title">My Notes</h2></div>
+                {notedVerseItems.length > 0 ? <div className="saved-verse-list">{notedVerseItems.map((item) => {
+                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  return <article className="library-item saved-verse-item" key={item.key}>
+                    <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p><p className="saved-verse-note"><strong>My note:</strong> {item.note}</p></div>
+                    <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse)} disabled={!chapter}>Open Verse</button>
+                  </article>
+                })}</div> : <p className="saved-empty-text">No notes yet. Add a personal note from the Scripture Reader.</p>}
+              </section>
+            )}
           </section>
         )}
 
