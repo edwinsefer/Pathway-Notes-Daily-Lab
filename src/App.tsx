@@ -186,11 +186,6 @@ function App() {
     [highlightedVerseItems, verseNotes, normalizedLibraryQuery],
   )
 
-  const filteredNotedVerses = useMemo(
-    () => notedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, item.note)),
-    [notedVerseItems, normalizedLibraryQuery],
-  )
-
   const notedVerseItems = useMemo(() => {
     return Object.entries(verseNotes).map(([key, note]) => {
       const [book, chapterText, verseText] = key.split('|')
@@ -201,6 +196,11 @@ function App() {
       return { key, book, chapter, verse, text: verseData?.text ?? '', note }
     }).filter((item) => item.note.trim() && item.text)
   }, [verseNotes])
+
+  const filteredNotedVerses = useMemo(
+    () => notedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, item.note)),
+    [notedVerseItems, normalizedLibraryQuery],
+  )
 
   const toggleVerseHighlight = () => {
     setHighlightedVerses((current) => ({
