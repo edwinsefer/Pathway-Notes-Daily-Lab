@@ -733,9 +733,14 @@ function App() {
             </div>
 
             <div className="library-filter-bar" aria-label="Personal Library filter">
-              {([['all', 'All'], ['saved', 'Saved'], ['highlighted', 'Highlighted'], ['noted', 'Noted']] as const).map(([value, label]) => (
+              {([
+                ['all', 'All', savedVerses.length + highlightedVerseItems.length + notedVerseItems.length],
+                ['saved', 'Saved', savedVerses.length],
+                ['highlighted', 'Highlighted', highlightedVerseItems.length],
+                ['noted', 'Noted', notedVerseItems.length],
+              ] as const).map(([value, label, count]) => (
                 <button key={value} className={libraryFilter === value ? 'library-filter active' : 'library-filter'} type="button" onClick={() => setLibraryFilter(value)} aria-pressed={libraryFilter === value}>
-                  {label}
+                  <span>{label}</span><span className="library-filter-count">{count}</span>
                 </button>
               ))}
             </div>
@@ -748,7 +753,7 @@ function App() {
                     <div><span className="pathway-category">{todaysPathway.category}</span><p className="pathway-date">{todaysPathway.dateLabel}</p><h3>{todaysPathway.title}</h3><p className="scripture-reference">{todaysPathway.scriptureReference}</p></div>
                     <button className="library-open-button" type="button" onClick={() => openPage('home')}>Open Pathway</button>
                   </article>
-                ) : <p className="saved-empty-text">No saved pathways yet.</p>}
+                ) : <p className="saved-empty-text">Nothing saved yet. Use Save on today’s pathway to keep it here.</p>}
               </section>
             )}
 
@@ -762,7 +767,7 @@ function App() {
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p>{verseNotes[item.key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[item.key]}</p>}</div>
                     <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse)} disabled={!chapter || !verse}>Open Verse</button>
                   </article>
-                })}</div> : <p className="saved-empty-text">No highlighted verses yet.</p>}
+                })}</div> : <p className="saved-empty-text">No highlighted verses yet. Highlight a verse in the Scripture Reader to collect it here.</p>}
               </section>
             )}
 
@@ -777,7 +782,7 @@ function App() {
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{verse?.text ?? 'Verse text unavailable.'}</p>{verseNotes[key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[key]}</p>}</div>
                     <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse)} disabled={!chapter || !verse}>Open Verse</button>
                   </article>
-                })}</div> : <p className="saved-empty-text">No saved verses yet.</p>}
+                })}</div> : <p className="saved-empty-text">No saved verses yet. Save a verse from the Scripture Reader to build your personal library.</p>}
               </section>
             )}
 
