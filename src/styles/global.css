@@ -517,6 +517,27 @@ h1 {
   cursor: pointer;
 }
 
+.library-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.library-filter-count {
+  min-width: 1.35rem;
+  padding: 0.12rem 0.38rem;
+  border-radius: 999px;
+  background: rgba(77, 103, 161, 0.12);
+  color: inherit;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.library-filter.active .library-filter-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .library-filter.active {
   border-color: #4d67a1;
   background: #4d67a1;
