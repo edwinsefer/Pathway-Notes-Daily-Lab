@@ -48,14 +48,27 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Static source verification of the new Library behavior.
 - [ ] GitHub Actions build verification for the latest Library changes.
 
-### Next experiment
-**Personal Library — Reading Workspace v2**
+### Phase 3 experiment results
+- [x] Filter counts for All / Saved / Highlighted / Noted
+- [x] Contextual empty states
+- [x] Personal Library search across references, Scripture text, and notes
+- [x] Lightweight organization without changing the saved/highlight/note data model
+- [x] Regression-sensitive source review confirms approved Scripture Reader surfaces remain present
 
-1. [ ] Improve empty states so each Library filter clearly explains what belongs there.
-2. [ ] Improve verse-card actions for faster return to the Scripture Reader.
-3. [ ] Add lightweight organization without changing the underlying saved/highlight/note data model.
-4. [ ] Static verification and regression review.
-5. [ ] Approve only after verification.
+### Phase 3 approval gate
+- [ ] Runtime/browser verification of the new Library search and organization
+- [ ] GitHub Actions build verification
+- [ ] Final Phase 3 approval
+
+## Next phase
+
+### Phase 4 — Reading Flow
+1. [ ] Make Library → Scripture Reader return flow clearer.
+2. [ ] Add a compact reading-context indicator when opening a saved/highlighted/noted verse.
+3. [ ] Improve chapter continuation from a Library-opened verse without changing approved navigation behavior.
+4. [ ] Static verification.
+5. [ ] Runtime verification.
+6. [ ] Approve and keep.
 
 ## Safety boundary
 
