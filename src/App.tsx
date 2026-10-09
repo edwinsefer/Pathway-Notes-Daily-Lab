@@ -738,6 +738,7 @@ function App() {
               <div className="chapter-navigation-label">
                 <span>{selectedChapter.book}</span>
                 <strong>{selectedChapter.chapter}</strong>
+                {libraryContext && <small>Reading from your Library</small>}
               </div>
 
               <button
