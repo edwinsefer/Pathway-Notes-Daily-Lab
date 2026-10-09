@@ -490,6 +490,23 @@ h1 {
   color: var(--muted-text);
 }
 
+.reading-context {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0 0 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: #eef2f8;
+  color: #4d67a1;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .reading-context {
+  background: #2a3850;
+  color: #cbd7f5;
+}
+
 
 .library-filter-bar {
   display: flex;
