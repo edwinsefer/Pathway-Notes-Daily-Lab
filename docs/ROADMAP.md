@@ -39,13 +39,23 @@ Do not repeat a completed verification unless a later code change specifically i
 
 Previously completed functional checks are treated as approved and are not repeated by default. New work is verified against the affected surface and regression-sensitive areas only.
 
-## Next step
+## Current milestone
 
 ### Phase 3 — Personal Reading Experience
-1. [ ] Improve Personal Library from a saved-verse list into a useful reading workspace.
-2. [ ] Add clear grouping/filtering for saved, highlighted, and noted verses.
-3. [ ] Preserve local data across reloads and navigation.
-4. [ ] Verify the new Library behavior without disturbing approved Scripture Reader behavior.
+- [x] Improve Personal Library from a saved-verse list into a useful reading workspace.
+- [x] Add clear grouping/filtering for saved, highlighted, and noted verses.
+- [x] Preserve local data across reloads and navigation.
+- [x] Static source verification of the new Library behavior.
+- [ ] GitHub Actions build verification for the latest Library changes.
+
+### Next experiment
+**Personal Library — Reading Workspace v2**
+
+1. [ ] Improve empty states so each Library filter clearly explains what belongs there.
+2. [ ] Improve verse-card actions for faster return to the Scripture Reader.
+3. [ ] Add lightweight organization without changing the underlying saved/highlight/note data model.
+4. [ ] Static verification and regression review.
+5. [ ] Approve only after verification.
 
 ## Safety boundary
 
