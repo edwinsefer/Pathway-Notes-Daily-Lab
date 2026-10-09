@@ -160,7 +160,7 @@ function App() {
     pathways: libraryFilter === 'all',
     saved: libraryFilter === 'all' || libraryFilter === 'saved',
     highlighted: libraryFilter === 'all' || libraryFilter === 'highlighted',
-    noted: libraryFilter === 'noted',
+    noted: libraryFilter === 'all' || libraryFilter === 'noted',
   }
 
   const normalizedLibraryQuery = libraryQuery.trim().toLowerCase()
