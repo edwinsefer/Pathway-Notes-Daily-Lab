@@ -7,6 +7,7 @@ import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
 type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
+type LibraryFilter = 'all' | 'saved' | 'highlighted' | 'noted'
 
 type AuditIssue = {
   book: string
@@ -101,6 +102,7 @@ function App() {
   const [isBookmarked, setIsBookmarked] = useState(() => {
     return localStorage.getItem('pathway-bookmarked') === 'true'
   })
+  const [libraryFilter, setLibraryFilter] = useState<LibraryFilter>('all')
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -151,6 +153,24 @@ function App() {
   }, [highlightedVerses])
 
   const isSelectedVerseHighlighted = Boolean(highlightedVerses[selectedVerseKey])
+
+  const filteredLibrarySections = {
+    pathways: libraryFilter === 'all',
+    saved: libraryFilter === 'all' || libraryFilter === 'saved',
+    highlighted: libraryFilter === 'all' || libraryFilter === 'highlighted',
+    noted: libraryFilter === 'noted',
+  }
+
+  const notedVerseItems = useMemo(() => {
+    return Object.entries(verseNotes).map(([key, note]) => {
+      const [book, chapterText, verseText] = key.split('|')
+      const chapter = Number(chapterText)
+      const verse = Number(verseText)
+      const chapterData = findApprovedChapter(book, chapter)
+      const verseData = chapterData?.verses.find((item) => item.verse === verse)
+      return { key, book, chapter, verse, text: verseData?.text ?? '', note }
+    }).filter((item) => item.note.trim() && item.text)
+  }, [verseNotes])
 
   const toggleVerseHighlight = () => {
     setHighlightedVerses((current) => ({
