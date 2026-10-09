@@ -490,6 +490,44 @@ h1 {
   color: var(--muted-text);
 }
 
+
+.library-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.15rem 0 0.35rem;
+  scrollbar-width: none;
+}
+
+.library-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.library-filter {
+  min-height: 42px;
+  flex: 0 0 auto;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.library-filter.active {
+  border-color: #4d67a1;
+  background: #4d67a1;
+  color: #ffffff;
+}
+
+.library-filter:focus-visible {
+  outline: 3px solid #9bbcff;
+  outline-offset: 2px;
+}
+
 .library-item,
 .empty-library {
   padding: 1.25rem;
