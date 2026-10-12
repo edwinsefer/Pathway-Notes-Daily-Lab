@@ -166,7 +166,7 @@ function App() {
   const normalizedLibraryQuery = libraryQuery.trim().toLowerCase()
   const matchesLibraryQuery = (book: string, chapter: number, verse: number, text: string, note = '') => {
     if (!normalizedLibraryQuery) return true
-    return [book, String(chapter), String(verse), text, note]
+    return [book, String(chapter), String(verse), `${book} ${chapter}:${verse}`, text, note]
       .join(' ')
       .toLowerCase()
       .includes(normalizedLibraryQuery)
