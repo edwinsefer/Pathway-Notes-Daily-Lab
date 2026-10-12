@@ -105,6 +105,7 @@ function App() {
   const [libraryFilter, setLibraryFilter] = useState<LibraryFilter>('all')
   const [libraryQuery, setLibraryQuery] = useState('')
   const [libraryContext, setLibraryContext] = useState<string | null>(null)
+  const [backupStatus, setBackupStatus] = useState('')
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -126,6 +127,63 @@ function App() {
   useEffect(() => {
     localStorage.setItem('pathway-highlighted-verses', JSON.stringify(highlightedVerses))
   }, [highlightedVerses])
+
+  const exportLibraryBackup = () => {
+    const backup = {
+      app: 'Pathway Notes Daily — Creative Laboratory',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        savedVerses,
+        highlightedVerses,
+        verseNotes,
+        isBookmarked,
+        theme,
+      },
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `pathway-notes-library-backup-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    setBackupStatus('Backup downloaded. Keep this file somewhere safe.')
+  }
+
+  const importLibraryBackup = async (file: File | undefined) => {
+    if (!file) return
+    try {
+      const parsed = JSON.parse(await file.text())
+      const data = parsed?.data
+      const validSaved = Array.isArray(data?.savedVerses) && data.savedVerses.every((item: any) =>
+        item && typeof item.book === 'string' && Number.isInteger(item.chapter) && Number.isInteger(item.verse))
+      const validHighlights = data?.highlightedVerses && typeof data.highlightedVerses === 'object' && !Array.isArray(data.highlightedVerses) &&
+        Object.values(data.highlightedVerses).every((value) => typeof value === 'boolean')
+      const validNotes = data?.verseNotes && typeof data.verseNotes === 'object' && !Array.isArray(data.verseNotes) &&
+        Object.values(data.verseNotes).every((value) => typeof value === 'string')
+      if (parsed?.app !== 'Pathway Notes Daily — Creative Laboratory' || parsed?.version !== 1 ||
+          !validSaved || !validHighlights || !validNotes || typeof data.isBookmarked !== 'boolean' ||
+          !['light', 'dark'].includes(data.theme)) {
+        setBackupStatus('This backup file is invalid or from an unsupported version. No data was changed.')
+        return
+      }
+      if (!window.confirm('Restore this backup? Current saved verses, highlights, notes, and theme on this preview will be replaced.')) {
+        setBackupStatus('Restore cancelled. No data was changed.')
+        return
+      }
+      setSavedVerses(data.savedVerses)
+      setHighlightedVerses(data.highlightedVerses)
+      setVerseNotes(data.verseNotes)
+      setIsBookmarked(data.isBookmarked)
+      setTheme(data.theme)
+      setBackupStatus('Backup restored on this preview. Please verify your library.')
+    } catch {
+      setBackupStatus('Could not read this backup file. No data was changed.')
+    }
+  }
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
@@ -166,7 +224,7 @@ function App() {
   const normalizedLibraryQuery = libraryQuery.trim().toLowerCase()
   const matchesLibraryQuery = (book: string, chapter: number, verse: number, text: string, note = '') => {
     if (!normalizedLibraryQuery) return true
-    return [book, String(chapter), String(verse), text, note]
+    return [book, String(chapter), String(verse), `${book} ${chapter}:${verse}`, text, note]
       .join(' ')
       .toLowerCase()
       .includes(normalizedLibraryQuery)
@@ -789,6 +847,25 @@ function App() {
                 autoComplete="off"
               />
             </div>
+
+            <section className="saved-library-section" aria-labelledby="library-backup-title">
+              <div className="saved-library-heading"><h2 id="library-backup-title">Library Backup</h2></div>
+              <p className="saved-empty-text">Export your saved verses, highlights, notes, and theme to a JSON file. Import a backup to restore them on this preview.</p>
+              <div className="library-backup-actions">
+                <button className="library-open-button" type="button" onClick={exportLibraryBackup}>Download Backup</button>
+                <label className="library-open-button" htmlFor="library-backup-file">Restore Backup</label>
+                <input
+                  id="library-backup-file"
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={(event) => {
+                    void importLibraryBackup(event.target.files?.[0])
+                    event.currentTarget.value = ''
+                  }}
+                />
+              </div>
+              {backupStatus && <p role="status" className="search-result-note">{backupStatus}</p>}
+            </section>
 
             {filteredLibrarySections.pathways && (
               <section className="saved-library-section" aria-labelledby="saved-pathways-title">
