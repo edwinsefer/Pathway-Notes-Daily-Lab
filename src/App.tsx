@@ -851,13 +851,14 @@ function App() {
             <section className="saved-library-section" aria-labelledby="library-backup-title">
               <div className="saved-library-heading"><h2 id="library-backup-title">Library Backup</h2></div>
               <p className="saved-empty-text">Export your saved verses, highlights, notes, and theme to a JSON file. Import a backup to restore them on this preview.</p>
-              <div className="library-backup-actions">
+              <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button className="library-open-button" type="button" onClick={exportLibraryBackup}>Download Backup</button>
                 <label className="library-open-button" htmlFor="library-backup-file">Restore Backup</label>
                 <input
                   id="library-backup-file"
                   type="file"
                   accept="application/json,.json"
+                  style={{ display: 'none' }}
                   onChange={(event) => {
                     void importLibraryBackup(event.target.files?.[0])
                     event.currentTarget.value = ''
