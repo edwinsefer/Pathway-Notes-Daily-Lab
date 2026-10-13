@@ -10,25 +10,25 @@ function extractVerse(text) {
 }
 
 test('reads ordinary verse text', () => {
-  assert.deepEqual(extractVerse(String.raw`"verse": 1, "text": "ஆதியிலே"`), [
+  assert.deepEqual(extractVerse('"verse": 1, "text": "ஆதியிலே"'), [
     { verse: 1, text: 'ஆதியிலே' },
   ])
 })
 
 test('reads text containing escaped quotation marks', () => {
-  assert.deepEqual(extractVerse(String.raw`"verse": 2, "text": "அவர் சொன்னார்: \"வாருங்கள்\""`), [
-    { verse: 2, text: String.raw`அவர் சொன்னார்: \"வாருங்கள்\" `.trimEnd() },
+  assert.deepEqual(extractVerse('"verse": 2, "text": "அவர் சொன்னார்: \\"வாருங்கள்\\""'), [
+    { verse: 2, text: 'அவர் சொன்னார்: \\"வாருங்கள்\\"' },
   ])
 })
 
 test('reads JSON escaped newline and backslash sequences', () => {
-  assert.deepEqual(extractVerse(String.raw`"verse": 3, "text": "முதல்\nஇரண்டாம்\\மூன்றாம்"`), [
-    { verse: 3, text: String.raw`முதல்\nஇரண்டாம்\\மூன்றாம்` },
+  assert.deepEqual(extractVerse('"verse": 3, "text": "முதல்\\nஇரண்டாம்\\\\மூன்றாம்"'), [
+    { verse: 3, text: 'முதல்\\nஇரண்டாம்\\\\மூன்றாம்' },
   ])
 })
 
 test('detects empty verse text', () => {
-  assert.deepEqual(extractVerse(String.raw`"verse": 4, "text": ""`), [
+  assert.deepEqual(extractVerse('"verse": 4, "text": ""'), [
     { verse: 4, text: '' },
   ])
 })
