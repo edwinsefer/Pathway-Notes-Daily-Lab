@@ -158,12 +158,20 @@ function App() {
     try {
       const parsed = JSON.parse(await file.text())
       const data = parsed?.data
+      const isValidVerseKey = (key: string) => {
+        const parts = key.split('|')
+        return parts.length === 3 && parts[0].trim().length > 0 &&
+          /^\\d+$/.test(parts[1]) && Number(parts[1]) > 0 &&
+          /^\\d+$/.test(parts[2]) && Number(parts[2]) > 0
+      }
       const validSaved = Array.isArray(data?.savedVerses) && data.savedVerses.every((item: any) =>
-        item && typeof item.book === 'string' && Number.isInteger(item.chapter) && Number.isInteger(item.verse))
+        item && typeof item.book === 'string' && item.book.trim().length > 0 &&
+        Number.isInteger(item.chapter) && item.chapter > 0 &&
+        Number.isInteger(item.verse) && item.verse > 0)
       const validHighlights = data?.highlightedVerses && typeof data.highlightedVerses === 'object' && !Array.isArray(data.highlightedVerses) &&
-        Object.values(data.highlightedVerses).every((value) => typeof value === 'boolean')
+        Object.entries(data.highlightedVerses).every(([key, value]) => isValidVerseKey(key) && typeof value === 'boolean')
       const validNotes = data?.verseNotes && typeof data.verseNotes === 'object' && !Array.isArray(data.verseNotes) &&
-        Object.values(data.verseNotes).every((value) => typeof value === 'string')
+        Object.entries(data.verseNotes).every(([key, value]) => isValidVerseKey(key) && typeof value === 'string')
       if (parsed?.app !== 'Pathway Notes Daily — Creative Laboratory' || parsed?.version !== 1 ||
           !validSaved || !validHighlights || !validNotes || typeof data.isBookmarked !== 'boolean' ||
           !['light', 'dark'].includes(data.theme)) {
