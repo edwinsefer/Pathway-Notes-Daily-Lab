@@ -19,67 +19,78 @@ const expected = {
   '1john': 5, '2john': 1, '3john': 1, jude: 1, revelation: 22,
 }
 
+const nonScriptureFiles = new Set(['catalog.ts', 'registry.ts', 'types.ts', 'bibleBooks.ts'])
 const files = fs.readdirSync(root)
-  .filter((f) => f.endsWith('.ts') && !['catalog.ts', 'registry.ts', 'types.ts'].includes(f))
+  .filter((f) => f.endsWith('.ts') && !nonScriptureFiles.has(f))
   .sort()
 
 const issues = []
 let totalChapters = 0
 let totalVerses = 0
+const seenBooks = new Set()
 
 for (const file of files) {
   const id = file.replace(/\.ts$/, '')
   const source = fs.readFileSync(path.join(root, file), 'utf8')
-  const chapters = [...source.matchAll(/chapter:\s*(\d+)[\s\S]*?verses:\s*\[([\s\S]*?)\n\s*\]/g)]
 
   if (!(id in expected)) {
     issues.push({ file, issue: 'UNEXPECTED SCRIPTURE FILE' })
     continue
   }
 
+  const chapters = [...source.matchAll(/"book":\s*"([^"]+)",\s*"chapter":\s*(\d+),\s*"translation":\s*"[^"]*",\s*"verses":\s*\[([\s\S]*?)\n\s*\]/g)]
+
   if (chapters.length !== expected[id]) {
     issues.push({ file, issue: `chapter count ${chapters.length}, expected ${expected[id]}` })
   }
 
-  chapters.forEach((match, index) => {
-    const chapter = Number(match[1])
-    const verses = [...match[2].matchAll(/verse:\s*(\d+)\s*,\s*text:\s*['"`]/g)]
-      .map((m) => Number(m[1]))
-
+  chapters.forEach((chapterMatch, index) => {
+    const book = chapterMatch[1]
+    const chapter = Number(chapterMatch[2])
+    const versesBlock = chapterMatch[3]
+    seenBooks.add(id)
     totalChapters++
-    totalVerses += verses.length
 
     if (chapter !== index + 1) {
       issues.push({ file, chapter, issue: `chapter sequence expected ${index + 1}` })
     }
 
-    if (verses.length === 0) {
+    const verseMatches = [...versesBlock.matchAll(/"verse":\s*(\d+),\s*"text":\s*"((?:\\\\.|[^"\\\\])*)"/g)]
+    const verseNumbers = verseMatches.map((match) => Number(match[1]))
+    totalVerses += verseNumbers.length
+
+    if (verseNumbers.length === 0) {
       issues.push({ file, chapter, issue: 'NO VERSES DETECTED' })
       return
     }
 
     const seen = new Set()
-    for (const verse of verses) {
+    for (const verse of verseNumbers) {
       if (seen.has(verse)) issues.push({ file, chapter, verse, issue: 'DUPLICATE VERSE' })
       seen.add(verse)
     }
 
-    const max = Math.max(...verses)
+    const max = Math.max(...verseNumbers)
     for (let n = 1; n <= max; n++) {
       if (!seen.has(n)) issues.push({ file, chapter, verse: n, issue: 'MISSING VERSE NUMBER' })
     }
 
-    for (const match of match[2].matchAll(/verse:\s*(\d+)\s*,\s*text:\s*(['"`])([\s\S]*?)\2/g)) {
-      if (!match[3].trim()) {
+    for (const match of verseMatches) {
+      if (!match[2].trim()) {
         issues.push({ file, chapter, verse: Number(match[1]), issue: 'EMPTY VERSE TEXT' })
       }
     }
   })
 }
 
+for (const id of Object.keys(expected)) {
+  if (!seenBooks.has(id)) issues.push({ file: `${id}.ts`, issue: 'NO CHAPTERS DETECTED' })
+}
+
 console.log('\n📖 PATHWAY NOTES DAILY — SCRIPTURE VERSE AUDIT')
 console.log('='.repeat(52))
 console.log(`Files checked : ${files.length}`)
+console.log(`Books seen   : ${seenBooks.size}`)
 console.log(`Chapters seen : ${totalChapters}`)
 console.log(`Verses seen   : ${totalVerses}`)
 console.log(`Issues found  : ${issues.length}`)
