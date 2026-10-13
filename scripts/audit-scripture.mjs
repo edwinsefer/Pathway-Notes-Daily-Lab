@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { verseTextPattern } from './scripture-audit-patterns.mjs'
 
 const root = path.resolve('src/data/scripture')
 
@@ -57,7 +58,7 @@ for (const file of files) {
       issues.push({ file, chapter, issue: `chapter sequence expected ${index + 1}` })
     }
 
-    const verseMatches = [...versesBlock.matchAll(/"verse":\s*(\d+),\s*"text":\s*"((?:\\\\.|[^"\\\\])*)"/g)]
+    const verseMatches = [...versesBlock.matchAll(verseTextPattern)]
     const verseNumbers = verseMatches.map((match) => Number(match[1]))
     totalVerses += verseNumbers.length
 
