@@ -165,8 +165,8 @@ function App() {
       const isValidVerseKey = (key: string) => {
         const parts = key.split('|')
         return parts.length === 3 && parts[0].trim().length > 0 &&
-          /^\\d+$/.test(parts[1]) && Number(parts[1]) > 0 &&
-          /^\\d+$/.test(parts[2]) && Number(parts[2]) > 0
+          /^\d+$/.test(parts[1]) && Number(parts[1]) > 0 &&
+          /^\d+$/.test(parts[2]) && Number(parts[2]) > 0
       }
       const validSaved = Array.isArray(data?.savedVerses) && data.savedVerses.every((item: any) =>
         item && typeof item.book === 'string' && item.book.trim().length > 0 &&
