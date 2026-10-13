@@ -155,6 +155,10 @@ function App() {
 
   const importLibraryBackup = async (file: File | undefined) => {
     if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setBackupStatus('This backup file is larger than 10 MB. No data was changed.')
+      return
+    }
     try {
       const parsed = JSON.parse(await file.text())
       const data = parsed?.data
