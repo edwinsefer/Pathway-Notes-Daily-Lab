@@ -24,5 +24,7 @@ jobs:
         run: npm run build
       - name: Scripture audit parser tests
         run: npm run test:audit
+      - name: Library backup validation tests
+        run: npm run test:backup
       - name: Scripture structural audit
         run: npm run audit:scripture
