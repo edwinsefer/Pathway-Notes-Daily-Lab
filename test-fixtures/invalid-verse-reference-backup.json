@@ -1,0 +1,18 @@
+{
+  "app": "Pathway Notes Daily — Creative Laboratory",
+  "version": 1,
+  "exportedAt": "2026-10-13T00:00:00.000Z",
+  "data": {
+    "savedVerses": [
+      {
+        "book": "Genesis",
+        "chapter": 999,
+        "verse": 999
+      }
+    ],
+    "highlightedVerses": {},
+    "verseNotes": {},
+    "isBookmarked": false,
+    "theme": "light"
+  }
+}
