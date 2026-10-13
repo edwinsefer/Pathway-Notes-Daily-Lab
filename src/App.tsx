@@ -162,16 +162,25 @@ function App() {
     try {
       const parsed = JSON.parse(await file.text())
       const data = parsed?.data
+      const isKnownVerse = (book: string, chapter: number, verse: number) => {
+        const chapterData = findApprovedChapter(book, chapter)
+        return Boolean(chapterData?.verses.some((item) => item.verse === verse))
+      }
       const isValidVerseKey = (key: string) => {
         const parts = key.split('|')
-        return parts.length === 3 && parts[0].trim().length > 0 &&
-          /^\d+$/.test(parts[1]) && Number(parts[1]) > 0 &&
-          /^\d+$/.test(parts[2]) && Number(parts[2]) > 0
+        if (parts.length !== 3 || !parts[0].trim() ||
+            !/^\\d+$/.test(parts[1]) || !/^\\d+$/.test(parts[2])) return false
+        const chapter = Number(parts[1])
+        const verse = Number(parts[2])
+        return Number.isSafeInteger(chapter) && chapter > 0 &&
+          Number.isSafeInteger(verse) && verse > 0 &&
+          isKnownVerse(parts[0], chapter, verse)
       }
       const validSaved = Array.isArray(data?.savedVerses) && data.savedVerses.every((item: any) =>
         item && typeof item.book === 'string' && item.book.trim().length > 0 &&
-        Number.isInteger(item.chapter) && item.chapter > 0 &&
-        Number.isInteger(item.verse) && item.verse > 0)
+        Number.isSafeInteger(item.chapter) && item.chapter > 0 &&
+        Number.isSafeInteger(item.verse) && item.verse > 0 &&
+        isKnownVerse(item.book, item.chapter, item.verse))
       const validHighlights = data?.highlightedVerses && typeof data.highlightedVerses === 'object' && !Array.isArray(data.highlightedVerses) &&
         Object.entries(data.highlightedVerses).every(([key, value]) => isValidVerseKey(key) && typeof value === 'boolean')
       const validNotes = data?.verseNotes && typeof data.verseNotes === 'object' && !Array.isArray(data.verseNotes) &&
