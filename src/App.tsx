@@ -3,6 +3,7 @@ import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
 import { approvedScriptureChapters, findApprovedChapter } from './data/scripture/registry'
+import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupValidation.mjs'
 import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
@@ -130,7 +131,7 @@ function App() {
 
   const exportLibraryBackup = () => {
     const backup = {
-      app: 'Pathway Notes Daily — Creative Laboratory',
+      app: LIBRARY_BACKUP_APP,
       version: 1,
       exportedAt: new Date().toISOString(),
       data: {
@@ -162,23 +163,11 @@ function App() {
     try {
       const parsed = JSON.parse(await file.text())
       const data = parsed?.data
-      const isValidVerseKey = (key: string) => {
-        const parts = key.split('|')
-        return parts.length === 3 && parts[0].trim().length > 0 &&
-          /^\d+$/.test(parts[1]) && Number(parts[1]) > 0 &&
-          /^\d+$/.test(parts[2]) && Number(parts[2]) > 0
+      const isKnownVerse = (book: string, chapter: number, verse: number) => {
+        const chapterData = findApprovedChapter(book, chapter)
+        return Boolean(chapterData?.verses.some((item) => item.verse === verse))
       }
-      const validSaved = Array.isArray(data?.savedVerses) && data.savedVerses.every((item: any) =>
-        item && typeof item.book === 'string' && item.book.trim().length > 0 &&
-        Number.isInteger(item.chapter) && item.chapter > 0 &&
-        Number.isInteger(item.verse) && item.verse > 0)
-      const validHighlights = data?.highlightedVerses && typeof data.highlightedVerses === 'object' && !Array.isArray(data.highlightedVerses) &&
-        Object.entries(data.highlightedVerses).every(([key, value]) => isValidVerseKey(key) && typeof value === 'boolean')
-      const validNotes = data?.verseNotes && typeof data.verseNotes === 'object' && !Array.isArray(data.verseNotes) &&
-        Object.entries(data.verseNotes).every(([key, value]) => isValidVerseKey(key) && typeof value === 'string')
-      if (parsed?.app !== 'Pathway Notes Daily — Creative Laboratory' || parsed?.version !== 1 ||
-          !validSaved || !validHighlights || !validNotes || typeof data.isBookmarked !== 'boolean' ||
-          !['light', 'dark'].includes(data.theme)) {
+      if (!validateLibraryBackup(parsed, isKnownVerse)) {
         setBackupStatus('This backup file is invalid or from an unsupported version. No data was changed.')
         return
       }
