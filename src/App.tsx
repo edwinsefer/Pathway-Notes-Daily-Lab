@@ -131,7 +131,7 @@ function App() {
 
   const exportLibraryBackup = () => {
     const backup = {
-      app: 'Pathway Notes Daily — Creative Laboratory',
+      app: LIBRARY_BACKUP_APP,
       version: 1,
       exportedAt: new Date().toISOString(),
       data: {
