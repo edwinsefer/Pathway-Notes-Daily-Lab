@@ -19,7 +19,10 @@ const expected = {
   '1john': 5, '2john': 1, '3john': 1, jude: 1, revelation: 22,
 }
 
-const nonScriptureFiles = new Set(['catalog.ts', 'registry.ts', 'types.ts', 'bibleBooks.ts'])
+const nonScriptureFiles = new Set([
+  'catalog.ts', 'registry.ts', 'types.ts', 'bibleBooks.ts',
+  'multiBookTest.ts', 'psalm46.ts', 'source.ts',
+])
 const files = fs.readdirSync(root)
   .filter((f) => f.endsWith('.ts') && !nonScriptureFiles.has(f))
   .sort()
@@ -45,7 +48,6 @@ for (const file of files) {
   }
 
   chapters.forEach((chapterMatch, index) => {
-    const book = chapterMatch[1]
     const chapter = Number(chapterMatch[2])
     const versesBlock = chapterMatch[3]
     seenBooks.add(id)
