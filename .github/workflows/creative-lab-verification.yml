@@ -22,6 +22,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Automated library backup validation tests
+        run: npm run test:backup
       - name: TypeScript and production build
         run: npm run build
       - name: Scripture structural audit
