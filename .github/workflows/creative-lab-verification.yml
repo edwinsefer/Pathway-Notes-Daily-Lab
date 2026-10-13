@@ -22,5 +22,7 @@ jobs:
         run: npm install
       - name: TypeScript and production build
         run: npm run build
+      - name: Scripture audit parser tests
+        run: npm run test:audit
       - name: Scripture structural audit
         run: npm run audit:scripture
