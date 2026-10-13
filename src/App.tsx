@@ -169,7 +169,7 @@ function App() {
       const isValidVerseKey = (key: string) => {
         const parts = key.split('|')
         if (parts.length !== 3 || !parts[0].trim() ||
-            !/^\\d+$/.test(parts[1]) || !/^\\d+$/.test(parts[2])) return false
+            !/^\d+$/.test(parts[1]) || !/^\d+$/.test(parts[2])) return false
         const chapter = Number(parts[1])
         const verse = Number(parts[2])
         return Number.isSafeInteger(chapter) && chapter > 0 &&
