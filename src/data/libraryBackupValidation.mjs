@@ -4,7 +4,7 @@ export function validateLibraryBackup(parsed, isKnownVerse) {
   const data = parsed?.data
   const isValidVerseKey = (key) => {
     const parts = key.split('|')
-    if (parts.length !== 3 || !parts[0].trim() || !/^\\d+$/.test(parts[1]) || !/^\\d+$/.test(parts[2])) return false
+    if (parts.length !== 3 || !parts[0].trim() || !/^\d+$/.test(parts[1]) || !/^\d+$/.test(parts[2])) return false
     const chapter = Number(parts[1])
     const verse = Number(parts[2])
     return Number.isSafeInteger(chapter) && chapter > 0 && Number.isSafeInteger(verse) && verse > 0 && isKnownVerse(parts[0], chapter, verse)
