@@ -149,7 +149,8 @@ function App() {
     document.body.appendChild(link)
     link.click()
     link.remove()
-    URL.revokeObjectURL(url)
+    // Keep the object URL alive briefly so slower mobile browsers can start the download.
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
     setBackupStatus('Backup downloaded. Keep this file somewhere safe.')
   }
 
