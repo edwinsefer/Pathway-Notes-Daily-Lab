@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - feature/library-backup-and-search-fix
+      - fix/strict-library-backup-validation
   pull_request:
     branches:
       - main
+      - feature/library-backup-and-search-fix
 
 jobs:
   build-and-audit:
