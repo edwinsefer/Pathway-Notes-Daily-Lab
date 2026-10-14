@@ -8,13 +8,16 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "audit:scripture": "node scripts/audit-scripture.mjs",
-    "test:audit": "node --test tests/scripture-audit-patterns.test.mjs"
+    "test:audit": "node --test tests/scripture-audit-patterns.test.mjs",
+    "test:backup": "node --test tests/libraryBackupValidation.test.mjs tests/libraryBackupRegistryIntegration.test.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",

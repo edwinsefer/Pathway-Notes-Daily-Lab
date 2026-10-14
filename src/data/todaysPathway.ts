@@ -14,9 +14,16 @@ export type TodaysPathway = {
 
 const psalm46Verse10 = psalm46.verses.find((verse) => verse.verse === 10)
 
+const dateLabel = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "Asia/Kolkata",
+}).format(new Date())
+
 export const todaysPathway: TodaysPathway = {
   label: "TODAY'S PATHWAY",
-  dateLabel: "October 7, 2026",
+  dateLabel,
   category: "Daily Reflection",
   title: "Be still and know",
   scriptureReference: "Psalm 46:10",
