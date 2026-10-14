@@ -33,14 +33,26 @@ const validBackup = {
     savedVerses: [{ book: 'Psalms', chapter: 46, verse: 10 }],
     highlightedVerses: { 'Psalms|46|10': true },
     verseNotes: { 'Psalms|46|10': 'Be still and know' },
-    isBookmarked: false,
+    isBookmarked: true,
     theme: 'dark',
   },
 }
 
-test('uses the real Scripture registry to accept a valid saved verse, highlight, note, and theme', () => {
+test('uses the real Scripture registry to accept a valid saved verse, highlight, note, bookmark, and theme', () => {
   assert.equal(isKnownVerse('Psalms', 46, 10), true)
   assert.equal(validateLibraryBackup(validBackup, isKnownVerse), true)
+})
+
+test('round-trips the complete backup payload through JSON without losing library state', () => {
+  const downloadedFileContents = JSON.stringify(validBackup)
+  const restoredPayload = JSON.parse(downloadedFileContents)
+
+  assert.equal(validateLibraryBackup(restoredPayload, isKnownVerse), true)
+  assert.deepEqual(restoredPayload.data.savedVerses, validBackup.data.savedVerses)
+  assert.deepEqual(restoredPayload.data.highlightedVerses, validBackup.data.highlightedVerses)
+  assert.deepEqual(restoredPayload.data.verseNotes, validBackup.data.verseNotes)
+  assert.equal(restoredPayload.data.isBookmarked, validBackup.data.isBookmarked)
+  assert.equal(restoredPayload.data.theme, validBackup.data.theme)
 })
 
 test('uses the real Scripture registry to reject an impossible chapter and verse', () => {
