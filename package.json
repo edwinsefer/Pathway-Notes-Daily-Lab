@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "audit:scripture": "node scripts/audit-scripture.mjs",
     "test:audit": "node --test tests/scripture-audit-patterns.test.mjs",
-    "test:backup": "node --test tests/libraryBackupValidation.test.mjs"
+    "test:backup": "node --test tests/libraryBackupValidation.test.mjs tests/libraryBackupRegistryIntegration.test.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
