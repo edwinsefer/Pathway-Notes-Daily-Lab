@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/library-backup-and-search-fix
+      - fix/strict-library-backup-validation-clean
   pull_request:
     branches:
       - main
@@ -20,11 +21,15 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
       - name: TypeScript and production build
         run: npm run build
       - name: Scripture audit parser tests
         run: npm run test:audit
       - name: Library backup validation tests
         run: npm run test:backup
+      - name: Library backup browser end-to-end tests
+        run: npm run test:e2e
       - name: Scripture structural audit
         run: npm run audit:scripture
