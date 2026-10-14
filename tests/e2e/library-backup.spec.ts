@@ -83,7 +83,7 @@ test('browser downloads a complete backup, restores it in fresh state, and persi
 
   await page.reload()
   await openLibrary(page)
-  await expect(page.getByText('E2E restore note — God is Good Always')).toBeVisible()
+  await expect(page.getByText('E2E restore note — God is Good Always').first()).toBeVisible()
   expect(await storageState(page)).toEqual(restored)
 })
 
