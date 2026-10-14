@@ -17,11 +17,15 @@ const seed = {
 }
 async function seedStorage(page) {
   await page.addInitScript(({ keys, seed }) => {
+    // Seed once per browser tab. Reloads must not repopulate localStorage after
+    // the export test deliberately clears it to simulate a fresh library.
+    if (sessionStorage.getItem('__pathway_e2e_seeded') === 'true') return
     localStorage.setItem(keys.bookmark, String(seed.isBookmarked))
     localStorage.setItem(keys.saved, JSON.stringify(seed.savedVerses))
     localStorage.setItem(keys.highlights, JSON.stringify(seed.highlightedVerses))
     localStorage.setItem(keys.notes, JSON.stringify(seed.verseNotes))
     localStorage.setItem(keys.theme, seed.theme)
+    sessionStorage.setItem('__pathway_e2e_seeded', 'true')
   }, { keys, seed })
 }
 async function storageState(page) {
