@@ -3,6 +3,7 @@ name: Creative Laboratory Verification
 on:
   push:
     branches:
+      - main
       - feature/library-backup-and-search-fix
       - fix/strict-library-backup-validation-clean
   pull_request:
