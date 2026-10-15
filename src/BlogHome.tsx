@@ -51,7 +51,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
 
       <div className="blog-content-grid">
         <section className="blog-posts-section" aria-labelledby="latest-posts-title">
-          <div className="blog-section-heading"><h2 id="latest-posts-title">Latest Posts <span>சமீபத்திய பதிவுகள்</span></h2><button type="button" onClick={() => onNavigate('search')}>View All →</button></div>
+          <div className="blog-section-heading"><h2 id="latest-posts-title">Design Preview — Sample Posts <span>மாதிரி பதிவுகள் — வடிவமைப்பு முன்னோட்டம்</span></h2><button type="button" onClick={() => onNavigate('search')}>Explore Search →</button></div><p className="blog-prototype-notice" role="note">Preview content only. These sample cards are not published blog posts, and their links do not open original articles. A verified read-only Blogger feed is still pending.</p>
           <div className="blog-post-grid">
             {posts.map((post) => (
               <article className="blog-post-card" key={post.title}>
@@ -73,7 +73,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
             <button type="button" onClick={() => onNavigate('home')}>Read Reflection →</button>
           </section>
           <section className="blog-sidebar-panel"><h2>Categories <span>பிரிவுகள்</span></h2>{categories.map((category) => <button key={category.title} type="button" onClick={() => onNavigate(category.page)}><span aria-hidden="true">▰</span>{category.title} <small>({category.tamil})</small></button>)}</section>
-          <section className="blog-subscribe-panel"><h2>Get Daily Pathway</h2><p>Receive a little encouragement for your walk with God.</p><form onSubmit={(event) => { event.preventDefault(); window.alert('Thank you! Email subscription will be connected when the publishing workflow is approved.') }}><label className="blog-visually-hidden" htmlFor="pathway-email">Your email address</label><input id="pathway-email" type="email" placeholder="Your email address" required /><button type="submit">Subscribe</button></form></section>
+          <section className="blog-subscribe-panel"><h2>Get Daily Pathway</h2><p>Receive a little encouragement for your walk with God.</p><p className="blog-prototype-notice" role="note">Email subscription is a design preview only. It is not connected, and no email address is collected or sent.</p><button className="blog-subscribe-disabled" type="button" disabled aria-describedby="subscription-status">Subscribe — Not Connected</button><span id="subscription-status" className="blog-visually-hidden">Email subscription is not available in this preview.</span></section>
         </aside>
       </div>
       <section className="blog-tagline"><p>“Create Once. Inspire Everywhere.”</p><span>— Edwin’s Pathway Notes Daily</span></section>
