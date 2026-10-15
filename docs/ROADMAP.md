@@ -140,3 +140,13 @@ Previously completed functional checks are treated as approved and are not repea
 - Blogger and the Vercel app have separate storage. Personal Library backup/restore remains an explicit JSON workflow; never imply automatic sync.
 - Use the designated Test Blog for Blogger-side experiments only. Do not edit Blog V12, its theme, XML, posts, or settings.
 - Do not merge this branch or change the stable blog without final approval.
+
+### Final live integration check — 2026-10-15
+
+- [x] Verified the designated Test Blog Atom/JSON feed is reachable (HTTP 200).
+- [x] Confirmed the Test Blog currently contains **0 posts**; live-card, category, image, and article-link validation cannot be completed against real test entries until the Test Blog is populated.
+- [x] Confirmed the Stable Blog V12 public feed responds (HTTP 200) and reports 134 posts. It was inspected read-only only; it is **not** being substituted as the lab data source without explicit approval.
+- [x] Confirmed the latest Preview deployment is READY and tied to feature branch commit `317c8f45751a6b782d22371714daa87198cccff7`.
+- [x] Verified why browser access is blocked: Vercel project SSO protection is enabled for deployments; no protection settings were changed.
+- [ ] Remaining external acceptance gates: populate the designated Test Blog with approved sample posts, verify real-content behavior, and resolve an approved way for the reviewer to access the protected Preview.
+- [ ] No merge and no Blogger content/settings changes without explicit final approval.
