@@ -150,3 +150,17 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Verified why browser access is blocked: Vercel project SSO protection is enabled for deployments; no protection settings were changed.
 - [ ] Remaining external acceptance gates: populate the designated Test Blog with approved sample posts, verify real-content behavior, and resolve an approved way for the reviewer to access the protected Preview.
 - [ ] No merge and no Blogger content/settings changes without explicit final approval.
+
+### Stable Blog V12 read-only integration — 2026-10-15
+
+- [x] Edwin explicitly approved use of the Stable Blog V12 feed in read-only mode for Creative Lab integration testing.
+- [x] Replaced the hard-coded sample cards with the live Blogger JSONP feed (up to 20 recent entries); this avoids browser CORS restrictions without changing Blogger.
+- [x] Render post titles, published dates, category labels, plain-text excerpts, optional images, and original article links. Links are restricted to `https://pathwaynotes.blogspot.com/` and open in a new tab.
+- [x] Added loading, empty-feed, and error states. Feed content is displayed as text; the Lab does not write to Blogger.
+- [x] Added Playwright coverage for live feed cards and original article URLs.
+- [x] Production build passed; Scripture audit parser tests 4/4 passed; Library backup tests 11/11 passed; structural Scripture audit passed (66 books, 1,189 chapters, 31,102 verses, 0 issues).
+- [x] GitHub Actions run #84 passed on commit `25a9c0f22037bd0018798a35ae04194ebcd0ab85`.
+- [x] Latest Vercel Preview deployment is READY on commit `25a9c0f22037bd0018798a35ae04194ebcd0ab85`.
+- [ ] External reviewer access to the Preview is still blocked by enabled Vercel SSO protection. No protection settings were changed.
+- [ ] Final review and explicit approval before merge. No merge performed.
+- [x] Stable Blogger Blog V12 remains unchanged; all feed requests were read-only.
