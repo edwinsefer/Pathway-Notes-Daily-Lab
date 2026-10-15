@@ -5,8 +5,8 @@ test.describe('Pathway Notes Daily blog home', () => {
     await page.goto('/')
 
     await expect(page.getByRole('heading', { name: /Today’s Pathway/i })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Latest Posts/i })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Verse of the Day/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Design Preview — Sample Posts/i })).toBeVisible()\n    await expect(page.getByRole('note', { name: /Preview content only/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Verse of the Day/i })).toBeVisible()\n    await expect(page.getByRole('note', { name: /Preview content only/i })).toBeVisible()\n    await expect(page.getByRole('button', { name: /Subscribe — Not Connected/i })).toBeDisabled()
     await expect(page.getByRole('button', { name: /Bible Study/i }).first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Bible Study', exact: true }).first().click()
@@ -18,7 +18,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: /Latest Posts/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Design Preview — Sample Posts/i })).toBeVisible()
     await page.getByRole('button', { name: /Switch to dark theme/i }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
