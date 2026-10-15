@@ -99,11 +99,35 @@ Previously completed functional checks are treated as approved and are not repea
 - [ ] Replace prototype/sample post cards with a verified read-only feed from the designated Test Blog or approved content source.
 - [ ] Verify post links, categories, images, empty/loading/error states, and mobile overflow against real test content.
 - [ ] Decide and verify the separate Blogger navigation link and publishing workflow on Test Blog only.
-- [ ] Complete Integration Readiness Review and document all remaining limitations.
+- [x] Complete Integration Readiness Review and document all remaining limitations.
 - [ ] Final approval before any merge or Blogger change.
 
+### Integration Readiness Review — 2026-10-15
+
+**Verified**
+- GitHub Actions run #75 completed successfully for commit `af7dcaaf44acf272d76db2ccd4a22c075e072d4f`.
+- The workflow's TypeScript/production build, Scripture audit parser tests, library backup validation tests, browser end-to-end tests, and Scripture structural audit steps all completed successfully.
+- Vercel reports a READY Preview deployment built from the same feature branch and commit.
+- The homepage explicitly labels its cards as design-preview samples and discloses that they are not published posts.
+- The subscription control is disabled and the UI says no email address is collected or sent.
+
+**Not verified / still blocked**
+- Direct rendering of the Preview URL could not be independently inspected through the available web access in this review. Vercel READY confirms deployment status, not a full live visual/browser acceptance test.
+- The designated Test Blog feed endpoint could not be fetched through the available web access. This does not establish that the blog or feed is unavailable; it means the integration endpoint and response remain unverified.
+- Sample post cards remain hard-coded in `src/BlogHome.tsx`; their buttons navigate to internal app sections, not original Blogger articles.
+- Real feed parsing, categories, article URLs, thumbnails, empty/loading/error handling, and real-content mobile checks have not been implemented or verified.
+- Blogger navigation/publishing workflow has not been tested on the Test Blog.
+- Phase 3 and Phase 4 still have runtime verification and approval items open as listed above.
+
+**Safe next actions**
+1. Confirm an accessible public read-only feed endpoint for the designated Test Blog (Atom/JSON or RSS) and inspect a real response.
+2. Implement feed parsing with graceful loading, empty, and error states only after the endpoint shape is confirmed.
+3. Test real article links, categories, images, and mobile behavior against actual Test Blog content.
+4. Keep Blog V12 untouched; do not merge this PR or make Blogger changes before final approval.
+
 ### Integration safety boundary
+
 - The homepage cards and email subscription are prototype UI until their real data/services are verified; do not represent them as connected.
 - Blogger and the Vercel app have separate storage. Personal Library backup/restore remains an explicit JSON workflow; never imply automatic sync.
 - Use the designated Test Blog for Blogger-side experiments only. Do not edit Blog V12, its theme, XML, posts, or settings.
-- Do not merge this branch or change the stable blog without Edwin's final approval.
+- Do not merge this branch or change the stable blog without final approval.
