@@ -77,7 +77,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
         </aside>
       </div>
       <section className="blog-tagline"><p>“Create Once. Inspire Everywhere.”</p><span>— Edwin’s Pathway Notes Daily</span></section>
-      <footer className="blog-home-footer"><div><strong>☀️ Pathway Notes Daily</strong><span>Edwin’s Christian Reading Experience</span><small>Walk with God · Read · Reflect · Grow · Share</small></div><nav aria-label="Footer navigation"><button onClick={() => onNavigate('home')}>Today’s Pathway</button><button onClick={() => onNavigate('bible')}>Bible Study</button><button onClick={() => onNavigate('library')}>Library</button><button onClick={() => onNavigate('search')}>Search</button></nav><p>© 2026 Pathway Notes Daily · Create Once. Inspire Everywhere.</p></footer>
+      <footer className="blog-home-footer"><div><strong>☀️ Pathway Notes Daily</strong><span>Edwin’s Christian Reading Experience</span><small>Walk with God · Read · Reflect · Grow · Share</small></div><nav aria-label="Footer navigation"><button onClick={() => onNavigate('home')}>Today’s Pathway</button><button onClick={() => onNavigate('bible')}>Bible Study</button><button onClick={() => onNavigate('library')}>Open My Library</button><button onClick={() => onNavigate('search')}>Search</button></nav><p>© 2026 Pathway Notes Daily · Create Once. Inspire Everywhere.</p></footer>
     </div>
   )
 }
