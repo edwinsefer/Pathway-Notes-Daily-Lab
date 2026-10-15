@@ -6,7 +6,7 @@ test.describe('Pathway Notes Daily blog home', () => {
 
     await expect(page.getByRole('heading', { name: /Today’s Pathway/i })).toBeVisible()
     await expect(page.getByRole('heading', { name: /Design Preview — Sample Posts/i })).toBeVisible()
-    await expect(page.getByRole('note', { name: /Preview content only/i })).toBeVisible()
+    await expect(page.locator('.blog-prototype-notice').first()).toBeVisible()
     await expect(page.getByRole('heading', { name: /Verse of the Day/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /Subscribe — Not Connected/i })).toBeDisabled()
     await expect(page.getByRole('button', { name: /Bible Study/i }).first()).toBeVisible()
