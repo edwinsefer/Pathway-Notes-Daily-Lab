@@ -46,7 +46,7 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Add clear grouping/filtering for saved, highlighted, and noted verses.
 - [x] Preserve local data across reloads and navigation.
 - [x] Static source verification of the new Library behavior.
-- [ ] GitHub Actions build verification for the latest Library changes.
+- [x] GitHub Actions build verification for the latest Library changes (run #76 passed on commit `6d327ac9c019a6afda485d980a9a01c0df1ea3b7`).
 
 ### Phase 3 experiment results
 - [x] Filter counts for All / Saved / Highlighted / Noted
@@ -57,7 +57,7 @@ Previously completed functional checks are treated as approved and are not repea
 
 ### Phase 3 approval gate
 - [ ] Runtime/browser verification of the new Library search and organization
-- [ ] GitHub Actions build verification
+- [x] GitHub Actions build verification (run #76 passed on the current feature branch).
 - [ ] Final Phase 3 approval
 
 ## Next phase
@@ -75,7 +75,8 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Re-verified Notes workspace derivation order and All-filter inclusion.
 - [x] Confirmed existing chapter navigation and Reader context indicators remain present.
 - [ ] Runtime/browser verification still required.
-- [ ] GitHub Actions build verification still required.
+- [x] GitHub Actions build verification passed on the current feature branch (run #76).
+- [ ] Final Phase 4 approval still required.
 
 ## Safety boundary
 
@@ -106,7 +107,8 @@ Previously completed functional checks are treated as approved and are not repea
 
 **Verified**
 - GitHub Actions run #75 completed successfully for commit `af7dcaaf44acf272d76db2ccd4a22c075e072d4f`.
-- The workflow's TypeScript/production build, Scripture audit parser tests, library backup validation tests, browser end-to-end tests, and Scripture structural audit steps all completed successfully.
+- GitHub Actions run #76 also completed successfully for the current documentation commit `6d327ac9c019a6afda485d980a9a01c0df1ea3b7`; all workflow steps passed.
+- The workflow's TypeScript/production build, Scripture audit parser tests, library backup validation tests, browser end-to-end tests, and Scripture structural audit steps all completed successfully in run #75 and again in run #76.
 - Vercel reports a READY Preview deployment built from the same feature branch and commit.
 - The homepage explicitly labels its cards as design-preview samples and discloses that they are not published posts.
 - The subscription control is disabled and the UI says no email address is collected or sent.
@@ -117,7 +119,7 @@ Previously completed functional checks are treated as approved and are not repea
 - Sample post cards remain hard-coded in `src/BlogHome.tsx`; their buttons navigate to internal app sections, not original Blogger articles.
 - Real feed parsing, categories, article URLs, thumbnails, empty/loading/error handling, and real-content mobile checks have not been implemented or verified.
 - Blogger navigation/publishing workflow has not been tested on the Test Blog.
-- Phase 3 and Phase 4 still have runtime verification and approval items open as listed above.
+- Phase 3 and Phase 4 still have runtime/browser verification and final approval items open as listed above. Their branch build verification is now confirmed by run #76.
 
 **Safe next actions**
 1. Confirm an accessible public read-only feed endpoint for the designated Test Blog (Atom/JSON or RSS) and inspect a real response.
