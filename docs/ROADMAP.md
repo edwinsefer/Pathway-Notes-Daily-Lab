@@ -94,27 +94,34 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] GitHub Actions production build and TypeScript verification.
 - [x] GitHub Actions Scripture audit parser tests.
 - [x] GitHub Actions library backup validation tests.
-- [x] GitHub Actions browser end-to-end suite (4 tests passed).
+- [x] GitHub Actions browser end-to-end suite (5 tests passed, including tablet-width overflow regression).
 - [x] Scripture structural audit (66 books, 1,189 chapters, 31,102 verses, 0 issues).
 - [x] Clearly label prototype/sample post cards so they cannot be mistaken for published posts; disable the unconnected subscription control and explain that no email is collected.
 - [ ] Replace prototype/sample post cards with a verified read-only feed from the designated Test Blog or approved content source.
-- [ ] Verify post links, categories, images, empty/loading/error states, and mobile overflow against real test content.
+- [ ] Verify post links, categories, images, empty/loading/error states, and real-content mobile behavior against real test content.
+- [x] Verify responsive document width at 320, 390, 520, 767, 768, 820, 1024, 1280, and 1440px on the local app; no page-level horizontal overflow and no JavaScript page errors detected.
 - [ ] Decide and verify the separate Blogger navigation link and publishing workflow on Test Blog only.
 - [x] Complete Integration Readiness Review and document all remaining limitations.
 - [ ] Final approval before any merge or Blogger change.
 
 ### Integration Readiness Review — 2026-10-15
 
+**Latest follow-up verification**
+- Fixed tablet navigation overflow at the 768px breakpoint by keeping the navigation bar within the viewport and allowing horizontal scrolling inside the navigation itself.
+- Added a tablet-width regression test. The complete local verification sequence passed: production build, 5 Playwright browser tests, 4 Scripture audit parser tests, 11 Library backup validation tests, and Scripture structural audit (66 books, 1,189 chapters, 31,102 verses, 0 issues).
+- GitHub Actions run #80 passed on commit `447025fd008f3d2f0fe7dd8abaa85a51c90cf358`.
+- Vercel reports the Preview deployment READY on the latest test commit. A direct browser attempt was redirected to Vercel login, so live visual acceptance remains blocked by Preview protection; deployment readiness must not be confused with public accessibility.
+
 **Verified**
 - GitHub Actions run #75 completed successfully for commit `af7dcaaf44acf272d76db2ccd4a22c075e072d4f`.
-- GitHub Actions run #76 completed successfully for code commit `6d327ac9c019a6afda485d980a9a01c0df1ea3b7`; the later commit `f7efa9f4b3cc52f6d37b2d119932288761c488cb` changes only this roadmap document.
-- The workflow's TypeScript/production build, Scripture audit parser tests, library backup validation tests, browser end-to-end tests, and Scripture structural audit steps all completed successfully in run #75 and again in run #76. The subsequent roadmap-only edit does not change application code.
+- GitHub Actions run #76 completed successfully for code commit `6d327ac9c019a6afda485d980a9a01c0df1ea3b7`; later documentation commits recorded the integration review. Run #80 additionally verifies the tablet navigation fix and new regression test on commit `447025fd008f3d2f0fe7dd8abaa85a51c90cf358`.
+- The workflow's TypeScript/production build, Scripture audit parser tests, library backup validation tests, browser end-to-end tests, and Scripture structural audit steps completed successfully in runs #75, #76, and #80. Run #80 includes the new tablet overflow regression check.
 - Vercel reports a READY Preview deployment built from the same feature branch and commit.
 - The homepage explicitly labels its cards as design-preview samples and discloses that they are not published posts.
 - The subscription control is disabled and the UI says no email address is collected or sent.
 
 **Not verified / still blocked**
-- Direct rendering of the Preview URL could not be independently inspected through the available web access in this review. Vercel READY confirms deployment status, not a full live visual/browser acceptance test.
+- The latest Preview URL redirects to Vercel login when accessed in an independent browser session. Vercel READY confirms deployment status, not public accessibility or a full live visual/browser acceptance test. Do not change deployment protection without explicit approval.
 - The designated Test Blog feed endpoint could not be fetched through the available web access. This does not establish that the blog or feed is unavailable; it means the integration endpoint and response remain unverified.
 - Sample post cards remain hard-coded in `src/BlogHome.tsx`; their buttons navigate to internal app sections, not original Blogger articles.
 - Real feed parsing, categories, article URLs, thumbnails, empty/loading/error handling, and real-content mobile checks have not been implemented or verified.
