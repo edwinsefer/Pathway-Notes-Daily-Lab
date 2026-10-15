@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import BlogHome from './BlogHome'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
@@ -7,7 +8,7 @@ import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupV
 import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
-type Page = 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
+type Page = 'blog' | 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
 type LibraryFilter = 'all' | 'saved' | 'highlighted' | 'noted'
 
 type AuditIssue = {
@@ -69,7 +70,7 @@ function App() {
     const savedTheme = localStorage.getItem('pathway-theme')
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
-  const [page, setPage] = useState<Page>('home')
+  const [page, setPage] = useState<Page>('blog')
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [selectedVerse, setSelectedVerse] = useState(46)
   const [navigationBook, setNavigationBook] = useState('Genesis')
@@ -430,46 +431,37 @@ function App() {
 
   return (
     <div className="site-shell">
-      <header className="site-header">
+      <header className="site-header blog-site-header">
         <div className="brand">
           <div className="brand-row">
-            <div>
-              <span className="brand-title">Pathway Notes Daily</span>
-              <span className="brand-subtitle">Creative Laboratory</span>
+            <button className="blog-brand-mark" type="button" onClick={() => openPage('blog')} aria-label="Pathway Notes Daily home">☀️📖</button>
+            <div className="blog-brand-copy">
+              <button className="brand-title blog-brand-title" type="button" onClick={() => openPage('blog')}>Pathway Notes Daily</button>
+              <span className="brand-subtitle">Walk with God · Read · Reflect · Grow · Share</span>
             </div>
-
-            <button
-              className="theme-toggle"
-              type="button"
-              onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-              title={theme === 'light' ? 'Dark theme' : 'Light theme'}
-            >
-              {theme === 'light' ? 'Dark' : 'Light'}
-            </button>
+            <div className="blog-header-actions">
+              <button className="blog-header-search" type="button" onClick={() => openPage('search')}>Search… <span aria-hidden="true">⌕</span></button>
+              <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'} title={theme === 'light' ? 'Dark theme' : 'Light theme'}>{theme === 'light' ? '☀️' : '🌙'}</button>
+            </div>
           </div>
+          <span className="blog-brand-descriptor">Edwin’s Christian Reading Experience</span>
         </div>
       </header>
 
-      <nav className="site-nav" aria-label="Main navigation">
-        <button className={page === 'bible' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>
-          Bible
-        </button>
-        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>
-          Home
-        </button>
-        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>
-          Library
-        </button>
-        <button className={page === 'search' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('search')}>
-          Search
-        </button>
-        <button className={page === 'audit' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('audit')}>
-          Audit
-        </button>
+      <nav className="site-nav blog-site-nav" aria-label="Main navigation">
+        <button className={page === 'blog' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('blog')}>⌂ Home</button>
+        <button className={page === 'home' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('home')}>Today’s Pathway</button>
+        <button className={page === 'bible' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('bible')}>Bible Study</button>
+        <button className="nav-link" type="button" onClick={() => openPage('home')}>Devotional</button>
+        <button className="nav-link" type="button" onClick={() => openPage('home')}>Christian Living</button>
+        <button className="nav-link" type="button" onClick={() => openPage('home')}>Prayer</button>
+        <button className="nav-link" type="button" onClick={() => openPage('library')}>Book Reviews</button>
+        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Library</button>
+        <button className="nav-link" type="button" onClick={() => openPage('audit')}>About / Audit</button>
       </nav>
 
-      <main className="main-content">
+      <main className={page === 'blog' ? 'main-content blog-main-content' : 'main-content'}>
+        {page === 'blog' && <BlogHome onNavigate={openPage} />}
         {page === 'home' && (
           <section className="pathway-card" aria-labelledby="today-pathway-title">
             <div className="pathway-meta">
@@ -994,8 +986,9 @@ function App() {
         )}
       </main>
 
-      <footer className="site-footer">
-        Edwin&apos;s Pathway Notes Daily
+      <footer className="site-footer blog-global-footer">
+        <span>Pathway Notes Daily · Create Once. Inspire Everywhere.</span>
+        <span>© 2026 Edwin’s Pathway Notes Daily</span>
       </footer>
     </div>
   )
