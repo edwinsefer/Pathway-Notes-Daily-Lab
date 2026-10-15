@@ -16,6 +16,19 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByLabel('Book')).toBeVisible()
   })
 
+
+  test('keeps tablet navigation inside the viewport without page-level horizontal overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await page.goto('/')
+
+    const layout = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }))
+    expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewportWidth)
+    await expect(page.getByRole('heading', { name: /Today’s Pathway/i })).toBeVisible()
+  })
+
   test('keeps the blog home usable at mobile width and supports theme toggle', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
