@@ -1,10 +1,47 @@
+import { useEffect, useState } from 'react'
 import './styles/blog-home.css'
 
 type Destination = 'home' | 'bible' | 'library' | 'search' | 'audit'
 
+type BloggerEntry = {
+  title?: { $t?: string }
+  published?: { $t?: string }
+  updated?: { $t?: string }
+  category?: Array<{ term?: string }>
+  content?: { $t?: string }
+  summary?: { $t?: string }
+  link?: Array<{ rel?: string; href?: string }>
+}
+
+type BloggerFeedResponse = {
+  feed?: {
+    title?: { $t?: string }
+    entry?: BloggerEntry[]
+    openSearch$totalResults?: { $t?: string }
+  }
+}
+
+type BlogPost = {
+  title: string
+  date: string
+  url: string
+  category: string
+  excerpt: string
+  image?: string
+}
+
+declare global {
+  interface Window {
+    pathwayBlogFeedCallback?: (data: BloggerFeedResponse) => void
+  }
+}
+
 type BlogHomeProps = {
   onNavigate: (page: Destination) => void
 }
+
+const BLOG_FEED_URL =
+  'https://pathwaynotes.blogspot.com/feeds/posts/default?alt=json-in-script&callback=pathwayBlogFeedCallback&max-results=20'
 
 const categories = [
   { icon: '📖', title: "Today's Pathway", tamil: 'இன்றைய பாதை', tone: 'blue', page: 'home' as Destination },
@@ -16,16 +53,85 @@ const categories = [
   { icon: '▥', title: 'Library', tamil: 'நூலகம்', tone: 'blue', page: 'library' as Destination },
 ]
 
-const posts = [
-  { date: 'Oct 15, 2026', title: 'Be Still and Know', tamil: 'அமர்ந்திருந்து தேவனை அறிந்துகொள்', excerpt: 'A quiet moment with God can change the way we see the day. Pause, listen, and remember that God is present.', category: "Today's Pathway", image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=85', page: 'home' as Destination },
-  { date: 'Oct 14, 2026', title: 'The Power of a Praying Life', tamil: 'ஜெப வாழ்க்கையின் வல்லமை', excerpt: 'Prayer is not a last option. It is our first response—a daily invitation to draw near to God.', category: 'Devotional', image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=85', page: 'home' as Destination },
-  { date: 'Oct 13, 2026', title: 'Seeing Jesus in Isaiah', tamil: 'ஏசாயாவில் இயேசுவைக் காண்போம்', excerpt: 'Isaiah 7:11–15 points us to a greater truth—God with us. Let us explore this passage carefully.', category: 'Bible Study', image: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=85', page: 'bible' as Destination },
-  { date: 'Oct 12, 2026', title: 'Grow in Grace', tamil: 'கிருபையில் வளர்ச்சியடைவோம்', excerpt: 'Spiritual growth is a journey, not a hurry. Small steps, daily, make a difference.', category: 'Christian Living', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=85', page: 'home' as Destination },
-  { date: 'Oct 11, 2026', title: 'When Life Feels Heavy', tamil: 'வாழ்க்கை பாரமாகத் தோன்றும்போது', excerpt: 'It is okay to feel tired. God invites us to come to Him with our burdens.', category: 'Prayer', image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85', page: 'home' as Destination },
-  { date: 'Oct 10, 2026', title: 'Book Review: Gentle and Lowly', tamil: 'நூல் விமர்சனம்: Gentle and Lowly', excerpt: 'A thoughtful book that deepens our understanding of the heart of Christ.', category: 'Book Reviews', image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=900&q=85', page: 'library' as Destination },
-]
+function textFromHtml(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  return (doc.body.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+function toBlogPost(entry: BloggerEntry): BlogPost | null {
+  const title = entry.title?.$t?.trim()
+  const url = entry.link?.find((link) => link.rel === 'alternate')?.href
+  if (!title || !url || !/^https:\/\/pathwaynotes\.blogspot\.com\//i.test(url)) return null
+
+  const html = entry.content?.$t ?? entry.summary?.$t ?? ''
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const image = doc.querySelector('img')?.getAttribute('src') ?? undefined
+  const category = entry.category?.map((item) => item.term?.trim()).find(Boolean) ?? 'Pathway Notes'
+  const dateValue = entry.published?.$t ?? entry.updated?.$t
+  const parsedDate = dateValue ? new Date(dateValue) : null
+  const date = parsedDate && !Number.isNaN(parsedDate.getTime())
+    ? new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(parsedDate)
+    : ''
+
+  return {
+    title,
+    url,
+    date,
+    category,
+    image: image && /^https?:\/\//i.test(image) ? image : undefined,
+    excerpt: textFromHtml(html).slice(0, 220),
+  }
+}
 
 export default function BlogHome({ onNavigate }: BlogHomeProps) {
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [feedStatus, setFeedStatus] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading')
+  const [feedTotal, setFeedTotal] = useState<number | null>(null)
+
+  useEffect(() => {
+    let active = true
+    const script = document.createElement('script')
+    const timeout = window.setTimeout(() => {
+      if (active) setFeedStatus('error')
+      script.remove()
+    }, 15000)
+
+    window.pathwayBlogFeedCallback = (response) => {
+      if (!active) return
+      window.clearTimeout(timeout)
+      const feed = response?.feed
+      const entries = Array.isArray(feed?.entry) ? feed.entry : []
+      const mapped = entries.map(toBlogPost).filter((post): post is BlogPost => post !== null)
+      const total = Number(feed?.['openSearch$totalResults']?.$t)
+      setFeedTotal(Number.isFinite(total) ? total : mapped.length)
+      setPosts(mapped)
+      setFeedStatus(mapped.length ? 'ready' : 'empty')
+    }
+
+    script.src = BLOG_FEED_URL
+    script.async = true
+    script.onerror = () => {
+      if (active) {
+        window.clearTimeout(timeout)
+        setFeedStatus('error')
+      }
+    }
+    document.head.appendChild(script)
+
+    return () => {
+      active = false
+      window.clearTimeout(timeout)
+      script.remove()
+      delete window.pathwayBlogFeedCallback
+    }
+  }, [])
+
+  const feedMessage = feedStatus === 'loading'
+    ? 'Loading the latest published posts from Pathway Notes Daily…'
+    : feedStatus === 'empty'
+      ? 'The Blogger feed responded, but no readable posts were returned.'
+      : 'The live feed could not be loaded. Please try again later.'
+
   return (
     <div className="blog-home">
       <section className="blog-hero" aria-labelledby="blog-hero-title">
@@ -51,20 +157,41 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
 
       <div className="blog-content-grid">
         <section className="blog-posts-section" aria-labelledby="latest-posts-title">
-          <div className="blog-section-heading"><h2 id="latest-posts-title">Design Preview — Sample Posts <span>மாதிரி பதிவுகள் — வடிவமைப்பு முன்னோட்டம்</span></h2><button type="button" onClick={() => onNavigate('search')}>Explore Search →</button></div><p className="blog-prototype-notice" role="note">Preview content only. These sample cards are not published blog posts, and their links do not open original articles. A verified read-only Blogger feed is still pending.</p>
-          <div className="blog-post-grid">
-            {posts.map((post) => (
-              <article className="blog-post-card" key={post.title}>
-                <button className="blog-post-image-button" type="button" onClick={() => onNavigate(post.page)} aria-label={`Open ${post.title}`}>
-                  <img src={post.image} alt="" loading="lazy" />
-                </button>
-                <div className="blog-post-body">
-                  <time>{post.date}</time><h3>{post.title}</h3><p className="blog-post-tamil">{post.tamil}</p><p className="blog-post-excerpt">{post.excerpt}</p>
-                  <div className="blog-post-foot"><span>{post.category}</span><button type="button" onClick={() => onNavigate(post.page)}>Read More →</button></div>
-                </div>
-              </article>
-            ))}
+          <div className="blog-section-heading">
+            <h2 id="latest-posts-title">Latest Published Posts <span>சமீபத்திய பதிவுகள்</span></h2>
+            <button type="button" onClick={() => onNavigate('search')}>Explore Search →</button>
           </div>
+          <p className="blog-prototype-notice" role="note">
+            Live, read-only feed from Edwin’s Stable Blogger Blog V12. Posts open their original Blogger articles. This Lab does not publish to or modify Blogger.
+            {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing up to ${posts.length} recent entries.` : ''}
+          </p>
+
+          {feedStatus !== 'ready' && (
+            <p className="blog-feed-status" role={feedStatus === 'error' ? 'alert' : 'status'} aria-live="polite">{feedMessage}</p>
+          )}
+
+          {feedStatus === 'ready' && (
+            <div className="blog-post-grid">
+              {posts.map((post) => (
+                <article className="blog-post-card" key={post.url}>
+                  <a className="blog-post-image-button" href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open original post: ${post.title}`}>
+                    {post.image
+                      ? <img src={post.image} alt="" loading="lazy" />
+                      : <span className="blog-post-image-placeholder" aria-hidden="true">✝</span>}
+                  </a>
+                  <div className="blog-post-body">
+                    {post.date && <time>{post.date}</time>}
+                    <h3><a href={post.url} target="_blank" rel="noopener noreferrer">{post.title}</a></h3>
+                    <p className="blog-post-excerpt">{post.excerpt || 'Open the original post to read the full reflection.'}</p>
+                    <div className="blog-post-foot">
+                      <span>{post.category}</span>
+                      <a href={post.url} target="_blank" rel="noopener noreferrer">Read More →</a>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
         <aside className="blog-sidebar">
           <section className="blog-verse-card">
