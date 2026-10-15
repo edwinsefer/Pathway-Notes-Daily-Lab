@@ -764,10 +764,13 @@ h1 {
   }
 
   .site-nav {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     justify-content: flex-start;
     gap: 0.75rem;
-    padding-inline: max(2rem, calc((100% - 960px) / 2));
-    overflow-x: visible;
+    padding-inline: 1rem;
+    overflow-x: auto;
   }
 
   .main-content {
