@@ -82,3 +82,27 @@ Previously completed functional checks are treated as approved and are not repea
 - Blog V12: **DO NOT TOUCH**
 - Existing approved Scripture data: change only with explicit need and integrity verification.
 - Keep experimental work inside this laboratory repository.
+
+## Phase 5 — Pathway Notes Daily Blog Model
+
+### Implementation status
+- [x] Build a responsive bilingual homepage with hero, category navigation, latest-post cards, verse panel, sidebar, tagline, and footer.
+- [x] Preserve access to the existing Scripture Reader, Personal Library, Search, and Audit tools.
+- [x] Add responsive mobile layout and theme-aware styling.
+- [x] Add browser checks for blog homepage visibility, reader navigation, mobile layout, and theme switching.
+- [x] GitHub Actions production build and TypeScript verification.
+- [x] GitHub Actions Scripture audit parser tests.
+- [x] GitHub Actions library backup validation tests.
+- [x] GitHub Actions browser end-to-end suite (4 tests passed).
+- [x] Scripture structural audit (66 books, 1,189 chapters, 31,102 verses, 0 issues).
+- [ ] Replace prototype/sample post cards with a verified read-only feed from the designated Test Blog or approved content source.
+- [ ] Verify post links, categories, images, empty/loading/error states, and mobile overflow against real test content.
+- [ ] Decide and verify the separate Blogger navigation link and publishing workflow on Test Blog only.
+- [ ] Complete Integration Readiness Review and document all remaining limitations.
+- [ ] Final approval before any merge or Blogger change.
+
+### Integration safety boundary
+- The homepage cards and email subscription are prototype UI until their real data/services are verified; do not represent them as connected.
+- Blogger and the Vercel app have separate storage. Personal Library backup/restore remains an explicit JSON workflow; never imply automatic sync.
+- Use the designated Test Blog for Blogger-side experiments only. Do not edit Blog V12, its theme, XML, posts, or settings.
+- Do not merge this branch or change the stable blog without Edwin's final approval.
