@@ -95,7 +95,8 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] GitHub Actions library backup validation tests.
 - [x] GitHub Actions browser end-to-end suite (4 tests passed).
 - [x] Scripture structural audit (66 books, 1,189 chapters, 31,102 verses, 0 issues).
-- [x] Clearly label prototype/sample post cards so they cannot be mistaken for published posts; disable the unconnected subscription control and explain that no email is collected.\n- [ ] Replace prototype/sample post cards with a verified read-only feed from the designated Test Blog or approved content source.
+- [x] Clearly label prototype/sample post cards so they cannot be mistaken for published posts; disable the unconnected subscription control and explain that no email is collected.
+- [ ] Replace prototype/sample post cards with a verified read-only feed from the designated Test Blog or approved content source.
 - [ ] Verify post links, categories, images, empty/loading/error states, and mobile overflow against real test content.
 - [ ] Decide and verify the separate Blogger navigation link and publishing workflow on Test Blog only.
 - [ ] Complete Integration Readiness Review and document all remaining limitations.
