@@ -234,7 +234,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
                   <a className="blog-post-image-button" href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open original post: ${post.title}`}>
                     {post.image
                       ? <img src={post.image} alt="" loading="lazy" />
-                      : <span className="blog-post-image-placeholder" aria-hidden="true">✝</span>}
+                      : <span className="blog-post-image-placeholder" aria-hidden="true">📖</span>}
                   </a>
                   <div className="blog-post-body">
                     {post.date && <time dateTime={post.dateTime || undefined}>{post.date}</time>}
