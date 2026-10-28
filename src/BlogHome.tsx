@@ -58,14 +58,49 @@ function textFromHtml(html: string): string {
   return (doc.body.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
+function normalizePostUrl(value: string): string {
+  try {
+    const parsed = new URL(value)
+    parsed.hash = ''
+    parsed.search = ''
+    parsed.pathname = parsed.pathname.replace(/\/+$/, '') || '/'
+    return parsed.toString().replace(/\/$/, parsed.pathname === '/' ? '/' : '')
+  } catch {
+    return value.trim()
+  }
+}
+
+function imageFromHtml(doc: Document): string | undefined {
+  const image = doc.querySelector('img')
+  if (!image) return undefined
+
+  const srcset = image.getAttribute('srcset') ?? image.getAttribute('data-srcset')
+  const firstSrcsetUrl = srcset?.split(',')[0]?.trim().split(/\s+/)[0]
+  const candidate = image.getAttribute('src')
+    || image.getAttribute('data-src')
+    || image.getAttribute('data-lazy-src')
+    || firstSrcsetUrl
+
+  if (!candidate || !/^https?:\/\//i.test(candidate)) return undefined
+  return candidate
+}
+
 function toBlogPost(entry: BloggerEntry): BlogPost | null {
   const title = entry.title?.$t?.trim()
-  const url = entry.link?.find((link) => link.rel === 'alternate')?.href
-  if (!title || !url || !/^https:\/\/pathwaynotes\.blogspot\.com\//i.test(url)) return null
+  const rawUrl = entry.link?.find((link) => link.rel === 'alternate')?.href
+  if (!title || !rawUrl) return null
+
+  let parsedUrl: URL
+  try {
+    parsedUrl = new URL(rawUrl)
+  } catch {
+    return null
+  }
+  if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname.toLowerCase() !== 'pathwaynotes.blogspot.com') return null
 
   const html = entry.content?.$t ?? entry.summary?.$t ?? ''
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  const image = doc.querySelector('img')?.getAttribute('src') ?? undefined
+  const image = imageFromHtml(doc)
   const category = entry.category?.map((item) => item.term?.trim()).find(Boolean) ?? 'Pathway Notes'
   const dateValue = entry.published?.$t ?? entry.updated?.$t
   const parsedDate = dateValue ? new Date(dateValue) : null
@@ -73,14 +108,38 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
     ? new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(parsedDate)
     : ''
 
+  const fullExcerpt = textFromHtml(html)
+  const excerpt = fullExcerpt.length > 220 ? `${fullExcerpt.slice(0, 217).trimEnd()}…` : fullExcerpt
+
   return {
     title,
-    url,
+    url: parsedUrl.toString(),
     date,
     category,
-    image: image && /^https?:\/\//i.test(image) ? image : undefined,
-    excerpt: textFromHtml(html).slice(0, 220),
+    image,
+    excerpt,
   }
+}
+
+function uniquePostsByUrl(posts: BlogPost[]): BlogPost[] {
+  const seen = new Set<string>()
+  return posts.filter((post) => {
+    const key = normalizePostUrl(post.url)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+function countRepeatedTitleDates(posts: BlogPost[]): number {
+  const seen = new Set<string>()
+  let repeats = 0
+  for (const post of posts) {
+    const key = `${post.title.normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleLowerCase()}|${post.date}`
+    if (seen.has(key)) repeats += 1
+    else seen.add(key)
+  }
+  return repeats
 }
 
 export default function BlogHome({ onNavigate }: BlogHomeProps) {
@@ -102,10 +161,11 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
       const feed = response?.feed
       const entries = Array.isArray(feed?.entry) ? feed.entry : []
       const mapped = entries.map(toBlogPost).filter((post): post is BlogPost => post !== null)
+      const uniquePosts = uniquePostsByUrl(mapped)
       const total = Number(feed?.['openSearch$totalResults']?.$t)
       setFeedTotal(Number.isFinite(total) ? total : mapped.length)
-      setPosts(mapped)
-      setFeedStatus(mapped.length ? 'ready' : 'empty')
+      setPosts(uniquePosts)
+      setFeedStatus(uniquePosts.length ? 'ready' : 'empty')
     }
 
     script.src = BLOG_FEED_URL
@@ -125,6 +185,8 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
       delete window.pathwayBlogFeedCallback
     }
   }, [])
+
+  const repeatedTitleDateCount = countRepeatedTitleDates(posts)
 
   const feedMessage = feedStatus === 'loading'
     ? 'Loading the latest published posts from Pathway Notes Daily…'
@@ -163,7 +225,8 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
           </div>
           <p className="blog-prototype-notice" role="note">
             Live, read-only feed from Edwin’s Stable Blogger Blog V12. Posts open their original Blogger articles. This Lab does not publish to or modify Blogger.
-            {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing up to ${posts.length} recent entries.` : ''}
+            {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing ${posts.length} unique recent entries.` : ''}
+            {repeatedTitleDateCount > 0 ? ` Review recommended: ${repeatedTitleDateCount} post(s) share a title and date; they are kept because they may be distinct articles.` : ''}
           </p>
 
           {feedStatus !== 'ready' && (
@@ -180,7 +243,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
                       : <span className="blog-post-image-placeholder" aria-hidden="true">✝</span>}
                   </a>
                   <div className="blog-post-body">
-                    {post.date && <time>{post.date}</time>}
+                    {post.date && <time dateTime={post.date}>{post.date}</time>}
                     <h3><a href={post.url} target="_blank" rel="noopener noreferrer">{post.title}</a></h3>
                     <p className="blog-post-excerpt">{post.excerpt || 'Open the original post to read the full reflection.'}</p>
                     <div className="blog-post-foot">
