@@ -986,10 +986,12 @@ function App() {
         )}
       </main>
 
-      <footer className="site-footer blog-global-footer">
-        <span>Pathway Notes Daily · Create Once. Inspire Everywhere.</span>
-        <span>© 2026 Edwin’s Pathway Notes Daily</span>
-      </footer>
+      {page !== 'blog' && (
+        <footer className="site-footer blog-global-footer">
+          <span>Pathway Notes Daily · Create Once. Inspire Everywhere.</span>
+          <span>© 2026 Edwin’s Pathway Notes Daily</span>
+        </footer>
+      )}
     </div>
   )
 }
