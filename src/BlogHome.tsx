@@ -239,7 +239,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
                   <div className="blog-post-body">
                     {post.date && <time dateTime={post.dateTime || undefined}>{post.date}</time>}
                     <h3><a href={post.url} target="_blank" rel="noopener noreferrer">{post.title}</a></h3>
-                    <p className="blog-post-excerpt">{post.excerpt || 'Open the original post to read the full reflection.'}</p>
+                    <p className="blog-post-excerpt">{post.excerpt || 'இந்தப் பதிவின் சுருக்கம் கிடைக்கவில்லை. முழுப் பதிவை அசல் வலைப்பதிவில் வாசிக்கவும்.'}</p>
                     <div className="blog-post-foot">
                       <span>{post.category}</span>
                       <a href={post.url} target="_blank" rel="noopener noreferrer">Read More →</a>
