@@ -10,6 +10,7 @@ type BloggerEntry = {
   category?: Array<{ term?: string }>
   content?: { $t?: string }
   summary?: { $t?: string }
+  media$thumbnail?: { url?: string }
   link?: Array<{ rel?: string; href?: string }>
 }
 
@@ -114,7 +115,10 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
   const summaryHtml = entry.summary?.$t ?? ''
   const contentDoc = new DOMParser().parseFromString(contentHtml, 'text/html')
   const summaryDoc = new DOMParser().parseFromString(summaryHtml, 'text/html')
-  const image = imageFromHtml(contentDoc) ?? imageFromHtml(summaryDoc)
+  const feedThumbnail = entry.media$thumbnail?.url?.trim()
+  const image = imageFromHtml(contentDoc)
+    ?? imageFromHtml(summaryDoc)
+    ?? (feedThumbnail && /^https?:\/\//i.test(feedThumbnail) ? feedThumbnail : undefined)
   // Blogger summaries are intended as previews; prefer them over full article content.
   const excerptHtml = summaryHtml || contentHtml
   const category = entry.category?.map((item) => item.term?.trim()).find(Boolean) ?? 'Pathway Notes'
