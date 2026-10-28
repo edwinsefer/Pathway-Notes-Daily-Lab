@@ -99,9 +99,13 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
   }
   if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname.toLowerCase() !== 'pathwaynotes.blogspot.com') return null
 
-  const html = entry.content?.$t ?? entry.summary?.$t ?? ''
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const image = imageFromHtml(doc)
+  const contentHtml = entry.content?.$t ?? ''
+  const summaryHtml = entry.summary?.$t ?? ''
+  const contentDoc = new DOMParser().parseFromString(contentHtml, 'text/html')
+  const summaryDoc = new DOMParser().parseFromString(summaryHtml, 'text/html')
+  const image = imageFromHtml(contentDoc) ?? imageFromHtml(summaryDoc)
+  // Blogger summaries are intended as previews; prefer them over full article content.
+  const excerptHtml = summaryHtml || contentHtml
   const category = entry.category?.map((item) => item.term?.trim()).find(Boolean) ?? 'Pathway Notes'
   const dateValue = entry.published?.$t ?? entry.updated?.$t
   const parsedDate = dateValue ? new Date(dateValue) : null
@@ -109,7 +113,7 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
     ? new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(parsedDate)
     : ''
 
-  const fullExcerpt = textFromHtml(html)
+  const fullExcerpt = textFromHtml(excerptHtml)
   const excerpt = fullExcerpt.length > 220 ? `${fullExcerpt.slice(0, 217).trimEnd()}…` : fullExcerpt
 
   return {
@@ -133,16 +137,6 @@ function uniquePostsByUrl(posts: BlogPost[]): BlogPost[] {
   })
 }
 
-function countRepeatedTitleDates(posts: BlogPost[]): number {
-  const seen = new Set<string>()
-  let repeats = 0
-  for (const post of posts) {
-    const key = `${post.title.normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleLowerCase()}|${post.date}`
-    if (seen.has(key)) repeats += 1
-    else seen.add(key)
-  }
-  return repeats
-}
 
 export default function BlogHome({ onNavigate }: BlogHomeProps) {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -188,7 +182,6 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
     }
   }, [])
 
-  const repeatedTitleDateCount = countRepeatedTitleDates(posts)
 
   const feedMessage = feedStatus === 'loading'
     ? 'Loading the latest published posts from Pathway Notes Daily…'
@@ -228,7 +221,6 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
           <p className="blog-prototype-notice" role="note">
             Live, read-only feed from Edwin’s Stable Blogger Blog V12. Posts open their original Blogger articles. This Lab does not publish to or modify Blogger.
             {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing ${posts.length} unique recent entries.` : ''}
-            {repeatedTitleDateCount > 0 ? ` Review recommended: ${repeatedTitleDateCount} repeated title/date match${repeatedTitleDateCount === 1 ? ' was' : 'es were'} found. Entries are retained because they may be distinct articles.` : ''}
           </p>
 
           {feedStatus !== 'ready' && (
