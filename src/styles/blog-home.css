@@ -13,3 +13,17 @@
 :root[data-theme="dark"] .blog-sidebar-panel>button>span{color:#78bdf0}
 :root[data-theme="dark"] .blog-sidebar-panel small{color:#c0d0e3}
 :root[data-theme="dark"] .blog-section-heading h2 span{color:#b8c8dc}
+
+/* Keep Blogger post image frames consistent across desktop and mobile. */
+@media (max-width: 640px) {
+  .blog-post-image-button {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+@media (max-width: 380px) {
+  .blog-post-image-button {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
