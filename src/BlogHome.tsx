@@ -24,6 +24,7 @@ type BloggerFeedResponse = {
 type BlogPost = {
   title: string
   date: string
+  dateTime: string
   url: string
   category: string
   excerpt: string
@@ -115,6 +116,7 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
     title,
     url: parsedUrl.toString(),
     date,
+    dateTime: parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : '',
     category,
     image,
     excerpt,
@@ -243,7 +245,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
                       : <span className="blog-post-image-placeholder" aria-hidden="true">✝</span>}
                   </a>
                   <div className="blog-post-body">
-                    {post.date && <time dateTime={post.date}>{post.date}</time>}
+                    {post.date && <time dateTime={post.dateTime || undefined}>{post.date}</time>}
                     <h3><a href={post.url} target="_blank" rel="noopener noreferrer">{post.title}</a></h3>
                     <p className="blog-post-excerpt">{post.excerpt || 'Open the original post to read the full reflection.'}</p>
                     <div className="blog-post-foot">
