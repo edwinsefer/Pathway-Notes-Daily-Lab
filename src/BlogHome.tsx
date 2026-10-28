@@ -228,7 +228,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
           <p className="blog-prototype-notice" role="note">
             Live, read-only feed from Edwin’s Stable Blogger Blog V12. Posts open their original Blogger articles. This Lab does not publish to or modify Blogger.
             {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing ${posts.length} unique recent entries.` : ''}
-            {repeatedTitleDateCount > 0 ? ` Review recommended: ${repeatedTitleDateCount} post(s) share a title and date; they are kept because they may be distinct articles.` : ''}
+            {repeatedTitleDateCount > 0 ? ` Review recommended: ${repeatedTitleDateCount} repeated title/date match${repeatedTitleDateCount === 1 ? ' was' : 'es were'} found. Entries are retained because they may be distinct articles.` : ''}
           </p>
 
           {feedStatus !== 'ready' && (
