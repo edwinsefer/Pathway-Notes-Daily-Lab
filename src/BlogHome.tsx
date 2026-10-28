@@ -72,18 +72,29 @@ function normalizePostUrl(value: string): string {
 }
 
 function imageFromHtml(doc: Document): string | undefined {
-  const image = doc.querySelector('img')
-  if (!image) return undefined
+  const images = Array.from(doc.querySelectorAll('img'))
 
-  const srcset = image.getAttribute('srcset') ?? image.getAttribute('data-srcset')
-  const firstSrcsetUrl = srcset?.split(',')[0]?.trim().split(/\s+/)[0]
-  const candidate = image.getAttribute('src')
-    || image.getAttribute('data-src')
-    || image.getAttribute('data-lazy-src')
-    || firstSrcsetUrl
+  for (const image of images) {
+    // Blogger themes often put a tiny/blank placeholder in src and the real image in a lazy-load attribute.
+    const srcset = image.getAttribute('data-srcset') || image.getAttribute('srcset')
+    const srcsetUrls = srcset
+      ?.split(',')
+      .map((item) => item.trim().split(/\s+/)[0])
+      .filter(Boolean) ?? []
+    const candidates = [
+      image.getAttribute('data-src'),
+      image.getAttribute('data-lazy-src'),
+      ...srcsetUrls,
+      image.getAttribute('src'),
+    ]
 
-  if (!candidate || !/^https?:\/\//i.test(candidate)) return undefined
-  return candidate
+    for (const value of candidates) {
+      const candidate = value?.trim()
+      if (candidate && /^https?:\/\//i.test(candidate)) return candidate
+    }
+  }
+
+  return undefined
 }
 
 function toBlogPost(entry: BloggerEntry): BlogPost | null {
