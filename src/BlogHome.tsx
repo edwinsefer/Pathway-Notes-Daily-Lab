@@ -10,6 +10,7 @@ type BloggerEntry = {
   category?: Array<{ term?: string }>
   content?: { $t?: string }
   summary?: { $t?: string }
+  media$thumbnail?: { url?: string }
   link?: Array<{ rel?: string; href?: string }>
 }
 
@@ -24,6 +25,7 @@ type BloggerFeedResponse = {
 type BlogPost = {
   title: string
   date: string
+  dateTime: string
   url: string
   category: string
   excerpt: string
@@ -58,14 +60,67 @@ function textFromHtml(html: string): string {
   return (doc.body.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
+function normalizePostUrl(value: string): string {
+  try {
+    const parsed = new URL(value)
+    parsed.hash = ''
+    parsed.search = ''
+    parsed.pathname = parsed.pathname.replace(/\/+$/, '') || '/'
+    return parsed.toString().replace(/\/$/, parsed.pathname === '/' ? '/' : '')
+  } catch {
+    return value.trim()
+  }
+}
+
+function imageFromHtml(doc: Document): string | undefined {
+  const images = Array.from(doc.querySelectorAll('img'))
+
+  for (const image of images) {
+    // Blogger themes often put a tiny/blank placeholder in src and the real image in a lazy-load attribute.
+    const srcset = image.getAttribute('data-srcset') || image.getAttribute('srcset')
+    const srcsetUrls = srcset
+      ?.split(',')
+      .map((item) => item.trim().split(/\s+/)[0])
+      .filter(Boolean) ?? []
+    const candidates = [
+      image.getAttribute('data-src'),
+      image.getAttribute('data-lazy-src'),
+      ...srcsetUrls,
+      image.getAttribute('src'),
+    ]
+
+    for (const value of candidates) {
+      const candidate = value?.trim()
+      if (candidate && /^https?:\/\//i.test(candidate)) return candidate
+    }
+  }
+
+  return undefined
+}
+
 function toBlogPost(entry: BloggerEntry): BlogPost | null {
   const title = entry.title?.$t?.trim()
-  const url = entry.link?.find((link) => link.rel === 'alternate')?.href
-  if (!title || !url || !/^https:\/\/pathwaynotes\.blogspot\.com\//i.test(url)) return null
+  const rawUrl = entry.link?.find((link) => link.rel === 'alternate')?.href
+  if (!title || !rawUrl) return null
 
-  const html = entry.content?.$t ?? entry.summary?.$t ?? ''
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const image = doc.querySelector('img')?.getAttribute('src') ?? undefined
+  let parsedUrl: URL
+  try {
+    parsedUrl = new URL(rawUrl)
+  } catch {
+    return null
+  }
+  if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname.toLowerCase() !== 'pathwaynotes.blogspot.com') return null
+
+  const contentHtml = entry.content?.$t ?? ''
+  const summaryHtml = entry.summary?.$t ?? ''
+  const contentDoc = new DOMParser().parseFromString(contentHtml, 'text/html')
+  const summaryDoc = new DOMParser().parseFromString(summaryHtml, 'text/html')
+  const feedThumbnail = entry.media$thumbnail?.url?.trim()
+  const image = imageFromHtml(contentDoc)
+    ?? imageFromHtml(summaryDoc)
+    ?? (feedThumbnail && /^https?:\/\//i.test(feedThumbnail) ? feedThumbnail : undefined)
+  // Blogger summaries are intended as previews; prefer them over full article content.
+  const excerptHtml = summaryHtml || contentHtml
   const category = entry.category?.map((item) => item.term?.trim()).find(Boolean) ?? 'Pathway Notes'
   const dateValue = entry.published?.$t ?? entry.updated?.$t
   const parsedDate = dateValue ? new Date(dateValue) : null
@@ -73,15 +128,30 @@ function toBlogPost(entry: BloggerEntry): BlogPost | null {
     ? new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(parsedDate)
     : ''
 
+  const fullExcerpt = textFromHtml(excerptHtml)
+  const excerpt = fullExcerpt.length > 220 ? `${fullExcerpt.slice(0, 217).trimEnd()}…` : fullExcerpt
+
   return {
     title,
-    url,
+    url: parsedUrl.toString(),
     date,
+    dateTime: parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : '',
     category,
-    image: image && /^https?:\/\//i.test(image) ? image : undefined,
-    excerpt: textFromHtml(html).slice(0, 220),
+    image,
+    excerpt,
   }
 }
+
+function uniquePostsByUrl(posts: BlogPost[]): BlogPost[] {
+  const seen = new Set<string>()
+  return posts.filter((post) => {
+    const key = normalizePostUrl(post.url)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 
 export default function BlogHome({ onNavigate }: BlogHomeProps) {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -102,10 +172,11 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
       const feed = response?.feed
       const entries = Array.isArray(feed?.entry) ? feed.entry : []
       const mapped = entries.map(toBlogPost).filter((post): post is BlogPost => post !== null)
+      const uniquePosts = uniquePostsByUrl(mapped)
       const total = Number(feed?.['openSearch$totalResults']?.$t)
       setFeedTotal(Number.isFinite(total) ? total : mapped.length)
-      setPosts(mapped)
-      setFeedStatus(mapped.length ? 'ready' : 'empty')
+      setPosts(uniquePosts)
+      setFeedStatus(uniquePosts.length ? 'ready' : 'empty')
     }
 
     script.src = BLOG_FEED_URL
@@ -125,6 +196,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
       delete window.pathwayBlogFeedCallback
     }
   }, [])
+
 
   const feedMessage = feedStatus === 'loading'
     ? 'Loading the latest published posts from Pathway Notes Daily…'
@@ -163,7 +235,7 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
           </div>
           <p className="blog-prototype-notice" role="note">
             Live, read-only feed from Edwin’s Stable Blogger Blog V12. Posts open their original Blogger articles. This Lab does not publish to or modify Blogger.
-            {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing up to ${posts.length} recent entries.` : ''}
+            {feedTotal !== null ? ` Feed reports ${feedTotal} published posts; showing ${posts.length} unique recent entries.` : ''}
           </p>
 
           {feedStatus !== 'ready' && (
@@ -177,12 +249,12 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
                   <a className="blog-post-image-button" href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open original post: ${post.title}`}>
                     {post.image
                       ? <img src={post.image} alt="" loading="lazy" />
-                      : <span className="blog-post-image-placeholder" aria-hidden="true">✝</span>}
+                      : <span className="blog-post-image-placeholder" aria-hidden="true">📖</span>}
                   </a>
                   <div className="blog-post-body">
-                    {post.date && <time>{post.date}</time>}
+                    {post.date && <time dateTime={post.dateTime || undefined}>{post.date}</time>}
                     <h3><a href={post.url} target="_blank" rel="noopener noreferrer">{post.title}</a></h3>
-                    <p className="blog-post-excerpt">{post.excerpt || 'Open the original post to read the full reflection.'}</p>
+                    <p className="blog-post-excerpt">{post.excerpt || 'இந்தப் பதிவின் சுருக்கம் கிடைக்கவில்லை. முழுப் பதிவை அசல் வலைப்பதிவில் வாசிக்கவும்.'}</p>
                     <div className="blog-post-foot">
                       <span>{post.category}</span>
                       <a href={post.url} target="_blank" rel="noopener noreferrer">Read More →</a>

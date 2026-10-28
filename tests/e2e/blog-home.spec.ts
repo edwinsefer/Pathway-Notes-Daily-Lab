@@ -16,7 +16,7 @@ test.describe('Pathway Notes Daily blog home', () => {
       'href',
       /^https:\/\/pathwaynotes\.blogspot\.com\//,
     )
-    await expect(page.getByText(/Feed reports 134 published posts/i)).toBeVisible()
+    await expect(feedNotice).toContainText(/Feed reports \d+ published posts; showing \d+ unique recent entries\./i)
 
     await page.getByRole('button', { name: 'Bible Study', exact: true }).first().click()
     await expect(page.getByRole('heading', { name: 'Tamil Bible' })).toBeVisible()
