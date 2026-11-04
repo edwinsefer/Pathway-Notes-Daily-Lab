@@ -27,3 +27,11 @@
     aspect-ratio: 16 / 9;
   }
 }
+
+/* Dark-mode action-link contrast: AA-safe against the dark surfaces used by the blog cards and page. */
+:root[data-theme="dark"] .blog-section-heading > button,
+:root[data-theme="dark"] .blog-post-foot button,
+:root[data-theme="dark"] .blog-post-foot a,
+:root[data-theme="dark"] .blog-verse-card > button {
+  color: #8ecbff;
+}
