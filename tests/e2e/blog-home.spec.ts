@@ -66,7 +66,7 @@ test.describe('Pathway Notes Daily blog home', () => {
         const columnCount = (selector: string) => {
           const element = document.querySelector<HTMLElement>(selector)
           if (!element) return 0
-          return getComputedStyle(element).gridTemplateColumns.split(/\\s+/).length
+          return getComputedStyle(element).gridTemplateColumns.split(/\s+/).length
         }
 
         return {
@@ -103,7 +103,7 @@ test.describe('Pathway Notes Daily blog home', () => {
         })
         return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
       }
-      const parseRgb = (value: string) => value.match(/[\\d.]+/g)?.slice(0, 3).map(Number) ?? []
+      const parseRgb = (value: string) => value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? []
       const backgrounds = [[17, 24, 39], [7, 27, 45], [24, 38, 58]]
 
       return selectors.map((selector) => {
