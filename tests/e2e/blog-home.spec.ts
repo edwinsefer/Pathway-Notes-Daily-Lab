@@ -46,4 +46,87 @@ test.describe('Pathway Notes Daily blog home', () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
     expect(overflow).toBe(false)
   })
+
+  test('covers responsive layouts at 320, 380, 390, 640, and 768 pixels', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 })
+    await page.goto('/')
+    await expect(page.locator('.blog-post-grid .blog-post-card').first()).toBeVisible({ timeout: 30000 })
+
+    const cases = [
+      { width: 320, categoryColumns: 2, postColumns: 1 },
+      { width: 380, categoryColumns: 2, postColumns: 1 },
+      { width: 390, categoryColumns: 2, postColumns: 2 },
+      { width: 640, categoryColumns: 2, postColumns: 2 },
+      { width: 768, categoryColumns: 4, postColumns: 2 },
+    ]
+
+    for (const viewport of cases) {
+      await page.setViewportSize({ width: viewport.width, height: 800 })
+      const layout = await page.evaluate(() => {
+        const columnCount = (selector: string) => {
+          const element = document.querySelector<HTMLElement>(selector)
+          if (!element) return 0
+          return getComputedStyle(element).gridTemplateColumns.split(/\\s+/).length
+        }
+
+        return {
+          viewportWidth: window.innerWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          categoryColumns: columnCount('.blog-category-grid'),
+          postColumns: columnCount('.blog-post-grid'),
+        }
+      })
+
+      expect(layout.documentWidth, `horizontal overflow at ${viewport.width}px`).toBeLessThanOrEqual(layout.viewportWidth)
+      expect(layout.categoryColumns, `category columns at ${viewport.width}px`).toBe(viewport.categoryColumns)
+      expect(layout.postColumns, `post columns at ${viewport.width}px`).toBe(viewport.postColumns)
+    }
+  })
+
+  test('keeps dark-mode blog action links above WCAG AA contrast', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await expect(page.locator('.blog-post-foot a').first()).toBeVisible({ timeout: 30000 })
+    await page.getByRole('button', { name: /Switch to dark theme/i }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+
+    const contrast = await page.evaluate(() => {
+      const selectors = [
+        '.blog-section-heading > button',
+        '.blog-post-foot a',
+        '.blog-verse-card > button',
+      ]
+      const luminance = (rgb: number[]) => {
+        const channels = rgb.map((value) => {
+          const channel = value / 255
+          return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+        })
+        return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+      }
+      const parseRgb = (value: string) => value.match(/[\\d.]+/g)?.slice(0, 3).map(Number) ?? []
+      const backgrounds = [[17, 24, 39], [7, 27, 45], [24, 38, 58]]
+
+      return selectors.map((selector) => {
+        const element = document.querySelector<HTMLElement>(selector)
+        if (!element) return { selector, missing: true, color: '', ratios: [] }
+        const color = getComputedStyle(element).color
+        const foreground = luminance(parseRgb(color))
+        const ratios = backgrounds.map((background) => {
+          const backgroundLuminance = luminance(background)
+          return (Math.max(foreground, backgroundLuminance) + 0.05) /
+            (Math.min(foreground, backgroundLuminance) + 0.05)
+        })
+        return { selector, missing: false, color, ratios }
+      })
+    })
+
+    for (const item of contrast) {
+      expect(item.missing, `missing element: ${item.selector}`).toBe(false)
+      expect(item.color, `unexpected dark-mode link color: ${item.selector}`).toBe('rgb(142, 203, 255)')
+      for (const ratio of item.ratios) {
+        expect(ratio, `contrast ratio for ${item.selector}`).toBeGreaterThanOrEqual(4.5)
+      }
+    }
+  })
+
 })
