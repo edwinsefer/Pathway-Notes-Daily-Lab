@@ -35,3 +35,18 @@
 :root[data-theme="dark"] .blog-verse-card > button {
   color: #8ecbff;
 }
+
+
+/* Final dark-mode sidebar link legibility: use explicit high-contrast colors on the rendered blog surfaces. */
+:root[data-theme="dark"] .blog-home .blog-sidebar-panel > button {
+  color: #d6e7fb;
+}
+:root[data-theme="dark"] .blog-home .blog-sidebar-panel > button > span {
+  color: #8ecbff;
+}
+:root[data-theme="dark"] .blog-home .blog-sidebar-panel > button small {
+  color: #c0d0e3;
+}
+:root[data-theme="dark"] .blog-home .blog-verse-card > button {
+  color: #8ecbff;
+}
