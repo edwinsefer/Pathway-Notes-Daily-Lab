@@ -91,10 +91,12 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
     const contrast = await page.evaluate(() => {
-      const selectors = [
-        '.blog-section-heading > button',
-        '.blog-post-foot a',
-        '.blog-verse-card > button',
+      const checks = [
+        { selector: '.blog-section-heading > button', color: 'rgb(142, 203, 255)', backgrounds: [[17, 24, 39], [7, 27, 45], [24, 38, 58]] },
+        { selector: '.blog-post-foot a', color: 'rgb(142, 203, 255)', backgrounds: [[17, 24, 39], [7, 27, 45], [24, 38, 58]] },
+        { selector: '.blog-verse-card > button', color: 'rgb(142, 203, 255)', backgrounds: [[24, 38, 58]] },
+        { selector: '.blog-sidebar-panel > button', color: 'rgb(214, 231, 251)', backgrounds: [[24, 38, 58]] },
+        { selector: '.blog-brand-title', color: 'rgb(245, 247, 252)', backgrounds: [[24, 34, 53]] },
       ]
       const luminance = (rgb: number[]) => {
         const channels = rgb.map((value) => {
@@ -104,11 +106,9 @@ test.describe('Pathway Notes Daily blog home', () => {
         return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
       }
       const parseRgb = (value: string) => value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? []
-      const backgrounds = [[17, 24, 39], [7, 27, 45], [24, 38, 58]]
-
-      return selectors.map((selector) => {
+      return checks.map(({ selector, color: expectedColor, backgrounds }) => {
         const element = document.querySelector<HTMLElement>(selector)
-        if (!element) return { selector, missing: true, color: '', ratios: [] }
+        if (!element) return { selector, missing: true, color: '', expectedColor, ratios: [] }
         const color = getComputedStyle(element).color
         const foreground = luminance(parseRgb(color))
         const ratios = backgrounds.map((background) => {
@@ -116,13 +116,13 @@ test.describe('Pathway Notes Daily blog home', () => {
           return (Math.max(foreground, backgroundLuminance) + 0.05) /
             (Math.min(foreground, backgroundLuminance) + 0.05)
         })
-        return { selector, missing: false, color, ratios }
+        return { selector, missing: false, color, expectedColor, ratios }
       })
     })
 
     for (const item of contrast) {
       expect(item.missing, `missing element: ${item.selector}`).toBe(false)
-      expect(item.color, `unexpected dark-mode link color: ${item.selector}`).toBe('rgb(142, 203, 255)')
+      expect(item.color, `unexpected dark-mode text color: ${item.selector}`).toBe(item.expectedColor)
       for (const ratio of item.ratios) {
         expect(ratio, `contrast ratio for ${item.selector}`).toBeGreaterThanOrEqual(4.5)
       }
