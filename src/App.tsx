@@ -3,7 +3,6 @@ import BlogHome from './BlogHome'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
-import { approvedScriptureChapters, findApprovedChapter } from './data/scripture/registry'
 import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupValidation.mjs'
 import type { ScriptureChapter } from './data/scripture/types'
 
@@ -18,11 +17,11 @@ type AuditIssue = {
   issue: string
 }
 
-const runScriptureAudit = (): AuditIssue[] => {
+const runScriptureAudit = (books: typeof bibleBooks, chaptersData: ScriptureChapter[]): AuditIssue[] => {
   const issues: AuditIssue[] = []
 
-  for (const book of bibleBooks) {
-    const chapters = approvedScriptureChapters
+  for (const book of books) {
+    const chapters = chaptersData
       .filter((chapter) => chapter.book.trim().toLowerCase() === book.name.trim().toLowerCase())
       .sort((a, b) => a.chapter - b.chapter)
 
@@ -71,6 +70,9 @@ function App() {
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
   const [page, setPage] = useState<Page>('blog')
+  const [scriptureRegistry, setScriptureRegistry] = useState<typeof import('./data/scripture/registry') | null>(null)
+  const [scriptureDataLoading, setScriptureDataLoading] = useState(false)
+  const [scriptureDataError, setScriptureDataError] = useState(false)
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [selectedVerse, setSelectedVerse] = useState(46)
   const [navigationBook, setNavigationBook] = useState('Genesis')
@@ -108,6 +110,19 @@ function App() {
   const [libraryQuery, setLibraryQuery] = useState('')
   const [libraryContext, setLibraryContext] = useState<string | null>(null)
   const [backupStatus, setBackupStatus] = useState('')
+
+  useEffect(() => {
+    if (!['bible', 'scripture', 'library', 'search', 'audit'].includes(page) || scriptureRegistry) return
+    let active = true
+    setScriptureDataLoading(true)
+    import('./data/scripture/registry')
+      .then((registry) => {
+        if (active) { setScriptureRegistry(registry); setScriptureDataError(false) }
+      })
+      .catch(() => { if (active) setScriptureDataError(true) })
+      .finally(() => { if (active) setScriptureDataLoading(false) })
+    return () => { active = false }
+  }, [page, scriptureRegistry])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -165,7 +180,7 @@ function App() {
     try {
       const parsed = JSON.parse(await file.text())
       const isKnownVerse = (book: string, chapter: number, verse: number) => {
-        const chapterData = findApprovedChapter(book, chapter)
+        const chapterData = findLoadedApprovedChapter(book, chapter)
         return Boolean(chapterData?.verses.some((item) => item.verse === verse))
       }
       if (!validateLibraryBackup(parsed, isKnownVerse)) {
@@ -206,6 +221,9 @@ function App() {
   const isSelectedVerseSaved = savedVerses.some(
     (item) => `${item.book}|${item.chapter}|${item.verse}` === selectedVerseKey,
   )
+
+  const findLoadedApprovedChapter = (book: string, chapter: number) => scriptureRegistry?.findApprovedChapter(book, chapter) ?? null
+  const approvedScriptureChapters = scriptureRegistry?.approvedScriptureChapters ?? []
 
   const highlightedVerseItems = useMemo(() => {
     return Object.entries(highlightedVerses)
@@ -317,15 +335,18 @@ function App() {
   const openPage = (nextPage: Page) => {
     setPage(nextPage)
     setIsFullPathwayOpen(false)
-    if (nextPage === 'audit') setAuditIssues(runScriptureAudit())
+    if (nextPage === 'audit' && scriptureRegistry) setAuditIssues(runScriptureAudit(bibleBooks, scriptureRegistry.approvedScriptureChapters))
   }
+
+  useEffect(() => {
+    if (page === 'audit' && scriptureRegistry) setAuditIssues(runScriptureAudit(bibleBooks, scriptureRegistry.approvedScriptureChapters))
+  }, [page, scriptureRegistry])
 
   const openChapter = (bookName: string, chapterNumber: number) => {
     const chapter = findApprovedChapter(bookName, chapterNumber)
     if (chapter) openScripture(chapter, 1)
   }
 
-  const availableChapters = approvedScriptureChapters
   const navigationBookInfo = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === navigationBook.trim().toLowerCase(),
   )
@@ -461,6 +482,8 @@ function App() {
       </nav>
 
       <main className={page === 'blog' ? 'main-content blog-main-content' : 'main-content'}>
+        {scriptureDataLoading && <p role="status" className="saved-empty-text">Loading Scripture library…</p>}
+        {scriptureDataError && <p role="alert" className="saved-empty-text">Scripture library could not be loaded. Please try again.</p>}
         {page === 'blog' && <BlogHome onNavigate={openPage} />}
         {page === 'home' && (
           <section className="pathway-card" aria-labelledby="today-pathway-title">
