@@ -23,6 +23,25 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByLabel('Book')).toBeVisible()
   })
 
+  test('downloads the Scripture registry only after opening Bible Study', async ({ page }) => {
+    const registryRequests: string[] = []
+    page.on('request', (request) => {
+      if (request.resourceType() === 'script' && request.url().includes('/assets/registry-')) {
+        registryRequests.push(request.url())
+      }
+    })
+
+    await page.goto('/')
+    await expect(page.getByRole('heading', { name: /Latest Published Posts/i })).toBeVisible()
+    expect(registryRequests, 'Home must not request the large Scripture registry chunk').toHaveLength(0)
+
+    await page.getByRole('button', { name: 'Bible Study', exact: true }).first().click()
+    await expect(page.getByRole('heading', { name: 'Tamil Bible' })).toBeVisible()
+    await expect.poll(() => registryRequests.length, {
+      message: 'Bible Study should request the lazy-loaded Scripture registry chunk',
+    }).toBeGreaterThan(0)
+  })
+
   test('shows a reading placeholder when a Blogger post image fails to load', async ({ page }) => {
     await page.route('**/*', async (route) => {
       if (route.request().resourceType() === 'image') {
