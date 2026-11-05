@@ -7,7 +7,7 @@ import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupV
 import type { ScriptureChapter } from './data/scripture/types'
 
 type Theme = 'light' | 'dark'
-type Page = 'blog' | 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
+type Page = 'blog' | 'home' | 'books' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
 type LibraryFilter = 'all' | 'saved' | 'highlighted' | 'noted'
 
 type AuditIssue = {
@@ -476,8 +476,8 @@ function App() {
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Devotional</button>
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Christian Living</button>
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Prayer</button>
-        <button className="nav-link" type="button" onClick={() => openPage('library')}>Book Reviews</button>
-        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Library</button>
+        <button className={page === 'books' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('books')}>Books Library</button>
+        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Personal Library</button>
         <button className="nav-link" type="button" onClick={() => openPage('audit')}>About / Audit</button>
       </nav>
 
@@ -835,6 +835,21 @@ function App() {
             <button className="pathway-read-button" type="button" onClick={() => openPage('bible')}>
               Back to Bible Library
             </button>
+          </section>
+        )}
+
+        {page === 'books' && (
+          <section className="placeholder-page" aria-labelledby="books-library-title">
+            <div className="page-heading">
+              <p className="eyebrow">CHRISTIAN BOOKS CATALOGUE</p>
+              <h1 id="books-library-title">Books Library</h1>
+              <p>A dedicated catalogue for Christian books, including PDF and EPUB records.</p>
+            </div>
+            <section className="empty-library" aria-labelledby="books-library-empty-title">
+              <h2 id="books-library-empty-title">Your Books Library is ready to begin</h2>
+              <p>Book records, search, and filters will be added in the next phase. No files have been copied, moved, uploaded, or changed.</p>
+              <p>This catalogue is separate from your Personal Library and the Tamil Bible Library.</p>
+            </section>
           </section>
         )}
 
