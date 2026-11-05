@@ -489,7 +489,7 @@ function App() {
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Christian Living</button>
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Prayer</button>
         <button className={page === 'books' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('books')}>Books Library</button>
-        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Personal Library</button>
+        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Personal Notes</button>
         <button className="nav-link" type="button" onClick={() => openPage('audit')}>About / Audit</button>
       </nav>
 
@@ -957,12 +957,12 @@ function App() {
         {page === 'library' && scriptureRegistry && (
           <section className="library-page" aria-labelledby="library-title">
             <div className="page-heading">
-              <p className="eyebrow">PERSONAL LIBRARY</p>
-              <h1 id="library-title">Saved Items</h1>
+              <p className="eyebrow">PERSONAL NOTES</p>
+              <h1 id="library-title">Personal Notes</h1>
               <p>Your saved pathways, verses, highlights, and notes stay on this device for now.</p>
             </div>
 
-            <div className="library-filter-bar" aria-label="Personal Library filter">
+            <div className="library-filter-bar" aria-label="Personal Notes filter">
               {([
                 ['all', 'All', savedVerses.length + highlightedVerseItems.length + notedVerseItems.length],
                 ['saved', 'Saved', savedVerses.length],
@@ -976,19 +976,19 @@ function App() {
             </div>
 
             <div className="library-search-card">
-              <label htmlFor="library-search">Find in your library</label>
+              <label htmlFor="library-search">Find in your notes and saved items</label>
               <input
                 id="library-search"
                 type="search"
                 value={libraryQuery}
                 onChange={(event) => setLibraryQuery(event.target.value)}
-                placeholder="Book, verse, word, or note…"
+                placeholder="Verse, pathway, word, or note…"
                 autoComplete="off"
               />
             </div>
 
             <section className="saved-library-section" aria-labelledby="library-backup-title">
-              <div className="saved-library-heading"><h2 id="library-backup-title">Library Backup</h2></div>
+              <div className="saved-library-heading"><h2 id="library-backup-title">Personal Notes Backup</h2></div>
               <p className="saved-empty-text">Export your saved verses, highlights, notes, and theme to a JSON file. Import a backup to restore them on this preview.</p>
               <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button className="library-open-button" type="button" onClick={exportLibraryBackup}>Download Backup</button>
