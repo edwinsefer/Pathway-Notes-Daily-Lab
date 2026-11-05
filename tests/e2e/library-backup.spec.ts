@@ -38,7 +38,7 @@ async function storageState(page) {
   }), keys)
 }
 async function openLibrary(page) {
-  await page.getByRole('button', { name: 'Library', exact: true }).click()
+  await page.getByRole('button', { name: 'Personal Library', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
 }
 
