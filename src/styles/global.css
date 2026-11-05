@@ -1178,3 +1178,65 @@ h1 {
 :root[data-theme="dark"] .site-header .blog-brand-title {
   color: #f5f7fc;
 }
+
+
+/* Christian Books Library — isolated catalogue presentation */
+.books-library-page {
+  display: grid;
+  gap: 1.5rem;
+}
+.books-record-form,
+.books-catalogue-list {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border, #d7dce4);
+  border-radius: 1rem;
+  background: var(--card, rgba(255, 255, 255, 0.72));
+}
+.books-record-form h2,
+.books-catalogue-list h2 {
+  margin: 0;
+}
+.books-record-form label,
+.books-catalogue-controls label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+.books-record-form input,
+.books-record-form select,
+.books-catalogue-controls input,
+.books-catalogue-controls select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border, #b9c2ce);
+  border-radius: 0.65rem;
+  color: inherit;
+  background: var(--surface, #fff);
+  font: inherit;
+}
+.books-catalogue-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.books-catalogue-card {
+  padding: 1rem;
+  border: 1px solid var(--border, #d7dce4);
+  border-radius: 0.8rem;
+}
+.books-catalogue-card h3,
+.books-catalogue-card p {
+  margin: 0 0 0.4rem;
+}
+.books-catalogue-card span {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+@media (max-width: 560px) {
+  .books-catalogue-controls {
+    grid-template-columns: 1fr;
+  }
+}
