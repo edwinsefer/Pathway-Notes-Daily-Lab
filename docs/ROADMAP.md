@@ -164,3 +164,17 @@ Previously completed functional checks are treated as approved and are not repea
 - [ ] External reviewer access to the Preview is still blocked by enabled Vercel SSO protection. No protection settings were changed.
 - [ ] Final review and explicit approval before merge. No merge performed.
 - [x] Stable Blogger Blog V12 remains unchanged; all feed requests were read-only.
+
+
+## Phase 6 — Christian Books Library (separate from Scripture Library)
+- [x] Inspect current navigation and data model; confirm Book Reviews currently routes to Personal Library.
+- [x] Confirm Bible catalogue metadata is not a general Christian-books catalogue.
+- [x] Define separate Christian Books Library implementation plan and safety boundaries in `docs/CHRISTIAN-BOOKS-LIBRARY-PLAN.md`.
+- [ ] Add dedicated Books Library route/page while preserving Personal Library route and storage.
+- [ ] Add versioned book-catalogue metadata model and validation.
+- [ ] Add catalogue empty state, book record form, search, and filters.
+- [ ] Verify Books Library does not load Scripture registry.
+- [ ] Add unit and browser regression tests; verify Personal Library backup/restore remains unchanged.
+- [ ] Obtain user visual acceptance for mobile/desktop Light/Dark modes.
+
+**Phase 6 boundary:** Phase 1 is catalogue metadata only. No PDF/EPUB file copying, moving, deleting, upload, cloud sync, or reader integration until separately implemented and verified. Blog V12 remains locked; Blogger remains read-only; Scripture source data remains untouched. PR #7 stays Open/Draft and unmerged.
