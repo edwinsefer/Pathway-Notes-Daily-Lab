@@ -51,7 +51,7 @@ const categories = [
   { icon: '🕊️', title: 'Devotional', tamil: 'தியானச் செய்திகள்', tone: 'lavender', page: 'home' as Destination },
   { icon: '🌿', title: 'Christian Living', tamil: 'கிறிஸ்தவ வாழ்க்கை', tone: 'green', page: 'home' as Destination },
   { icon: '🙏', title: 'Prayer', tamil: 'ஜெபம்', tone: 'peach', page: 'home' as Destination },
-  { icon: '📚', title: 'Personal Library', tamil: 'எனது சேமிப்புகள்', tone: 'sky', page: 'library' as Destination },
+  { icon: '📚', title: 'Personal Notes', tamil: 'எனது குறிப்புகள்', tone: 'sky', page: 'library' as Destination },
   { icon: '▥', title: 'Books Library', tamil: 'நூலகம்', tone: 'blue', page: 'books' as Destination },
 ]
 
