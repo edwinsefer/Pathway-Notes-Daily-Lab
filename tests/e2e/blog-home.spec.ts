@@ -76,7 +76,7 @@ test.describe('Pathway Notes Daily blog home', () => {
 
     await page.goto('/')
     await page.getByRole('button', { name: 'Books Library', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Books Library' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Books Library', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Your Books Library is ready to begin' })).toBeVisible()
     expect(registryRequests, 'Books Library must not request the Scripture registry').toHaveLength(0)
 
