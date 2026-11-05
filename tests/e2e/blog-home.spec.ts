@@ -23,6 +23,15 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByLabel('Book')).toBeVisible()
   })
 
+  test('shows a reading placeholder when a Blogger post image fails to load', async ({ page }) => {
+    await page.goto('/')
+    const image = page.locator('.blog-post-image-button img').first()
+    await expect(image).toBeVisible({ timeout: 30000 })
+    await image.evaluate((element) => element.dispatchEvent(new Event('error')))
+    await expect(page.locator('.blog-post-image-button .blog-post-image-placeholder').first()).toBeVisible()
+    await expect(page.locator('.blog-post-image-button img').first()).toHaveCount(0)
+  })
+
   test('keeps tablet navigation inside the viewport without page-level horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 })
     await page.goto('/')
