@@ -155,6 +155,7 @@ function uniquePostsByUrl(posts: BlogPost[]): BlogPost[] {
 
 export default function BlogHome({ onNavigate }: BlogHomeProps) {
   const [posts, setPosts] = useState<BlogPost[]>([])
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({})
   const [feedStatus, setFeedStatus] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading')
   const [feedTotal, setFeedTotal] = useState<number | null>(null)
 
@@ -247,8 +248,15 @@ export default function BlogHome({ onNavigate }: BlogHomeProps) {
               {posts.map((post) => (
                 <article className="blog-post-card" key={post.url}>
                   <a className="blog-post-image-button" href={post.url} target="_blank" rel="noopener noreferrer" aria-label={`Open original post: ${post.title}`}>
-                    {post.image
-                      ? <img src={post.image} alt="" loading="lazy" />
+                    {post.image && !failedImages[post.url]
+                      ? (
+                        <img
+                          src={post.image}
+                          alt=""
+                          loading="lazy"
+                          onError={() => setFailedImages((current) => ({ ...current, [post.url]: true }))}
+                        />
+                      )
                       : <span className="blog-post-image-placeholder" aria-hidden="true">📖</span>}
                   </a>
                   <div className="blog-post-body">
