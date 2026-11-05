@@ -50,3 +50,25 @@
 :root[data-theme="dark"] .blog-home .blog-verse-card > button {
   color: #8ecbff;
 }
+
+
+/* Mobile readability: use a single post column on narrow phones. */
+@media (max-width: 480px) {
+  .blog-post-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .8rem;
+  }
+  .blog-post-image-button {
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+  .blog-post-body {
+    padding: .8rem;
+  }
+  .blog-post-body h3 {
+    font-size: 1rem;
+  }
+  .blog-post-excerpt {
+    font-size: .8rem;
+  }
+}
