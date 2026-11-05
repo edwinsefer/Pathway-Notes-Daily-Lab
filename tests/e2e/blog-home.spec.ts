@@ -24,13 +24,19 @@ test.describe('Pathway Notes Daily blog home', () => {
   })
 
   test('shows a reading placeholder when a Blogger post image fails to load', async ({ page }) => {
+    await page.route('**/*', async (route) => {
+      if (route.request().resourceType() === 'image') {
+        await route.abort()
+        return
+      }
+      await route.continue()
+    })
+
     await page.goto('/')
-    const image = page.locator('.blog-post-image-button img').first()
-    const imageLink = image.locator('xpath=..')
-    await expect(image).toBeVisible({ timeout: 30000 })
-    await image.evaluate((element) => element.dispatchEvent(new Event('error')))
-    await expect(imageLink.locator('.blog-post-image-placeholder')).toBeVisible()
-    await expect(imageLink.locator('img')).toHaveCount(0)
+    const firstCard = page.locator('.blog-post-card').first()
+    await expect(firstCard).toBeVisible({ timeout: 30000 })
+    await expect(firstCard.locator('.blog-post-image-placeholder')).toBeVisible()
+    await expect(firstCard.locator('.blog-post-image-button img')).toHaveCount(0)
   })
 
   test('keeps tablet navigation inside the viewport without page-level horizontal overflow', async ({ page }) => {
