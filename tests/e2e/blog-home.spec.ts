@@ -72,7 +72,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByRole('heading', { name: 'Books Library', exact: true })).toBeVisible()
 
     await page.goto('/')
-    await page.getByRole('button', { name: /Personal Notes எனது சேமிப்புகள்/ }).click()
+    await page.getByRole('button', { name: /Personal Notes எனது குறிப்புகள்/ }).click()
     await expect(page.getByRole('heading', { name: 'Personal Notes Backup' })).toBeVisible()
   })
 
