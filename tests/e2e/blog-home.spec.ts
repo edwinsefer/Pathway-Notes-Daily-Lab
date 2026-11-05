@@ -42,7 +42,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     })).toBe(true)
 
     await page.reload()
-    await page.getByRole('button', { name: 'Library', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Personal Library', exact: true }).first().click()
     await expect(page.getByRole('heading', { name: 'Highlighted Verses' })).toBeVisible()
     await expect(page.getByText('1 Samuel 11:2', { exact: true })).toBeVisible()
   })
@@ -63,6 +63,27 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByRole('heading', { name: 'Tamil Bible' })).toBeVisible()
     await expect.poll(() => registryRequests.length, {
       message: 'Bible Study should request the lazy-loaded Scripture registry chunk',
+    }).toBeGreaterThan(0)
+  })
+
+  test('opens Books Library without loading Scripture data; Personal Library still loads it', async ({ page }) => {
+    const registryRequests: string[] = []
+    page.on('request', (request) => {
+      if (request.resourceType() === 'script' && request.url().includes('/assets/registry-')) {
+        registryRequests.push(request.url())
+      }
+    })
+
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Books Library', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Books Library' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Your Books Library is ready to begin' })).toBeVisible()
+    expect(registryRequests, 'Books Library must not request the Scripture registry').toHaveLength(0)
+
+    await page.getByRole('button', { name: 'Personal Library', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
+    await expect.poll(() => registryRequests.length, {
+      message: 'Personal Library should continue to load the Scripture registry for saved verse validation',
     }).toBeGreaterThan(0)
   })
 
