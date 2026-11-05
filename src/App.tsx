@@ -116,6 +116,9 @@ function App() {
   const [bookTitle, setBookTitle] = useState('')
   const [bookAuthors, setBookAuthors] = useState('')
   const [bookFormat, setBookFormat] = useState<BookFormat>('record-only')
+  const [bookLanguage, setBookLanguage] = useState('')
+  const [bookCategory, setBookCategory] = useState('')
+  const [bookReadingStatus, setBookReadingStatus] = useState<'to-read' | 'reading' | 'completed'>('to-read')
   const [bookSearch, setBookSearch] = useState('')
   const [bookFilter, setBookFilter] = useState('all')
   const [bookFormMessage, setBookFormMessage] = useState('')
@@ -861,6 +864,9 @@ function App() {
                   title: bookTitle,
                   authors: bookAuthors.split(',').map((author) => author.trim()).filter(Boolean),
                   format: bookFormat,
+                  language: bookLanguage.trim(),
+                  category: bookCategory.trim(),
+                  readingStatus: bookReadingStatus,
                 })
                 const nextRecords = [...bookCatalogue.records, record]
                 const result = saveBookCatalogue(localStorage, nextRecords)
@@ -872,6 +878,9 @@ function App() {
                 setBookTitle('')
                 setBookAuthors('')
                 setBookFormat('record-only')
+                setBookLanguage('')
+                setBookCategory('')
+                setBookReadingStatus('to-read')
                 setBookFormMessage('Book record saved on this device.')
               } catch (error) {
                 setBookFormMessage(error instanceof Error ? error.message : 'Book record could not be created.')
@@ -889,6 +898,19 @@ function App() {
                   <option value="record-only">Record only</option>
                   <option value="pdf">PDF record</option>
                   <option value="epub">EPUB record</option>
+                </select>
+              </label>
+              <label>Language
+                <input value={bookLanguage} onChange={(event) => setBookLanguage(event.target.value)} placeholder="e.g. English, Tamil" />
+              </label>
+              <label>Category
+                <input value={bookCategory} onChange={(event) => setBookCategory(event.target.value)} placeholder="e.g. Bible Study, Theology, Devotional" />
+              </label>
+              <label>Reading status
+                <select value={bookReadingStatus} onChange={(event) => setBookReadingStatus(event.target.value as 'to-read' | 'reading' | 'completed')}>
+                  <option value="to-read">To read</option>
+                  <option value="reading">Reading</option>
+                  <option value="completed">Completed</option>
                 </select>
               </label>
               <button className="pathway-read-button" type="submit" disabled={!bookCatalogue.valid}>Save Book Record</button>
@@ -918,6 +940,8 @@ function App() {
                 <article className="books-catalogue-card" key={record.id}>
                   <h3>{record.title}</h3>
                   <p>{record.authors.length ? record.authors.join(', ') : 'Author not recorded'}</p>
+                  {record.category && <p>Category: {record.category}</p>}
+                  {record.language && <p>Language: {record.language}</p>}
                   <span>{record.format.toUpperCase()} · {record.readingStatus.replace('-', ' ')}</span>
                 </article>
               ))}
