@@ -139,11 +139,11 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('pathway-verse-notes', JSON.stringify(verseNotes))
-  }, [verseNotes])
+  }, [verseNotes, scriptureRegistry])
 
   useEffect(() => {
     localStorage.setItem('pathway-highlighted-verses', JSON.stringify(highlightedVerses))
-  }, [highlightedVerses])
+  }, [highlightedVerses, scriptureRegistry])
 
   const exportLibraryBackup = () => {
     const backup = {
@@ -263,7 +263,7 @@ function App() {
       const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
       return matchesLibraryQuery(item.book, item.chapter, item.verse, verse?.text ?? '', verseNotes[item.book + '|' + item.chapter + '|' + item.verse] ?? '')
     }),
-    [savedVerses, verseNotes, normalizedLibraryQuery],
+    [savedVerses, verseNotes, normalizedLibraryQuery, scriptureRegistry],
   )
 
   const filteredHighlightedVerses = useMemo(
