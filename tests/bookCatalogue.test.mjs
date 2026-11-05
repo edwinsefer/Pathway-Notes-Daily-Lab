@@ -59,6 +59,20 @@ test('creates a normalized record with stable schema defaults', () => {
   assert.equal(record.id, 'book-2')
 })
 
+test('preserves optional language, category, and reading status metadata', () => {
+  const record = createBookRecord({
+    title: 'Knowing God',
+    authors: ['J. I. Packer'],
+    language: 'English',
+    category: 'Theology',
+    readingStatus: 'reading',
+  }, { id: 'book-metadata', now: timestamp })
+  assert.equal(record.language, 'English')
+  assert.equal(record.category, 'Theology')
+  assert.equal(record.readingStatus, 'reading')
+  assert.deepEqual(validateBookRecord(record), { valid: true, errors: [] })
+})
+
 test('saves and reloads a versioned catalogue independently', () => {
   const storage = memoryStorage({ 'pathway-saved-verses': '[{"book":"Genesis","chapter":1,"verse":1}]' })
   const record = validRecord()
