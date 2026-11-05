@@ -5,6 +5,8 @@ import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
 import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupValidation.mjs'
 import type { ScriptureChapter } from './data/scripture/types'
+import { createBookRecord, loadBookCatalogue, saveBookCatalogue } from './data/bookCatalogue.mjs'
+import type { BookRecord, BookFormat } from './data/bookCatalogue.mjs'
 
 type Theme = 'light' | 'dark'
 type Page = 'blog' | 'home' | 'books' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
@@ -110,6 +112,13 @@ function App() {
   const [libraryQuery, setLibraryQuery] = useState('')
   const [libraryContext, setLibraryContext] = useState<string | null>(null)
   const [backupStatus, setBackupStatus] = useState('')
+  const [bookCatalogue, setBookCatalogue] = useState(() => loadBookCatalogue(localStorage))
+  const [bookTitle, setBookTitle] = useState('')
+  const [bookAuthors, setBookAuthors] = useState('')
+  const [bookFormat, setBookFormat] = useState<BookFormat>('record-only')
+  const [bookSearch, setBookSearch] = useState('')
+  const [bookFilter, setBookFilter] = useState('all')
+  const [bookFormMessage, setBookFormMessage] = useState('')
 
   useEffect(() => {
     if (!['bible', 'scripture', 'library', 'search', 'audit'].includes(page) || scriptureRegistry) return
@@ -839,16 +848,84 @@ function App() {
         )}
 
         {page === 'books' && (
-          <section className="placeholder-page" aria-labelledby="books-library-title">
+          <section className="books-library-page" aria-labelledby="books-library-title">
             <div className="page-heading">
               <p className="eyebrow">CHRISTIAN BOOKS CATALOGUE</p>
               <h1 id="books-library-title">Books Library</h1>
-              <p>A dedicated catalogue for Christian books, including PDF and EPUB records.</p>
+              <p>A dedicated catalogue for Christian books. This stores book details only; it does not copy, move, upload, or delete files.</p>
             </div>
-            <section className="empty-library" aria-labelledby="books-library-empty-title">
-              <h2 id="books-library-empty-title">Your Books Library is ready to begin</h2>
-              <p>Book records, search, and filters will be added in the next phase. No files have been copied, moved, uploaded, or changed.</p>
-              <p>This catalogue is separate from your Personal Library and the Tamil Bible Library.</p>
+            <form className="books-record-form" onSubmit={(event) => {
+              event.preventDefault()
+              try {
+                const record = createBookRecord({
+                  title: bookTitle,
+                  authors: bookAuthors.split(',').map((author) => author.trim()).filter(Boolean),
+                  format: bookFormat,
+                })
+                const nextRecords = [...bookCatalogue.records, record]
+                const result = saveBookCatalogue(localStorage, nextRecords)
+                if (!result.saved) {
+                  setBookFormMessage(result.errors.join('; '))
+                  return
+                }
+                setBookCatalogue({ records: nextRecords, valid: true, errors: [] })
+                setBookTitle('')
+                setBookAuthors('')
+                setBookFormat('record-only')
+                setBookFormMessage('Book record saved on this device.')
+              } catch (error) {
+                setBookFormMessage(error instanceof Error ? error.message : 'Book record could not be created.')
+              }
+            }}>
+              <h2>Record a Book</h2>
+              <label>Book title *
+                <input required value={bookTitle} onChange={(event) => setBookTitle(event.target.value)} placeholder="Enter book title" />
+              </label>
+              <label>Author(s)
+                <input value={bookAuthors} onChange={(event) => setBookAuthors(event.target.value)} placeholder="Separate multiple authors with commas" />
+              </label>
+              <label>Format
+                <select value={bookFormat} onChange={(event) => setBookFormat(event.target.value as BookFormat)}>
+                  <option value="record-only">Record only</option>
+                  <option value="pdf">PDF record</option>
+                  <option value="epub">EPUB record</option>
+                </select>
+              </label>
+              <button className="pathway-read-button" type="submit" disabled={!bookCatalogue.valid}>Save Book Record</button>
+              {bookFormMessage && <p role="status">{bookFormMessage}</p>}
+              {!bookCatalogue.valid && <p role="alert">Existing catalogue data needs review before new records can be saved. It has not been changed.</p>}
+            </form>
+            <section className="books-catalogue-list" aria-labelledby="books-catalogue-list-title">
+              <h2 id="books-catalogue-list-title">Your Books ({bookCatalogue.records.length})</h2>
+              <div className="books-catalogue-controls">
+                <label>Search books
+                  <input value={bookSearch} onChange={(event) => setBookSearch(event.target.value)} placeholder="Search title or author" />
+                </label>
+                <label>Filter by format
+                  <select value={bookFilter} onChange={(event) => setBookFilter(event.target.value)}>
+                    <option value="all">All formats</option>
+                    <option value="record-only">Record only</option>
+                    <option value="pdf">PDF</option>
+                    <option value="epub">EPUB</option>
+                  </select>
+                </label>
+              </div>
+              {bookCatalogue.records.filter((record) => {
+                const query = bookSearch.trim().toLowerCase()
+                const matchesQuery = !query || record.title.toLowerCase().includes(query) || record.authors.some((author) => author.toLowerCase().includes(query))
+                return matchesQuery && (bookFilter === 'all' || record.format === bookFilter)
+              }).map((record) => (
+                <article className="books-catalogue-card" key={record.id}>
+                  <h3>{record.title}</h3>
+                  <p>{record.authors.length ? record.authors.join(', ') : 'Author not recorded'}</p>
+                  <span>{record.format.toUpperCase()} · {record.readingStatus.replace('-', ' ')}</span>
+                </article>
+              ))}
+              {bookCatalogue.records.length === 0 && <p className="saved-empty-text">No books recorded yet. Add your first book above.</p>}
+              {bookCatalogue.records.length > 0 && bookCatalogue.records.filter((record) => {
+                const query = bookSearch.trim().toLowerCase()
+                return (!query || record.title.toLowerCase().includes(query) || record.authors.some((author) => author.toLowerCase().includes(query))) && (bookFilter === 'all' || record.format === bookFilter)
+              }).length === 0 && <p className="saved-empty-text">No books match this search or filter.</p>}
             </section>
           </section>
         )}
