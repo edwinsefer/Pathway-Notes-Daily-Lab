@@ -42,7 +42,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     })).toBe(true)
 
     await page.reload()
-    await page.getByRole('button', { name: 'Personal Library', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Personal Notes', exact: true }).first().click()
     await expect(page.getByRole('heading', { name: 'Highlighted Verses' })).toBeVisible()
     await expect(page.getByText('1 Samuel 11:2', { exact: true })).toBeVisible()
   })
@@ -66,17 +66,17 @@ test.describe('Pathway Notes Daily blog home', () => {
     }).toBeGreaterThan(0)
   })
 
-  test('routes the Home Books Library and Personal Library tiles to their distinct pages', async ({ page }) => {
+  test('routes the Home Books Library and Personal Notes tiles to their distinct pages', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /Books Library நூலகம்/ }).click()
     await expect(page.getByRole('heading', { name: 'Books Library', exact: true })).toBeVisible()
 
     await page.goto('/')
-    await page.getByRole('button', { name: /Personal Library எனது சேமிப்புகள்/ }).click()
-    await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
+    await page.getByRole('button', { name: /Personal Notes எனது சேமிப்புகள்/ }).click()
+    await expect(page.getByRole('heading', { name: 'Personal Notes Backup' })).toBeVisible()
   })
 
-  test('opens Books Library without loading Scripture data; Personal Library still loads it', async ({ page }) => {
+  test('opens Books Library without loading Scripture data; Personal Notes still loads it', async ({ page }) => {
     const registryRequests: string[] = []
     page.on('request', (request) => {
       if (request.resourceType() === 'script' && request.url().includes('/assets/registry-')) {
@@ -107,10 +107,10 @@ test.describe('Pathway Notes Daily blog home', () => {
     expect(registryRequests, 'Books Library must not request the Scripture registry').toHaveLength(0)
     expect(registryRequests, 'Books Library must not request the Scripture registry').toHaveLength(0)
 
-    await page.getByRole('button', { name: 'Personal Library', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
+    await page.getByRole('button', { name: 'Personal Notes', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Personal Notes Backup' })).toBeVisible()
     await expect.poll(() => registryRequests.length, {
-      message: 'Personal Library should continue to load the Scripture registry for saved verse validation',
+      message: 'Personal Notes should continue to load the Scripture registry for saved verse validation',
     }).toBeGreaterThan(0)
   })
 
