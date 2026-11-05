@@ -482,7 +482,7 @@ function App() {
       </nav>
 
       <main className={page === 'blog' ? 'main-content blog-main-content' : 'main-content'}>
-        {scriptureDataLoading && <p role="status" className="saved-empty-text">Loading Scripture library…</p>}
+        {scriptureDataLoading && <p aria-live="polite" className="saved-empty-text">Loading Scripture library…</p>}
         {scriptureDataError && <p role="alert" className="saved-empty-text">Scripture library could not be loaded. Please try again.</p>}
         {page === 'blog' && <BlogHome onNavigate={openPage} />}
         {page === 'home' && (
@@ -564,7 +564,7 @@ function App() {
           </section>
         )}
 
-        {page === 'bible' && (
+        {page === 'bible' && scriptureRegistry && (
           <section className="scripture-library-page" aria-labelledby="bible-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE LIBRARY</p>
@@ -649,7 +649,7 @@ function App() {
           </section>
         )}
 
-        {page === 'audit' && (
+        {page === 'audit' && scriptureRegistry && (
           <section className="library-page" aria-labelledby="audit-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE AUDIT</p>
@@ -690,7 +690,7 @@ function App() {
           </section>
         )}
 
-        {page === 'scripture' && (
+        {page === 'scripture' && scriptureRegistry && (
           <section className="scripture-reader" aria-labelledby="scripture-reader-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE READER</p>
@@ -838,7 +838,7 @@ function App() {
           </section>
         )}
 
-        {page === 'library' && (
+        {page === 'library' && scriptureRegistry && (
           <section className="library-page" aria-labelledby="library-title">
             <div className="page-heading">
               <p className="eyebrow">PERSONAL LIBRARY</p>
@@ -947,7 +947,7 @@ function App() {
           </section>
         )}
 
-        {page === 'search' && (
+        {page === 'search' && scriptureRegistry && (
           <section className="search-page" aria-labelledby="search-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE SEARCH</p>
