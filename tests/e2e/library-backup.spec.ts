@@ -38,8 +38,8 @@ async function storageState(page) {
   }), keys)
 }
 async function openLibrary(page) {
-  await page.getByRole('button', { name: 'Personal Library', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
+  await page.getByRole('button', { name: 'Personal Notes', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Personal Notes Backup' })).toBeVisible()
 }
 
 test('browser downloads a complete backup, restores it in fresh state, and persists after reload', async ({ page }) => {
