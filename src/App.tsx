@@ -139,11 +139,11 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('pathway-verse-notes', JSON.stringify(verseNotes))
-  }, [verseNotes, scriptureRegistry])
+  }, [verseNotes])
 
   useEffect(() => {
     localStorage.setItem('pathway-highlighted-verses', JSON.stringify(highlightedVerses))
-  }, [highlightedVerses, scriptureRegistry])
+  }, [highlightedVerses])
 
   const exportLibraryBackup = () => {
     const backup = {
