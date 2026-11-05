@@ -110,5 +110,5 @@ test('invalid verse-reference backup is rejected without changing existing brows
   })
   await expect(page.getByRole('status')).toContainText('This backup file is invalid or from an unsupported version. No data was changed.')
   expect(await storageState(page)).toEqual(before)
-  await expect(page.getByRole('heading', { name: 'Saved Items' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Personal Notes' })).toBeVisible()
 })
