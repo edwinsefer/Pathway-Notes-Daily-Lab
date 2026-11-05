@@ -172,7 +172,7 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Define separate Christian Books Library implementation plan and safety boundaries in `docs/CHRISTIAN-BOOKS-LIBRARY-PLAN.md`.
 - [x] Add dedicated Books Library route/page while preserving Personal Library route and storage.
 - [x] Add versioned book-catalogue metadata model and validation (`src/data/bookCatalogue.mjs`).
-- [ ] Add catalogue empty state, book record form, search, and filters.
+- [x] Add catalogue empty state, metadata-only book record form, search, and format filters; Browser E2E passed in Run #131.
 - [x] Verify Books Library does not load Scripture registry.
 - [x] Add browser regression tests; verify Personal Library backup/restore remains unchanged.
 - [ ] Obtain user visual acceptance for mobile/desktop Light/Dark modes.
