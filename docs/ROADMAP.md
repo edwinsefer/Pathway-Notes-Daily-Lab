@@ -171,7 +171,7 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Confirm Bible catalogue metadata is not a general Christian-books catalogue.
 - [x] Define separate Christian Books Library implementation plan and safety boundaries in `docs/CHRISTIAN-BOOKS-LIBRARY-PLAN.md`.
 - [x] Add dedicated Books Library route/page while preserving Personal Library route and storage.
-- [ ] Add versioned book-catalogue metadata model and validation.
+- [x] Add versioned book-catalogue metadata model and validation (`src/data/bookCatalogue.mjs`).
 - [ ] Add catalogue empty state, book record form, search, and filters.
 - [x] Verify Books Library does not load Scripture registry.
 - [x] Add browser regression tests; verify Personal Library backup/restore remains unchanged.
