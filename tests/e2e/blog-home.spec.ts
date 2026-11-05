@@ -26,10 +26,11 @@ test.describe('Pathway Notes Daily blog home', () => {
   test('shows a reading placeholder when a Blogger post image fails to load', async ({ page }) => {
     await page.goto('/')
     const image = page.locator('.blog-post-image-button img').first()
+    const imageLink = image.locator('xpath=..')
     await expect(image).toBeVisible({ timeout: 30000 })
     await image.evaluate((element) => element.dispatchEvent(new Event('error')))
-    await expect(page.locator('.blog-post-image-button .blog-post-image-placeholder').first()).toBeVisible()
-    await expect(page.locator('.blog-post-image-button img').first()).toHaveCount(0)
+    await expect(imageLink.locator('.blog-post-image-placeholder')).toBeVisible()
+    await expect(imageLink.locator('img')).toHaveCount(0)
   })
 
   test('keeps tablet navigation inside the viewport without page-level horizontal overflow', async ({ page }) => {
