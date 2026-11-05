@@ -23,6 +23,30 @@ test.describe('Pathway Notes Daily blog home', () => {
     await expect(page.getByLabel('Book')).toBeVisible()
   })
 
+  test('restores highlighted verses in the Library after a page refresh', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Bible Study', exact: true }).first().click()
+    await expect(page.getByRole('heading', { name: 'Tamil Bible' })).toBeVisible()
+
+    await page.getByLabel('Book').selectOption('1 Samuel')
+    await page.getByLabel('Chapter').selectOption('11')
+    await page.getByLabel('Verse').selectOption('2')
+    await page.getByRole('button', { name: 'Go to Scripture' }).click()
+    await expect(page.getByRole('button', { name: 'Highlight Verse' })).toBeVisible()
+    await page.getByRole('button', { name: 'Highlight Verse' }).click()
+    await expect(page.getByRole('button', { name: 'Highlighted ✓' })).toHaveAttribute('aria-pressed', 'true')
+
+    await expect.poll(async () => page.evaluate(() => {
+      const stored = JSON.parse(localStorage.getItem('pathway-highlighted-verses') ?? '{}')
+      return stored['1 Samuel|11|2']
+    })).toBe(true)
+
+    await page.reload()
+    await page.getByRole('button', { name: 'Library', exact: true }).first().click()
+    await expect(page.getByRole('heading', { name: 'Highlighted Verses' })).toBeVisible()
+    await expect(page.getByText('1 Samuel 11:2', { exact: true })).toBeVisible()
+  })
+
   test('downloads the Scripture registry only after opening Bible Study', async ({ page }) => {
     const registryRequests: string[] = []
     page.on('request', (request) => {
