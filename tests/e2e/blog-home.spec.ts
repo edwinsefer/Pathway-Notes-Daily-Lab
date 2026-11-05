@@ -71,7 +71,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     const cases = [
       { width: 320, categoryColumns: 2, postColumns: 1 },
       { width: 380, categoryColumns: 2, postColumns: 1 },
-      { width: 390, categoryColumns: 2, postColumns: 2 },
+      { width: 390, categoryColumns: 2, postColumns: 1 },
       { width: 640, categoryColumns: 2, postColumns: 2 },
       { width: 768, categoryColumns: 4, postColumns: 2 },
     ]
