@@ -232,7 +232,7 @@ function App() {
         const [book, chapterText, verseText] = key.split('|')
         const chapter = Number(chapterText)
         const verse = Number(verseText)
-        const chapterData = findApprovedChapter(book, chapter)
+        const chapterData = findLoadedApprovedChapter(book, chapter)
         const verseData = chapterData?.verses.find((item) => item.verse === verse)
         return { key, book, chapter, verse, text: verseData?.text ?? 'Verse text unavailable.' }
       })
@@ -259,7 +259,7 @@ function App() {
 
   const filteredSavedVerses = useMemo(
     () => savedVerses.filter((item) => {
-      const chapter = findApprovedChapter(item.book, item.chapter)
+      const chapter = findLoadedApprovedChapter(item.book, item.chapter)
       const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
       return matchesLibraryQuery(item.book, item.chapter, item.verse, verse?.text ?? '', verseNotes[item.book + '|' + item.chapter + '|' + item.verse] ?? '')
     }),
@@ -276,7 +276,7 @@ function App() {
       const [book, chapterText, verseText] = key.split('|')
       const chapter = Number(chapterText)
       const verse = Number(verseText)
-      const chapterData = findApprovedChapter(book, chapter)
+      const chapterData = findLoadedApprovedChapter(book, chapter)
       const verseData = chapterData?.verses.find((item) => item.verse === verse)
       return { key, book, chapter, verse, text: verseData?.text ?? '', note }
     }).filter((item) => item.note.trim() && item.text)
@@ -343,7 +343,7 @@ function App() {
   }, [page, scriptureRegistry])
 
   const openChapter = (bookName: string, chapterNumber: number) => {
-    const chapter = findApprovedChapter(bookName, chapterNumber)
+    const chapter = findLoadedApprovedChapter(bookName, chapterNumber)
     if (chapter) openScripture(chapter, 1)
   }
 
@@ -353,7 +353,7 @@ function App() {
   const navigationChapterNumbers = navigationBookInfo
     ? Array.from({ length: navigationBookInfo.chapters }, (_, index) => index + 1)
     : []
-  const navigationChapterData = findApprovedChapter(navigationBook, navigationChapter)
+  const navigationChapterData = findLoadedApprovedChapter(navigationBook, navigationChapter)
   const navigationVerses = navigationChapterData?.verses ?? []
 
   const currentBookIndex = bibleBooks.findIndex(
@@ -363,12 +363,12 @@ function App() {
   const previousChapterTarget = (() => {
     if (currentBookIndex < 0) return null
     if (selectedChapter.chapter > 1) {
-      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter - 1) ?? null
+      return findLoadedApprovedChapter(selectedChapter.book, selectedChapter.chapter - 1) ?? null
     }
 
     for (let index = currentBookIndex - 1; index >= 0; index -= 1) {
       const book = bibleBooks[index]
-      const chapter = findApprovedChapter(book.name, book.chapters)
+      const chapter = findLoadedApprovedChapter(book.name, book.chapters)
       if (chapter) return chapter
     }
 
@@ -380,12 +380,12 @@ function App() {
     const currentBook = bibleBooks[currentBookIndex]
 
     if (selectedChapter.chapter < currentBook.chapters) {
-      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter + 1) ?? null
+      return findLoadedApprovedChapter(selectedChapter.book, selectedChapter.chapter + 1) ?? null
     }
 
     for (let index = currentBookIndex + 1; index < bibleBooks.length; index += 1) {
       const book = bibleBooks[index]
-      const chapter = findApprovedChapter(book.name, 1)
+      const chapter = findLoadedApprovedChapter(book.name, 1)
       if (chapter) return chapter
     }
 
@@ -580,7 +580,7 @@ function App() {
                   value={navigationBook}
                   onChange={(event) => {
                     const nextBook = event.target.value
-                    const chapterData = findApprovedChapter(nextBook, 1)
+                    const chapterData = findLoadedApprovedChapter(nextBook, 1)
                     setNavigationBook(nextBook)
                     setNavigationChapter(1)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
@@ -599,7 +599,7 @@ function App() {
                   value={navigationChapter}
                   onChange={(event) => {
                     const nextChapter = Number(event.target.value)
-                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(navigationBook, nextChapter)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
                   }}
@@ -608,7 +608,7 @@ function App() {
                     <option
                       key={chapterNumber}
                       value={chapterNumber}
-                      disabled={!findApprovedChapter(navigationBook, chapterNumber)}
+                      disabled={!findLoadedApprovedChapter(navigationBook, chapterNumber)}
                     >
                       {chapterNumber}
                     </option>
@@ -708,7 +708,7 @@ function App() {
                   onChange={(event) => {
                     const nextBook = event.target.value
                     const nextChapter = 1
-                    const chapterData = findApprovedChapter(nextBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(nextBook, nextChapter)
                     setNavigationBook(nextBook)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
@@ -727,13 +727,13 @@ function App() {
                   value={navigationChapter}
                   onChange={(event) => {
                     const nextChapter = Number(event.target.value)
-                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(navigationBook, nextChapter)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
                   }}
                 >
                   {navigationChapterNumbers.map((chapterNumber) => (
-                    <option key={chapterNumber} value={chapterNumber} disabled={!findApprovedChapter(navigationBook, chapterNumber)}>
+                    <option key={chapterNumber} value={chapterNumber} disabled={!findLoadedApprovedChapter(navigationBook, chapterNumber)}>
                       {chapterNumber}
                     </option>
                   ))}
@@ -907,7 +907,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
                 <div className="saved-library-heading"><h2 id="highlighted-verses-title">Highlighted Verses</h2></div>
                 {filteredHighlightedVerses.length > 0 ? <div className="saved-verse-list">{filteredHighlightedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p>{verseNotes[item.key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[item.key]}</p>}</div>
@@ -921,7 +921,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="saved-verses-title">
                 <div className="saved-library-heading"><h2 id="saved-verses-title">Saved Verses</h2></div>
                 {filteredSavedVerses.length > 0 ? <div className="saved-verse-list">{filteredSavedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   const key = item.book + '|' + item.chapter + '|' + item.verse
                   return <article className="library-item saved-verse-item" key={key}>
@@ -936,7 +936,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="noted-verses-title">
                 <div className="saved-library-heading"><h2 id="noted-verses-title">My Notes</h2></div>
                 {filteredNotedVerses.length > 0 ? <div className="saved-verse-list">{filteredNotedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p><p className="saved-verse-note"><strong>My note:</strong> {item.note}</p></div>
                     <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse, 'Opened from My Notes')} disabled={!chapter}>Open Verse</button>
@@ -974,7 +974,7 @@ function App() {
                 </p>
 
                 {scriptureSearchResults.map((result) => {
-                  const chapter = findApprovedChapter(result.book, result.chapter)
+                  const chapter = findLoadedApprovedChapter(result.book, result.chapter)
                   return (
                     <article className="search-result-item" key={result.book + '-' + result.chapter + '-' + result.verse}>
                       <div>
