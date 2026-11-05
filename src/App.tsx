@@ -237,7 +237,7 @@ function App() {
         return { key, book, chapter, verse, text: verseData?.text ?? 'Verse text unavailable.' }
       })
       .filter((item) => item.text !== 'Verse text unavailable.')
-  }, [highlightedVerses])
+  }, [highlightedVerses, scriptureRegistry])
 
   const isSelectedVerseHighlighted = Boolean(highlightedVerses[selectedVerseKey])
 
@@ -280,7 +280,7 @@ function App() {
       const verseData = chapterData?.verses.find((item) => item.verse === verse)
       return { key, book, chapter, verse, text: verseData?.text ?? '', note }
     }).filter((item) => item.note.trim() && item.text)
-  }, [verseNotes])
+  }, [verseNotes, scriptureRegistry])
 
   const filteredNotedVerses = useMemo(
     () => notedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, item.note)),
