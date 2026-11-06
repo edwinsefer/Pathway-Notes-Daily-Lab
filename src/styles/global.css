@@ -480,6 +480,37 @@ h1 {
   font-weight: 700;
 }
 
+.kodu-nav-entry {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px dashed #b08b42;
+  border-radius: 10px;
+  color: #8a6827;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.kodu-nav-entry small {
+  padding: 0.16rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(176, 139, 66, 0.14);
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+:root[data-theme="dark"] .kodu-nav-entry {
+  color: #e2c27d;
+  border-color: #8e7444;
+}
+
+
 .library-page,
 .placeholder-page {
   display: grid;
