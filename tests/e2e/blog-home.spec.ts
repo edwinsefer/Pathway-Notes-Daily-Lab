@@ -171,7 +171,7 @@ test.describe('Pathway Notes Daily blog home', () => {
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Download Books Backup' }).click()
     const download = await downloadPromise
-    expect(download.suggestedFilename()).toMatch(/^pathway-books-catalogue-backup-.*\\.json$/)
+    expect(download.suggestedFilename()).toMatch(/^pathway-books-catalogue-backup-.*\.json$/)
     await expect(page.getByText(/Books Catalogue backup downloaded/)).toBeVisible()
   })
 
