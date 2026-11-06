@@ -63,7 +63,12 @@ Add a clearly discoverable KODU — Christian Reader Lab entry point inside Path
 - CI, browser regression tests, and Scripture structural audit pass.
 - User explicitly approves before activating any external launch destination or proceeding to data integration.
 
-## Current status
+## Current status — updated 2026-11-06
 - Direction approved: make KODU available inside Creative Laboratory as an independent module.
-- Implementation status: planning only; no code or data changes made by this plan.
-- Next action: verify whether a real KODU deployment URL exists; then prepare the isolated navigation entry on the approved host branch.
+- Stage 0 discovery: no verified hosted KODU URL has been identified. The inspected KODU repository contains a Windows desktop build workflow; this does not rule out a deployment under another project or hosting provider.
+- Stage 1 implementation: complete. Creative Laboratory now displays a non-interactive `KODU — Coming Soon` navigation entry. No URL is guessed, no KODU runtime is bundled, and no KODU storage or data is touched.
+- Automated verification: Creative Laboratory Verification Run #158 passed on commit `926e788625bb5ae3e12d1492ee91e29e49ca2c93`; TypeScript/production build, parser tests, backup validation, Christian Books catalogue tests, browser E2E tests, and Scripture structural audit all passed. Scripture Integrity Run #62 also passed.
+- Preview deployment: Vercel deployment `dpl_EGimroW5u8Gm44aUXSRsUN2yPg1M` is READY for the same commit.
+- Visual acceptance: user approved Desktop Light, Desktop Dark, Mobile Light, and Mobile Dark screenshots on 2026-11-06. KODU entry visibility and Coming Soon treatment accepted.
+- PR #7 remains Open / Draft / Unmerged. No merge or draft-status change is authorized by this visual approval.
+- Next action: obtain and verify the real independent KODU launch URL before Stage 2. Activating the link requires separate explicit user approval. Stage 3 data bridge remains separately gated.
