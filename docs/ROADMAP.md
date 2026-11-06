@@ -175,7 +175,7 @@ Previously completed functional checks are treated as approved and are not repea
 - [x] Add catalogue empty state, metadata-only book record form, search, and format filters; Browser E2E passed in Run #131.
 - [x] Verify Books Library does not load Scripture registry.
 - [x] Add browser regression tests; verify Personal Library backup/restore remains unchanged.
-- [ ] Obtain user visual acceptance for mobile/desktop Light/Dark modes.
+- [x] User visual review completed for desktop and mobile in Light and Dark modes (screenshots reviewed in the conversation).
 
 **Phase 6 boundary:** Phase 1 is catalogue metadata only. No PDF/EPUB file copying, moving, deleting, upload, cloud sync, or reader integration until separately implemented and verified. Blog V12 remains locked; Blogger remains read-only; Scripture source data remains untouched. PR #7 stays Open/Draft and unmerged.
 
