@@ -555,6 +555,7 @@ function App() {
         <button className={page === 'books' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('books')}>Books Library</button>
         <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Personal Notes</button>
         <button className="nav-link" type="button" onClick={() => openPage('audit')}>About / Audit</button>
+        <span className="kodu-nav-entry" aria-disabled="true" title="KODU is being prepared as an independent module">KODU <small>Coming Soon</small></span>
       </nav>
 
       <main className={page === 'blog' ? 'main-content blog-main-content' : 'main-content'}>
