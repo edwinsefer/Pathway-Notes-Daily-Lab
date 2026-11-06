@@ -35,6 +35,7 @@ export interface BookCatalogueBackupPreview {
   duplicateIds: string[]
   duplicateBooks: Array<{ id: string; title: string; authors: string[] }>
   newRecords: BookRecord[]
+  incomingRecords: BookRecord[]
 }
 export const BOOK_CATALOGUE_BACKUP_APP: 'pathway-notes-books-library'
 export const BOOK_CATALOGUE_BACKUP_VERSION: 1
