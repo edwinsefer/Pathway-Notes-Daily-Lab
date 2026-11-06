@@ -119,7 +119,7 @@ export function createBookCatalogueBackup(records, exportedAt = new Date().toISO
     app: BOOK_CATALOGUE_BACKUP_APP,
     schemaVersion: BOOK_CATALOGUE_BACKUP_VERSION,
     exportedAt,
-    data: { records },
+    data: { records: records.map((record) => ({ ...record, fileHandleStatus: 'not-linked' })) },
   }
 }
 
@@ -138,7 +138,7 @@ export function parseBookCatalogueBackup(value) {
   }
   const validation = validateBookCatalogue(value.data.records)
   return validation.valid
-    ? { valid: true, errors: [], records: value.data.records, exportedAt: value.exportedAt }
+    ? { valid: true, errors: [], records: value.data.records.map((record) => ({ ...record, fileHandleStatus: 'not-linked' })), exportedAt: value.exportedAt }
     : { valid: false, errors: validation.errors, records: [], exportedAt: value.exportedAt }
 }
 
