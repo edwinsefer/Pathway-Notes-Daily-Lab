@@ -106,3 +106,79 @@ export function saveBookCatalogue(storage, records) {
     return { saved: false, errors: ['catalogue storage could not be written'] }
   }
 }
+
+export const BOOK_CATALOGUE_BACKUP_APP = 'pathway-notes-books-library'
+export const BOOK_CATALOGUE_BACKUP_VERSION = 1
+export const BOOK_CATALOGUE_BACKUP_MAX_BYTES = 10 * 1024 * 1024
+
+export function createBookCatalogueBackup(records, exportedAt = new Date().toISOString()) {
+  const result = validateBookCatalogue(records)
+  if (!result.valid) throw new TypeError(result.errors.join('; '))
+  if (!isIsoTimestamp(exportedAt)) throw new TypeError('exportedAt must be an ISO timestamp')
+  return {
+    app: BOOK_CATALOGUE_BACKUP_APP,
+    schemaVersion: BOOK_CATALOGUE_BACKUP_VERSION,
+    exportedAt,
+    data: { records },
+  }
+}
+
+export function parseBookCatalogueBackup(value) {
+  if (!isObject(value) || value.app !== BOOK_CATALOGUE_BACKUP_APP) {
+    return { valid: false, errors: ['backup app identifier is invalid'], records: [], exportedAt: null }
+  }
+  if (value.schemaVersion !== BOOK_CATALOGUE_BACKUP_VERSION) {
+    return { valid: false, errors: ['unsupported book catalogue backup version'], records: [], exportedAt: null }
+  }
+  if (!isIsoTimestamp(value.exportedAt)) {
+    return { valid: false, errors: ['backup exportedAt timestamp is invalid'], records: [], exportedAt: null }
+  }
+  if (!isObject(value.data) || !Array.isArray(value.data.records)) {
+    return { valid: false, errors: ['backup records are missing'], records: [], exportedAt: value.exportedAt }
+  }
+  const validation = validateBookCatalogue(value.data.records)
+  return validation.valid
+    ? { valid: true, errors: [], records: value.data.records, exportedAt: value.exportedAt }
+    : { valid: false, errors: validation.errors, records: [], exportedAt: value.exportedAt }
+}
+
+const normalizeBookIdentity = (record) => {
+  const title = record.title.trim().toLocaleLowerCase()
+  const authors = record.authors.map((author) => author.trim().toLocaleLowerCase()).sort().join('|')
+  return `${title}::${authors}`
+}
+
+export function previewBookCatalogueRestore(existingRecords, incomingRecords) {
+  const existingValidation = validateBookCatalogue(existingRecords)
+  const incomingValidation = validateBookCatalogue(incomingRecords)
+  if (!existingValidation.valid || !incomingValidation.valid) {
+    return { valid: false, errors: [...existingValidation.errors, ...incomingValidation.errors], existingCount: existingRecords.length, incomingCount: incomingRecords.length, duplicateIds: [], duplicateBooks: [], newRecords: [] }
+  }
+  const existingIds = new Set(existingRecords.map((record) => record.id))
+  const existingIdentities = new Set(existingRecords.map(normalizeBookIdentity))
+  const duplicateIds = incomingRecords.filter((record) => existingIds.has(record.id)).map((record) => record.id)
+  const duplicateBooks = incomingRecords
+    .filter((record) => !existingIds.has(record.id) && existingIdentities.has(normalizeBookIdentity(record)))
+    .map((record) => ({ id: record.id, title: record.title, authors: record.authors }))
+  const duplicateIdSet = new Set(duplicateIds)
+  const duplicateIdentitySet = new Set(duplicateBooks.map((record) => record.id))
+  const newRecords = incomingRecords.filter((record) => !duplicateIdSet.has(record.id) && !duplicateIdentitySet.has(record.id))
+  return {
+    valid: true,
+    errors: [],
+    existingCount: existingRecords.length,
+    incomingCount: incomingRecords.length,
+    duplicateIds,
+    duplicateBooks,
+    newRecords,
+  }
+}
+
+export function mergeBookCatalogueRecords(existingRecords, incomingRecords) {
+  const preview = previewBookCatalogueRestore(existingRecords, incomingRecords)
+  if (!preview.valid) throw new TypeError(preview.errors.join('; '))
+  const records = [...existingRecords, ...preview.newRecords]
+  const validation = validateBookCatalogue(records)
+  if (!validation.valid) throw new TypeError(validation.errors.join('; '))
+  return records
+}
