@@ -114,6 +114,67 @@ test.describe('Pathway Notes Daily blog home', () => {
     }).toBeGreaterThan(0)
   })
 
+  test('previews and merges a Books backup without changing Personal Notes data', async ({ page }) => {
+    const timestamp = '2026-11-06T08:00:00.000Z'
+    const existing = {
+      id: 'book-existing',
+      title: 'Knowing God',
+      authors: ['J. I. Packer'],
+      format: 'record-only',
+      fileHandleStatus: 'not-linked',
+      tags: [],
+      readingStatus: 'to-read',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }
+    const duplicate = { ...existing, id: 'book-duplicate' }
+    const incoming = {
+      ...existing,
+      id: 'book-new',
+      title: 'Mere Christianity',
+      authors: ['C. S. Lewis'],
+    }
+    await page.addInitScript(({ catalogue, savedVerses }) => {
+      localStorage.setItem('pathway-books-catalogue:v1', JSON.stringify({ schemaVersion: 1, records: catalogue }))
+      localStorage.setItem('pathway-saved-verses', JSON.stringify(savedVerses))
+    }, { catalogue: [existing], savedVerses: [{ book: 'Genesis', chapter: 1, verse: 1 }] })
+
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Books Library', exact: true }).click()
+    const backup = {
+      app: 'pathway-notes-books-library',
+      schemaVersion: 1,
+      exportedAt: timestamp,
+      data: { records: [duplicate, incoming] },
+    }
+    await page.locator('#books-backup-file').setInputFiles({
+      name: 'books-backup.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(backup)),
+    })
+    await expect(page.getByRole('heading', { name: 'Restore Preview' })).toBeVisible()
+    await expect(page.getByText('Backup records: 2')).toBeVisible()
+    await expect(page.getByText('Matching title and author: 1')).toBeVisible()
+    await expect(page.getByText('New records for merge: 1')).toBeVisible()
+
+    page.once('dialog', (dialog) => dialog.accept())
+    await page.getByRole('button', { name: 'Merge New Records' }).click()
+    await expect(page.getByRole('heading', { name: 'Your Books (2)' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Mere Christianity' })).toBeVisible()
+    const savedVerses = await page.evaluate(() => localStorage.getItem('pathway-saved-verses'))
+    expect(savedVerses).toBe(JSON.stringify([{ book: 'Genesis', chapter: 1, verse: 1 }]))
+  })
+
+  test('exports a versioned Books Library JSON backup', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Books Library', exact: true }).click()
+    const downloadPromise = page.waitForEvent('download')
+    await page.getByRole('button', { name: 'Download Books Backup' }).click()
+    const download = await downloadPromise
+    expect(download.suggestedFilename()).toMatch(/^pathway-books-catalogue-backup-.*\\.json$/)
+    await expect(page.getByText(/Books Catalogue backup downloaded/)).toBeVisible()
+  })
+
   test('shows a reading placeholder when a Blogger post image fails to load', async ({ page }) => {
     await page.route('**/*', async (route) => {
       if (route.request().resourceType() === 'image') {
