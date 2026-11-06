@@ -113,6 +113,21 @@ test('rejects unsupported or malformed Books Library backups without records', (
   assert.equal(parseBookCatalogueBackup({ ...backup, data: { records: [{ ...validRecord(), title: '' }] } }).valid, false)
 })
 
+test('backup export and restore never claim session-only file handles are linked', () => {
+  const linkedRecord = validRecord({
+    id: 'book-linked',
+    title: 'PDF Reference',
+    format: 'pdf',
+    fileName: 'reference.pdf',
+    fileSizeBytes: 1024,
+    fileHandleStatus: 'linked-in-session',
+  })
+  const backup = createBookCatalogueBackup([linkedRecord], timestamp)
+  assert.equal(backup.data.records[0].fileHandleStatus, 'not-linked')
+  const restored = parseBookCatalogueBackup(backup)
+  assert.equal(restored.records[0].fileHandleStatus, 'not-linked')
+})
+
 test('previews restore counts and detects ID and title-author duplicates', () => {
   const existing = [validRecord()]
   const sameTitle = validRecord({ id: 'book-2' })
