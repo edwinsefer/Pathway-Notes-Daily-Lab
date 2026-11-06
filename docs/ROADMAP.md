@@ -178,3 +178,18 @@ Previously completed functional checks are treated as approved and are not repea
 - [ ] Obtain user visual acceptance for mobile/desktop Light/Dark modes.
 
 **Phase 6 boundary:** Phase 1 is catalogue metadata only. No PDF/EPUB file copying, moving, deleting, upload, cloud sync, or reader integration until separately implemented and verified. Blog V12 remains locked; Blogger remains read-only; Scripture source data remains untouched. PR #7 stays Open/Draft and unmerged.
+
+### Phase 6.3 — Books Catalogue Backup / Restore
+- [x] Add versioned JSON metadata backup and validation (10 MB limit).
+- [x] Add restore preview with existing/incoming counts and duplicate review.
+- [x] Add explicit Merge New Records and Replace Catalogue actions with confirmation.
+- [x] Ensure session-only file links are reset to `not-linked` during backup/restore.
+- [x] Keep PDF/EPUB bytes, Personal Scripture Library data, and Bible data outside this backup.
+- [x] Unit tests and browser E2E coverage pass.
+- [x] GitHub Actions Creative Laboratory Verification run #153 passed on commit `c4b61988969f3207639578380bd8f311fd03491d`.
+- [x] GitHub Actions Scripture Integrity run #57 passed on the same commit.
+- [x] Vercel Preview deployment for the same commit is READY.
+- [ ] User visual acceptance of Books Backup / Restore UI on mobile and desktop, Light and Dark modes.
+- [ ] Final Phase 6 approval.
+
+**Phase 6.3 verification note:** Automated verification is green. The latest Preview deployment is READY, but visual acceptance is still pending. Do not mark Phase 6 complete, merge PR #7, or change PR draft status until the user explicitly approves.
