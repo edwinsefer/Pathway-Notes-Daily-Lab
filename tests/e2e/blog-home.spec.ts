@@ -299,3 +299,16 @@ test.describe('Pathway Notes Daily blog home', () => {
   })
 
 })
+
+
+test('shows the KODU entry as a non-interactive coming-soon module without loading Scripture data', async ({ page }) => {
+  await page.goto('/')
+
+  const koduEntry = page.locator('.kodu-nav-entry')
+  await expect(koduEntry).toBeVisible()
+  await expect(koduEntry).toContainText('KODU')
+  await expect(koduEntry).toContainText('Coming Soon')
+  await expect(koduEntry).toHaveAttribute('aria-disabled', 'true')
+  await expect(page.getByRole('heading', { name: /Today’s Pathway/i })).toBeVisible()
+  await expect(page.locator('body')).not.toContainText('Loading Scripture library…')
+})
