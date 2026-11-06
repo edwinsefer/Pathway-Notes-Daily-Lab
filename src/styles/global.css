@@ -1240,3 +1240,37 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+
+/* Christian Books Library — explicit dark-theme surfaces and readable labels. */
+:root[data-theme="dark"] .books-record-form,
+:root[data-theme="dark"] .books-catalogue-list {
+  background: #1b2638;
+  border-color: #35445e;
+  color: #e8ecf5;
+}
+
+:root[data-theme="dark"] .books-record-form label,
+:root[data-theme="dark"] .books-catalogue-controls label {
+  color: #d5deed;
+}
+
+:root[data-theme="dark"] .books-record-form input,
+:root[data-theme="dark"] .books-record-form select,
+:root[data-theme="dark"] .books-catalogue-controls input,
+:root[data-theme="dark"] .books-catalogue-controls select {
+  background: #111c2e;
+  border-color: #52627d;
+  color: #f3f6fc;
+}
+
+:root[data-theme="dark"] .books-record-form input::placeholder,
+:root[data-theme="dark"] .books-catalogue-controls input::placeholder {
+  color: #aab7cc;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .books-catalogue-card {
+  background: #202d42;
+  border-color: #40516d;
+  color: #e8ecf5;
+}
