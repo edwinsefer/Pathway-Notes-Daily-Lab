@@ -1021,7 +1021,7 @@ function App() {
               <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button className="library-open-button" type="button" onClick={exportBookCatalogueBackup} disabled={!bookCatalogue.valid}>Download Books Backup</button>
                 <label className="library-open-button" htmlFor="books-backup-file">Preview Restore</label>
-                <input id="books-backup-file" type="file" accept="application/json,.json" onChange={(event) => {
+                <input id="books-backup-file" type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={(event) => {
                   void previewBookCatalogueBackup(event.target.files?.[0])
                   event.currentTarget.value = ''
                 }} />
