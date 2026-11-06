@@ -2,6 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   BOOK_CATALOGUE_SCHEMA_VERSION,
+  createBookCatalogueBackup,
+  parseBookCatalogueBackup,
+  previewBookCatalogueRestore,
+  mergeBookCatalogueRecords,
   BOOK_CATALOGUE_STORAGE_KEY,
   createBookRecord,
   loadBookCatalogue,
@@ -90,6 +94,49 @@ test('does not overwrite malformed or unsupported catalogue data during recovery
   assert.equal(result.valid, false)
   assert.deepEqual(result.records, [])
   assert.equal(storage.getItem(BOOK_CATALOGUE_STORAGE_KEY), original)
+})
+
+
+test('exports and validates a separate versioned Books Library backup', () => {
+  const backup = createBookCatalogueBackup([validRecord()], timestamp)
+  assert.equal(backup.app, 'pathway-notes-books-library')
+  assert.equal(backup.schemaVersion, 1)
+  assert.deepEqual(parseBookCatalogueBackup(backup), {
+    valid: true, errors: [], records: [validRecord()], exportedAt: timestamp,
+  })
+})
+
+test('rejects unsupported or malformed Books Library backups without records', () => {
+  const backup = createBookCatalogueBackup([validRecord()], timestamp)
+  assert.equal(parseBookCatalogueBackup({ ...backup, schemaVersion: 99 }).valid, false)
+  assert.equal(parseBookCatalogueBackup({ ...backup, app: 'pathway-notes-personal-library' }).valid, false)
+  assert.equal(parseBookCatalogueBackup({ ...backup, data: { records: [{ ...validRecord(), title: '' }] } }).valid, false)
+})
+
+test('previews restore counts and detects ID and title-author duplicates', () => {
+  const existing = [validRecord()]
+  const sameTitle = validRecord({ id: 'book-2' })
+  const newBook = validRecord({ id: 'book-3', title: 'Mere Christianity', authors: ['C. S. Lewis'] })
+  const preview = previewBookCatalogueRestore(existing, [sameTitle, newBook])
+  assert.equal(preview.valid, true)
+  assert.equal(preview.existingCount, 1)
+  assert.equal(preview.incomingCount, 2)
+  assert.deepEqual(preview.duplicateIds, [])
+  assert.equal(preview.duplicateBooks.length, 1)
+  assert.equal(preview.newRecords.length, 1)
+  assert.equal(preview.newRecords[0].title, 'Mere Christianity')
+})
+
+test('merge keeps existing records and adds only non-duplicates', () => {
+  const existing = [validRecord()]
+  const incoming = [
+    validRecord({ id: 'book-2' }),
+    validRecord({ id: 'book-3', title: 'Mere Christianity', authors: ['C. S. Lewis'] }),
+  ]
+  const merged = mergeBookCatalogueRecords(existing, incoming)
+  assert.equal(merged.length, 2)
+  assert.equal(merged[0].id, 'book-1')
+  assert.equal(merged[1].title, 'Mere Christianity')
 })
 
 test('does not save invalid records', () => {
