@@ -3,12 +3,13 @@ import BlogHome from './BlogHome'
 import { todaysPathway } from './data/todaysPathway'
 import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
-import { approvedScriptureChapters, findApprovedChapter } from './data/scripture/registry'
 import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupValidation.mjs'
 import type { ScriptureChapter } from './data/scripture/types'
+import { BOOK_CATALOGUE_BACKUP_MAX_BYTES, createBookCatalogueBackup, createBookRecord, loadBookCatalogue, mergeBookCatalogueRecords, parseBookCatalogueBackup, previewBookCatalogueRestore, saveBookCatalogue } from './data/bookCatalogue.mjs'
+import type { BookRecord, BookFormat } from './data/bookCatalogue.mjs'
 
 type Theme = 'light' | 'dark'
-type Page = 'blog' | 'home' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
+type Page = 'blog' | 'home' | 'books' | 'library' | 'search' | 'scripture' | 'bible' | 'audit'
 type LibraryFilter = 'all' | 'saved' | 'highlighted' | 'noted'
 
 type AuditIssue = {
@@ -18,11 +19,11 @@ type AuditIssue = {
   issue: string
 }
 
-const runScriptureAudit = (): AuditIssue[] => {
+const runScriptureAudit = (books: typeof bibleBooks, chaptersData: ScriptureChapter[]): AuditIssue[] => {
   const issues: AuditIssue[] = []
 
-  for (const book of bibleBooks) {
-    const chapters = approvedScriptureChapters
+  for (const book of books) {
+    const chapters = chaptersData
       .filter((chapter) => chapter.book.trim().toLowerCase() === book.name.trim().toLowerCase())
       .sort((a, b) => a.chapter - b.chapter)
 
@@ -71,6 +72,9 @@ function App() {
     return savedTheme === 'dark' ? 'dark' : 'light'
   })
   const [page, setPage] = useState<Page>('blog')
+  const [scriptureRegistry, setScriptureRegistry] = useState<typeof import('./data/scripture/registry') | null>(null)
+  const [scriptureDataLoading, setScriptureDataLoading] = useState(false)
+  const [scriptureDataError, setScriptureDataError] = useState(false)
   const [selectedChapter, setSelectedChapter] = useState<ScriptureChapter>(psalm46)
   const [selectedVerse, setSelectedVerse] = useState(46)
   const [navigationBook, setNavigationBook] = useState('Genesis')
@@ -108,6 +112,31 @@ function App() {
   const [libraryQuery, setLibraryQuery] = useState('')
   const [libraryContext, setLibraryContext] = useState<string | null>(null)
   const [backupStatus, setBackupStatus] = useState('')
+  const [bookCatalogue, setBookCatalogue] = useState(() => loadBookCatalogue(localStorage))
+  const [bookTitle, setBookTitle] = useState('')
+  const [bookAuthors, setBookAuthors] = useState('')
+  const [bookFormat, setBookFormat] = useState<BookFormat>('record-only')
+  const [bookLanguage, setBookLanguage] = useState('')
+  const [bookCategory, setBookCategory] = useState('')
+  const [bookReadingStatus, setBookReadingStatus] = useState<'to-read' | 'reading' | 'completed'>('to-read')
+  const [bookSearch, setBookSearch] = useState('')
+  const [bookFilter, setBookFilter] = useState('all')
+  const [bookFormMessage, setBookFormMessage] = useState('')
+  const [bookBackupPreview, setBookBackupPreview] = useState<ReturnType<typeof previewBookCatalogueRestore> | null>(null)
+  const [bookBackupStatus, setBookBackupStatus] = useState('')
+
+  useEffect(() => {
+    if (!['bible', 'scripture', 'library', 'search', 'audit'].includes(page) || scriptureRegistry) return
+    let active = true
+    setScriptureDataLoading(true)
+    import('./data/scripture/registry')
+      .then((registry) => {
+        if (active) { setScriptureRegistry(registry); setScriptureDataError(false) }
+      })
+      .catch(() => { if (active) setScriptureDataError(true) })
+      .finally(() => { if (active) setScriptureDataLoading(false) })
+    return () => { active = false }
+  }, [page, scriptureRegistry])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -165,7 +194,7 @@ function App() {
     try {
       const parsed = JSON.parse(await file.text())
       const isKnownVerse = (book: string, chapter: number, verse: number) => {
-        const chapterData = findApprovedChapter(book, chapter)
+        const chapterData = findLoadedApprovedChapter(book, chapter)
         return Boolean(chapterData?.verses.some((item) => item.verse === verse))
       }
       if (!validateLibraryBackup(parsed, isKnownVerse)) {
@@ -194,6 +223,68 @@ function App() {
     }
   }
 
+  const exportBookCatalogueBackup = () => {
+    try {
+      const backup = createBookCatalogueBackup(bookCatalogue.records)
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `pathway-books-catalogue-backup-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setBookBackupStatus('Books Catalogue backup downloaded. Keep this file somewhere safe.')
+    } catch (error) {
+      setBookBackupStatus(error instanceof Error ? error.message : 'Books Catalogue backup could not be created.')
+    }
+  }
+
+  const previewBookCatalogueBackup = async (file: File | undefined) => {
+    setBookBackupPreview(null)
+    setBookBackupStatus('')
+    if (!file) return
+    if (file.size > BOOK_CATALOGUE_BACKUP_MAX_BYTES) {
+      setBookBackupStatus('This backup file is larger than 10 MB. No data was changed.')
+      return
+    }
+    try {
+      const parsed = parseBookCatalogueBackup(JSON.parse(await file.text()))
+      if (!parsed.valid) {
+        setBookBackupStatus(`Invalid Books Catalogue backup: ${parsed.errors.join('; ')}. No data was changed.`)
+        return
+      }
+      const preview = previewBookCatalogueRestore(bookCatalogue.records, parsed.records)
+      if (!preview.valid) {
+        setBookBackupStatus(`Could not preview this backup: ${preview.errors.join('; ')}. No data was changed.`)
+        return
+      }
+      setBookBackupPreview(preview)
+      setBookBackupStatus(`Backup validated. Exported at ${parsed.exportedAt}. Review the counts before restoring.`)
+    } catch {
+      setBookBackupStatus('Could not read this backup file. No data was changed.')
+    }
+  }
+
+  const restoreBookCatalogueBackup = (mode: 'replace' | 'merge') => {
+    if (!bookBackupPreview?.valid) return
+    const recordsToRestore = mode === 'replace'
+      ? bookBackupPreview.incomingRecords
+      : mergeBookCatalogueRecords(bookCatalogue.records, bookBackupPreview.newRecords)
+    if (!window.confirm(mode === 'replace'
+      ? `Replace the current Books Library catalogue with the backup? Current: ${bookCatalogue.records.length}; backup: ${bookBackupPreview.incomingCount}. This affects only Books Library metadata.`
+      : `Merge this backup into Books Library? Existing records will be kept. New records: ${bookBackupPreview.newRecords.length}; duplicate candidates skipped: ${bookBackupPreview.duplicateIds.length + bookBackupPreview.duplicateBooks.length}. This affects only Books Library metadata.`)) return
+    const result = saveBookCatalogue(localStorage, recordsToRestore)
+    if (!result.saved) {
+      setBookBackupStatus(`Restore failed: ${result.errors.join('; ')}. Existing data was not changed.`)
+      return
+    }
+    setBookCatalogue({ records: recordsToRestore, valid: true, errors: [] })
+    setBookBackupPreview(null)
+    setBookBackupStatus(`Books Catalogue ${mode === 'replace' ? 'replaced' : 'merged'} successfully. Please verify your book list.`)
+  }
+
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
   }
@@ -207,6 +298,9 @@ function App() {
     (item) => `${item.book}|${item.chapter}|${item.verse}` === selectedVerseKey,
   )
 
+  const findLoadedApprovedChapter = (book: string, chapter: number) => scriptureRegistry?.findApprovedChapter(book, chapter) ?? null
+  const approvedScriptureChapters = scriptureRegistry?.approvedScriptureChapters ?? []
+
   const highlightedVerseItems = useMemo(() => {
     return Object.entries(highlightedVerses)
       .filter(([, isHighlighted]) => isHighlighted)
@@ -214,12 +308,12 @@ function App() {
         const [book, chapterText, verseText] = key.split('|')
         const chapter = Number(chapterText)
         const verse = Number(verseText)
-        const chapterData = findApprovedChapter(book, chapter)
+        const chapterData = findLoadedApprovedChapter(book, chapter)
         const verseData = chapterData?.verses.find((item) => item.verse === verse)
         return { key, book, chapter, verse, text: verseData?.text ?? 'Verse text unavailable.' }
       })
       .filter((item) => item.text !== 'Verse text unavailable.')
-  }, [highlightedVerses])
+  }, [highlightedVerses, scriptureRegistry])
 
   const isSelectedVerseHighlighted = Boolean(highlightedVerses[selectedVerseKey])
 
@@ -241,11 +335,11 @@ function App() {
 
   const filteredSavedVerses = useMemo(
     () => savedVerses.filter((item) => {
-      const chapter = findApprovedChapter(item.book, item.chapter)
+      const chapter = findLoadedApprovedChapter(item.book, item.chapter)
       const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
       return matchesLibraryQuery(item.book, item.chapter, item.verse, verse?.text ?? '', verseNotes[item.book + '|' + item.chapter + '|' + item.verse] ?? '')
     }),
-    [savedVerses, verseNotes, normalizedLibraryQuery],
+    [savedVerses, verseNotes, normalizedLibraryQuery, scriptureRegistry],
   )
 
   const filteredHighlightedVerses = useMemo(
@@ -258,11 +352,11 @@ function App() {
       const [book, chapterText, verseText] = key.split('|')
       const chapter = Number(chapterText)
       const verse = Number(verseText)
-      const chapterData = findApprovedChapter(book, chapter)
+      const chapterData = findLoadedApprovedChapter(book, chapter)
       const verseData = chapterData?.verses.find((item) => item.verse === verse)
       return { key, book, chapter, verse, text: verseData?.text ?? '', note }
     }).filter((item) => item.note.trim() && item.text)
-  }, [verseNotes])
+  }, [verseNotes, scriptureRegistry])
 
   const filteredNotedVerses = useMemo(
     () => notedVerseItems.filter((item) => matchesLibraryQuery(item.book, item.chapter, item.verse, item.text, item.note)),
@@ -317,22 +411,25 @@ function App() {
   const openPage = (nextPage: Page) => {
     setPage(nextPage)
     setIsFullPathwayOpen(false)
-    if (nextPage === 'audit') setAuditIssues(runScriptureAudit())
+    if (nextPage === 'audit' && scriptureRegistry) setAuditIssues(runScriptureAudit(bibleBooks, scriptureRegistry.approvedScriptureChapters))
   }
 
+  useEffect(() => {
+    if (page === 'audit' && scriptureRegistry) setAuditIssues(runScriptureAudit(bibleBooks, scriptureRegistry.approvedScriptureChapters))
+  }, [page, scriptureRegistry])
+
   const openChapter = (bookName: string, chapterNumber: number) => {
-    const chapter = findApprovedChapter(bookName, chapterNumber)
+    const chapter = findLoadedApprovedChapter(bookName, chapterNumber)
     if (chapter) openScripture(chapter, 1)
   }
 
-  const availableChapters = approvedScriptureChapters
   const navigationBookInfo = bibleBooks.find(
     (book) => book.name.trim().toLowerCase() === navigationBook.trim().toLowerCase(),
   )
   const navigationChapterNumbers = navigationBookInfo
     ? Array.from({ length: navigationBookInfo.chapters }, (_, index) => index + 1)
     : []
-  const navigationChapterData = findApprovedChapter(navigationBook, navigationChapter)
+  const navigationChapterData = findLoadedApprovedChapter(navigationBook, navigationChapter)
   const navigationVerses = navigationChapterData?.verses ?? []
 
   const currentBookIndex = bibleBooks.findIndex(
@@ -342,12 +439,12 @@ function App() {
   const previousChapterTarget = (() => {
     if (currentBookIndex < 0) return null
     if (selectedChapter.chapter > 1) {
-      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter - 1) ?? null
+      return findLoadedApprovedChapter(selectedChapter.book, selectedChapter.chapter - 1) ?? null
     }
 
     for (let index = currentBookIndex - 1; index >= 0; index -= 1) {
       const book = bibleBooks[index]
-      const chapter = findApprovedChapter(book.name, book.chapters)
+      const chapter = findLoadedApprovedChapter(book.name, book.chapters)
       if (chapter) return chapter
     }
 
@@ -359,12 +456,12 @@ function App() {
     const currentBook = bibleBooks[currentBookIndex]
 
     if (selectedChapter.chapter < currentBook.chapters) {
-      return findApprovedChapter(selectedChapter.book, selectedChapter.chapter + 1) ?? null
+      return findLoadedApprovedChapter(selectedChapter.book, selectedChapter.chapter + 1) ?? null
     }
 
     for (let index = currentBookIndex + 1; index < bibleBooks.length; index += 1) {
       const book = bibleBooks[index]
-      const chapter = findApprovedChapter(book.name, 1)
+      const chapter = findLoadedApprovedChapter(book.name, 1)
       if (chapter) return chapter
     }
 
@@ -455,12 +552,15 @@ function App() {
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Devotional</button>
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Christian Living</button>
         <button className="nav-link" type="button" onClick={() => openPage('home')}>Prayer</button>
-        <button className="nav-link" type="button" onClick={() => openPage('library')}>Book Reviews</button>
-        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Library</button>
+        <button className={page === 'books' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('books')}>Books Library</button>
+        <button className={page === 'library' ? 'nav-link active' : 'nav-link'} type="button" onClick={() => openPage('library')}>Personal Notes</button>
         <button className="nav-link" type="button" onClick={() => openPage('audit')}>About / Audit</button>
+        <span className="kodu-nav-entry" aria-disabled="true" title="KODU is being prepared as an independent module">KODU <small>Coming Soon</small></span>
       </nav>
 
       <main className={page === 'blog' ? 'main-content blog-main-content' : 'main-content'}>
+        {scriptureDataLoading && <p aria-live="polite" className="saved-empty-text">Loading Scripture library…</p>}
+        {scriptureDataError && <p role="alert" className="saved-empty-text">Scripture library could not be loaded. Please try again.</p>}
         {page === 'blog' && <BlogHome onNavigate={openPage} />}
         {page === 'home' && (
           <section className="pathway-card" aria-labelledby="today-pathway-title">
@@ -541,7 +641,7 @@ function App() {
           </section>
         )}
 
-        {page === 'bible' && (
+        {page === 'bible' && scriptureRegistry && (
           <section className="scripture-library-page" aria-labelledby="bible-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE LIBRARY</p>
@@ -557,7 +657,7 @@ function App() {
                   value={navigationBook}
                   onChange={(event) => {
                     const nextBook = event.target.value
-                    const chapterData = findApprovedChapter(nextBook, 1)
+                    const chapterData = findLoadedApprovedChapter(nextBook, 1)
                     setNavigationBook(nextBook)
                     setNavigationChapter(1)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
@@ -576,7 +676,7 @@ function App() {
                   value={navigationChapter}
                   onChange={(event) => {
                     const nextChapter = Number(event.target.value)
-                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(navigationBook, nextChapter)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
                   }}
@@ -585,7 +685,7 @@ function App() {
                     <option
                       key={chapterNumber}
                       value={chapterNumber}
-                      disabled={!findApprovedChapter(navigationBook, chapterNumber)}
+                      disabled={!findLoadedApprovedChapter(navigationBook, chapterNumber)}
                     >
                       {chapterNumber}
                     </option>
@@ -626,7 +726,7 @@ function App() {
           </section>
         )}
 
-        {page === 'audit' && (
+        {page === 'audit' && scriptureRegistry && (
           <section className="library-page" aria-labelledby="audit-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE AUDIT</p>
@@ -667,7 +767,7 @@ function App() {
           </section>
         )}
 
-        {page === 'scripture' && (
+        {page === 'scripture' && scriptureRegistry && (
           <section className="scripture-reader" aria-labelledby="scripture-reader-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE READER</p>
@@ -685,7 +785,7 @@ function App() {
                   onChange={(event) => {
                     const nextBook = event.target.value
                     const nextChapter = 1
-                    const chapterData = findApprovedChapter(nextBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(nextBook, nextChapter)
                     setNavigationBook(nextBook)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
@@ -704,13 +804,13 @@ function App() {
                   value={navigationChapter}
                   onChange={(event) => {
                     const nextChapter = Number(event.target.value)
-                    const chapterData = findApprovedChapter(navigationBook, nextChapter)
+                    const chapterData = findLoadedApprovedChapter(navigationBook, nextChapter)
                     setNavigationChapter(nextChapter)
                     setNavigationVerse(chapterData?.verses[0]?.verse ?? 1)
                   }}
                 >
                   {navigationChapterNumbers.map((chapterNumber) => (
-                    <option key={chapterNumber} value={chapterNumber} disabled={!findApprovedChapter(navigationBook, chapterNumber)}>
+                    <option key={chapterNumber} value={chapterNumber} disabled={!findLoadedApprovedChapter(navigationBook, chapterNumber)}>
                       {chapterNumber}
                     </option>
                   ))}
@@ -815,15 +915,150 @@ function App() {
           </section>
         )}
 
-        {page === 'library' && (
+        {page === 'books' && (
+          <section className="books-library-page" aria-labelledby="books-library-title">
+            <div className="page-heading">
+              <p className="eyebrow">CHRISTIAN BOOKS CATALOGUE</p>
+              <h1 id="books-library-title">Books Library</h1>
+              <p>A dedicated catalogue for Christian books. This stores book details only; it does not copy, move, upload, or delete files.</p>
+            </div>
+            <form className="books-record-form" onSubmit={(event) => {
+              event.preventDefault()
+              try {
+                const record = createBookRecord({
+                  title: bookTitle,
+                  authors: bookAuthors.split(',').map((author) => author.trim()).filter(Boolean),
+                  format: bookFormat,
+                  language: bookLanguage.trim(),
+                  category: bookCategory.trim(),
+                  readingStatus: bookReadingStatus,
+                })
+                const nextRecords = [...bookCatalogue.records, record]
+                const result = saveBookCatalogue(localStorage, nextRecords)
+                if (!result.saved) {
+                  setBookFormMessage(result.errors.join('; '))
+                  return
+                }
+                setBookCatalogue({ records: nextRecords, valid: true, errors: [] })
+                setBookTitle('')
+                setBookAuthors('')
+                setBookFormat('record-only')
+                setBookLanguage('')
+                setBookCategory('')
+                setBookReadingStatus('to-read')
+                setBookFormMessage('Book record saved on this device.')
+              } catch (error) {
+                setBookFormMessage(error instanceof Error ? error.message : 'Book record could not be created.')
+              }
+            }}>
+              <h2>Record a Book</h2>
+              <label>Book title *
+                <input required value={bookTitle} onChange={(event) => setBookTitle(event.target.value)} placeholder="Enter book title" />
+              </label>
+              <label>Author(s)
+                <input value={bookAuthors} onChange={(event) => setBookAuthors(event.target.value)} placeholder="Separate multiple authors with commas" />
+              </label>
+              <label>Format
+                <select value={bookFormat} onChange={(event) => setBookFormat(event.target.value as BookFormat)}>
+                  <option value="record-only">Record only</option>
+                  <option value="pdf">PDF record</option>
+                  <option value="epub">EPUB record</option>
+                </select>
+              </label>
+              <label>Language
+                <input value={bookLanguage} onChange={(event) => setBookLanguage(event.target.value)} placeholder="e.g. English, Tamil" />
+              </label>
+              <label>Category
+                <input value={bookCategory} onChange={(event) => setBookCategory(event.target.value)} placeholder="e.g. Bible Study, Theology, Devotional" />
+              </label>
+              <label>Reading status
+                <select value={bookReadingStatus} onChange={(event) => setBookReadingStatus(event.target.value as 'to-read' | 'reading' | 'completed')}>
+                  <option value="to-read">To read</option>
+                  <option value="reading">Reading</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </label>
+              <button className="pathway-read-button" type="submit" disabled={!bookCatalogue.valid}>Save Book Record</button>
+              {bookFormMessage && <p role="status">{bookFormMessage}</p>}
+              {!bookCatalogue.valid && <p role="alert">Existing catalogue data needs review before new records can be saved. It has not been changed.</p>}
+            </form>
+            <section className="books-catalogue-list" aria-labelledby="books-catalogue-list-title">
+              <h2 id="books-catalogue-list-title">Your Books ({bookCatalogue.records.length})</h2>
+              <div className="books-catalogue-controls">
+                <label>Search books
+                  <input value={bookSearch} onChange={(event) => setBookSearch(event.target.value)} placeholder="Search title or author" />
+                </label>
+                <label>Filter by format
+                  <select value={bookFilter} onChange={(event) => setBookFilter(event.target.value)}>
+                    <option value="all">All formats</option>
+                    <option value="record-only">Record only</option>
+                    <option value="pdf">PDF</option>
+                    <option value="epub">EPUB</option>
+                  </select>
+                </label>
+              </div>
+              {bookCatalogue.records.filter((record) => {
+                const query = bookSearch.trim().toLowerCase()
+                const matchesQuery = !query || record.title.toLowerCase().includes(query) || record.authors.some((author) => author.toLowerCase().includes(query))
+                return matchesQuery && (bookFilter === 'all' || record.format === bookFilter)
+              }).map((record) => (
+                <article className="books-catalogue-card" key={record.id}>
+                  <h3>{record.title}</h3>
+                  <p>{record.authors.length ? record.authors.join(', ') : 'Author not recorded'}</p>
+                  {record.category && <p>Category: {record.category}</p>}
+                  {record.language && <p>Language: {record.language}</p>}
+                  <span>{record.format.toUpperCase()} · {record.readingStatus.replace('-', ' ')}</span>
+                </article>
+              ))}
+              {bookCatalogue.records.length === 0 && <p className="saved-empty-text">No books recorded yet. Add your first book above.</p>}
+              {bookCatalogue.records.length > 0 && bookCatalogue.records.filter((record) => {
+                const query = bookSearch.trim().toLowerCase()
+                return (!query || record.title.toLowerCase().includes(query) || record.authors.some((author) => author.toLowerCase().includes(query))) && (bookFilter === 'all' || record.format === bookFilter)
+              }).length === 0 && <p className="saved-empty-text">No books match this search or filter.</p>}
+            </section>
+            <section className="books-catalogue-list" aria-labelledby="books-backup-title">
+              <h2 id="books-backup-title">Books Catalogue Backup</h2>
+              <p className="saved-empty-text">Export or restore Books Library metadata only. PDF/EPUB file contents are never included. Personal Notes and Bible Scripture data are not affected.</p>
+              <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button className="library-open-button" type="button" onClick={exportBookCatalogueBackup} disabled={!bookCatalogue.valid}>Download Books Backup</button>
+                <label className="library-open-button" htmlFor="books-backup-file">Preview Restore</label>
+                <input id="books-backup-file" type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={(event) => {
+                  void previewBookCatalogueBackup(event.target.files?.[0])
+                  event.currentTarget.value = ''
+                }} />
+              </div>
+              {bookBackupStatus && <p role="status">{bookBackupStatus}</p>}
+              {bookBackupPreview?.valid && (
+                <div className="books-backup-preview" aria-label="Books backup preview">
+                  <h3>Restore Preview</h3>
+                  <p>Current records: {bookBackupPreview.existingCount}</p>
+                  <p>Backup records: {bookBackupPreview.incomingCount}</p>
+                  <p>Duplicate IDs: {bookBackupPreview.duplicateIds.length}</p>
+                  <p>Matching title and author: {bookBackupPreview.duplicateBooks.length}</p>
+                  <p>New records for merge: {bookBackupPreview.newRecords.length}</p>
+                  {bookBackupPreview.duplicateBooks.length > 0 && (
+                    <ul>{bookBackupPreview.duplicateBooks.map((record) => <li key={record.id}>{record.title} — {record.authors.join(', ') || 'Author not recorded'}</li>)}</ul>
+                  )}
+                  <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button className="library-open-button" type="button" onClick={() => restoreBookCatalogueBackup('merge')}>Merge New Records</button>
+                    <button className="library-open-button" type="button" onClick={() => restoreBookCatalogueBackup('replace')}>Replace Catalogue</button>
+                    <button className="library-open-button" type="button" onClick={() => { setBookBackupPreview(null); setBookBackupStatus('Restore preview dismissed. No data was changed.') }}>Cancel Preview</button>
+                  </div>
+                </div>
+              )}
+            </section>
+          </section>
+        )}
+
+        {page === 'library' && scriptureRegistry && (
           <section className="library-page" aria-labelledby="library-title">
             <div className="page-heading">
-              <p className="eyebrow">PERSONAL LIBRARY</p>
-              <h1 id="library-title">Saved Items</h1>
+              <p className="eyebrow">PERSONAL NOTES</p>
+              <h1 id="library-title">Personal Notes</h1>
               <p>Your saved pathways, verses, highlights, and notes stay on this device for now.</p>
             </div>
 
-            <div className="library-filter-bar" aria-label="Personal Library filter">
+            <div className="library-filter-bar" aria-label="Personal Notes filter">
               {([
                 ['all', 'All', savedVerses.length + highlightedVerseItems.length + notedVerseItems.length],
                 ['saved', 'Saved', savedVerses.length],
@@ -837,19 +1072,19 @@ function App() {
             </div>
 
             <div className="library-search-card">
-              <label htmlFor="library-search">Find in your library</label>
+              <label htmlFor="library-search">Find in your notes and saved items</label>
               <input
                 id="library-search"
                 type="search"
                 value={libraryQuery}
                 onChange={(event) => setLibraryQuery(event.target.value)}
-                placeholder="Book, verse, word, or note…"
+                placeholder="Verse, pathway, word, or note…"
                 autoComplete="off"
               />
             </div>
 
             <section className="saved-library-section" aria-labelledby="library-backup-title">
-              <div className="saved-library-heading"><h2 id="library-backup-title">Library Backup</h2></div>
+              <div className="saved-library-heading"><h2 id="library-backup-title">Personal Notes Backup</h2></div>
               <p className="saved-empty-text">Export your saved verses, highlights, notes, and theme to a JSON file. Import a backup to restore them on this preview.</p>
               <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button className="library-open-button" type="button" onClick={exportLibraryBackup}>Download Backup</button>
@@ -884,7 +1119,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="highlighted-verses-title">
                 <div className="saved-library-heading"><h2 id="highlighted-verses-title">Highlighted Verses</h2></div>
                 {filteredHighlightedVerses.length > 0 ? <div className="saved-verse-list">{filteredHighlightedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p>{verseNotes[item.key] && <p className="saved-verse-note"><strong>My note:</strong> {verseNotes[item.key]}</p>}</div>
@@ -898,7 +1133,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="saved-verses-title">
                 <div className="saved-library-heading"><h2 id="saved-verses-title">Saved Verses</h2></div>
                 {filteredSavedVerses.length > 0 ? <div className="saved-verse-list">{filteredSavedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   const verse = chapter?.verses.find((entry) => entry.verse === item.verse)
                   const key = item.book + '|' + item.chapter + '|' + item.verse
                   return <article className="library-item saved-verse-item" key={key}>
@@ -913,7 +1148,7 @@ function App() {
               <section className="saved-library-section" aria-labelledby="noted-verses-title">
                 <div className="saved-library-heading"><h2 id="noted-verses-title">My Notes</h2></div>
                 {filteredNotedVerses.length > 0 ? <div className="saved-verse-list">{filteredNotedVerses.map((item) => {
-                  const chapter = findApprovedChapter(item.book, item.chapter)
+                  const chapter = findLoadedApprovedChapter(item.book, item.chapter)
                   return <article className="library-item saved-verse-item" key={item.key}>
                     <div><p className="search-result-reference">{item.book} {item.chapter}:{item.verse}</p><p className="search-result-text">{item.text}</p><p className="saved-verse-note"><strong>My note:</strong> {item.note}</p></div>
                     <button className="library-open-button" type="button" onClick={() => chapter && openScripture(chapter, item.verse, 'Opened from My Notes')} disabled={!chapter}>Open Verse</button>
@@ -924,7 +1159,7 @@ function App() {
           </section>
         )}
 
-        {page === 'search' && (
+        {page === 'search' && scriptureRegistry && (
           <section className="search-page" aria-labelledby="search-title">
             <div className="page-heading">
               <p className="eyebrow">SCRIPTURE SEARCH</p>
@@ -951,7 +1186,7 @@ function App() {
                 </p>
 
                 {scriptureSearchResults.map((result) => {
-                  const chapter = findApprovedChapter(result.book, result.chapter)
+                  const chapter = findLoadedApprovedChapter(result.book, result.chapter)
                   return (
                     <article className="search-result-item" key={result.book + '-' + result.chapter + '-' + result.verse}>
                       <div>
@@ -986,10 +1221,12 @@ function App() {
         )}
       </main>
 
-      <footer className="site-footer blog-global-footer">
-        <span>Pathway Notes Daily · Create Once. Inspire Everywhere.</span>
-        <span>© 2026 Edwin’s Pathway Notes Daily</span>
-      </footer>
+      {page !== 'blog' && (
+        <footer className="site-footer blog-global-footer">
+          <span>Pathway Notes Daily · Create Once. Inspire Everywhere.</span>
+          <span>© 2026 Edwin’s Pathway Notes Daily</span>
+        </footer>
+      )}
     </div>
   )
 }

@@ -38,8 +38,8 @@ async function storageState(page) {
   }), keys)
 }
 async function openLibrary(page) {
-  await page.getByRole('button', { name: 'Library', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Library Backup' })).toBeVisible()
+  await page.getByRole('button', { name: 'Personal Notes', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Personal Notes Backup' })).toBeVisible()
 }
 
 test('browser downloads a complete backup, restores it in fresh state, and persists after reload', async ({ page }) => {
@@ -110,5 +110,5 @@ test('invalid verse-reference backup is rejected without changing existing brows
   })
   await expect(page.getByRole('status')).toContainText('This backup file is invalid or from an unsupported version. No data was changed.')
   expect(await storageState(page)).toEqual(before)
-  await expect(page.getByRole('heading', { name: 'Saved Items' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Personal Notes', exact: true })).toBeVisible()
 })

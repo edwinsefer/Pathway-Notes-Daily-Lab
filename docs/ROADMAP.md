@@ -164,3 +164,54 @@ Previously completed functional checks are treated as approved and are not repea
 - [ ] External reviewer access to the Preview is still blocked by enabled Vercel SSO protection. No protection settings were changed.
 - [ ] Final review and explicit approval before merge. No merge performed.
 - [x] Stable Blogger Blog V12 remains unchanged; all feed requests were read-only.
+
+
+## Phase 6 — Christian Books Library (separate from Scripture Library)
+- [x] Inspect current navigation and data model; confirm Book Reviews currently routes to Personal Library.
+- [x] Confirm Bible catalogue metadata is not a general Christian-books catalogue.
+- [x] Define separate Christian Books Library implementation plan and safety boundaries in `docs/CHRISTIAN-BOOKS-LIBRARY-PLAN.md`.
+- [x] Add dedicated Books Library route/page while preserving Personal Library route and storage.
+- [x] Add versioned book-catalogue metadata model and validation (`src/data/bookCatalogue.mjs`).
+- [x] Add catalogue empty state, metadata-only book record form, search, and format filters; Browser E2E passed in Run #131.
+- [x] Verify Books Library does not load Scripture registry.
+- [x] Add browser regression tests; verify Personal Library backup/restore remains unchanged.
+- [x] User visual review completed for desktop and mobile in Light and Dark modes (screenshots reviewed in the conversation).
+
+**Phase 6 boundary:** Phase 1 is catalogue metadata only. No PDF/EPUB file copying, moving, deleting, upload, cloud sync, or reader integration until separately implemented and verified. Blog V12 remains locked; Blogger remains read-only; Scripture source data remains untouched. PR #7 stays Open/Draft and unmerged.
+
+### Phase 6.3 — Books Catalogue Backup / Restore
+- [x] Add versioned JSON metadata backup and validation (10 MB limit).
+- [x] Add restore preview with existing/incoming counts and duplicate review.
+- [x] Add explicit Merge New Records and Replace Catalogue actions with confirmation.
+- [x] Ensure session-only file links are reset to `not-linked` during backup/restore.
+- [x] Keep PDF/EPUB bytes, Personal Scripture Library data, and Bible data outside this backup.
+- [x] Unit tests and browser E2E coverage pass.
+- [x] GitHub Actions Creative Laboratory Verification run #153 passed on commit `c4b61988969f3207639578380bd8f311fd03491d`.
+- [x] GitHub Actions Scripture Integrity run #57 passed on the same commit.
+- [x] Vercel Preview deployment for the same commit is READY.
+- [ ] User visual acceptance of Books Backup / Restore UI on mobile and desktop, Light and Dark modes.
+- [ ] Final Phase 6 approval.
+
+**Phase 6.3 verification note:** Automated verification is green. The latest Preview deployment is READY, but visual acceptance is still pending. Do not mark Phase 6 complete, merge PR #7, or change PR draft status until the user explicitly approves.
+
+
+## Phase 7 — KODU Independent Module Entry
+
+### Approved scope and boundaries
+- [x] Confirm KODU is a separate application/module, not a replacement for Creative Laboratory.
+- [x] Inspect KODU repository and deployment evidence without modifying KODU source, Reader, BookVault, or storage.
+- [x] Record that no verified hosted KODU URL has been identified; the inspected repository includes a Windows desktop build workflow. This does not prove that no hosted deployment exists elsewhere.
+- [x] Add a visible, non-clickable `KODU — Coming Soon` navigation entry in Creative Laboratory.
+- [x] Keep KODU outside the Scripture lazy-loading gate and do not bundle its runtime.
+- [x] Add a browser E2E check for the non-interactive Coming Soon entry.
+- [x] Creative Laboratory Verification Run #158 passed on commit `926e788625bb5ae3e12d1492ee91e29e49ca2c93`.
+- [x] Scripture Integrity Run #62 passed.
+- [x] Vercel Preview deployment for commit `926e788625bb5ae3e12d1492ee91e29e49ca2c93` is READY.
+- [x] User approved Desktop Light, Desktop Dark, Mobile Light, and Mobile Dark visual review on 2026-11-06.
+- [ ] Verify the actual independent KODU hosted URL and its access requirements.
+- [ ] Obtain separate explicit approval before activating the KODU launch link.
+- [ ] Any future data bridge requires a separate plan and approval; no automatic sync or silent data movement.
+
+**Phase 7 status:** Stage 1 navigation entry is implemented, automated checks passed, Preview is READY, and visual review is approved. KODU remains non-clickable until a real URL is verified and the user separately approves activation.
+
+**Safety boundary:** PR #7 remains Open / Draft / Unmerged. This approval records visual acceptance only; it does not authorize merging, changing draft status, modifying Blog V12/Blogger, changing Scripture data, or modifying KODU/BookVault data.
