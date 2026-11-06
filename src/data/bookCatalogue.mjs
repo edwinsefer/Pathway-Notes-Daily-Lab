@@ -152,7 +152,7 @@ export function previewBookCatalogueRestore(existingRecords, incomingRecords) {
   const existingValidation = validateBookCatalogue(existingRecords)
   const incomingValidation = validateBookCatalogue(incomingRecords)
   if (!existingValidation.valid || !incomingValidation.valid) {
-    return { valid: false, errors: [...existingValidation.errors, ...incomingValidation.errors], existingCount: existingRecords.length, incomingCount: incomingRecords.length, duplicateIds: [], duplicateBooks: [], newRecords: [] }
+    return { valid: false, errors: [...existingValidation.errors, ...incomingValidation.errors], existingCount: existingRecords.length, incomingCount: incomingRecords.length, duplicateIds: [], duplicateBooks: [], newRecords: [], incomingRecords: [] }
   }
   const existingIds = new Set(existingRecords.map((record) => record.id))
   const existingIdentities = new Set(existingRecords.map(normalizeBookIdentity))
@@ -168,6 +168,7 @@ export function previewBookCatalogueRestore(existingRecords, incomingRecords) {
     errors: [],
     existingCount: existingRecords.length,
     incomingCount: incomingRecords.length,
+    incomingRecords,
     duplicateIds,
     duplicateBooks,
     newRecords,
