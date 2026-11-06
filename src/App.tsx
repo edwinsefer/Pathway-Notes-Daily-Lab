@@ -5,7 +5,7 @@ import { psalm46 } from './data/scripture/psalm46'
 import { bibleBooks } from './data/scripture/bibleBooks'
 import { validateLibraryBackup, LIBRARY_BACKUP_APP } from './data/libraryBackupValidation.mjs'
 import type { ScriptureChapter } from './data/scripture/types'
-import { createBookRecord, loadBookCatalogue, saveBookCatalogue } from './data/bookCatalogue.mjs'
+import { BOOK_CATALOGUE_BACKUP_MAX_BYTES, createBookCatalogueBackup, createBookRecord, loadBookCatalogue, mergeBookCatalogueRecords, parseBookCatalogueBackup, previewBookCatalogueRestore, saveBookCatalogue } from './data/bookCatalogue.mjs'
 import type { BookRecord, BookFormat } from './data/bookCatalogue.mjs'
 
 type Theme = 'light' | 'dark'
@@ -122,6 +122,8 @@ function App() {
   const [bookSearch, setBookSearch] = useState('')
   const [bookFilter, setBookFilter] = useState('all')
   const [bookFormMessage, setBookFormMessage] = useState('')
+  const [bookBackupPreview, setBookBackupPreview] = useState<ReturnType<typeof previewBookCatalogueRestore> | null>(null)
+  const [bookBackupStatus, setBookBackupStatus] = useState('')
 
   useEffect(() => {
     if (!['bible', 'scripture', 'library', 'search', 'audit'].includes(page) || scriptureRegistry) return
@@ -219,6 +221,77 @@ function App() {
     } catch {
       setBackupStatus('Could not read this backup file. No data was changed.')
     }
+  }
+
+  const exportBookCatalogueBackup = () => {
+    try {
+      const backup = createBookCatalogueBackup(bookCatalogue.records)
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `pathway-books-catalogue-backup-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setBookBackupStatus('Books Catalogue backup downloaded. Keep this file somewhere safe.')
+    } catch (error) {
+      setBookBackupStatus(error instanceof Error ? error.message : 'Books Catalogue backup could not be created.')
+    }
+  }
+
+  const previewBookCatalogueBackup = async (file: File | undefined) => {
+    setBookBackupPreview(null)
+    setBookBackupStatus('')
+    if (!file) return
+    if (file.size > BOOK_CATALOGUE_BACKUP_MAX_BYTES) {
+      setBookBackupStatus('This backup file is larger than 10 MB. No data was changed.')
+      return
+    }
+    try {
+      const parsed = parseBookCatalogueBackup(JSON.parse(await file.text()))
+      if (!parsed.valid) {
+        setBookBackupStatus(`Invalid Books Catalogue backup: ${parsed.errors.join('; ')}. No data was changed.`)
+        return
+      }
+      const preview = previewBookCatalogueRestore(bookCatalogue.records, parsed.records)
+      if (!preview.valid) {
+        setBookBackupStatus(`Could not preview this backup: ${preview.errors.join('; ')}. No data was changed.`)
+        return
+      }
+      setBookBackupPreview(preview)
+      setBookBackupStatus(`Backup validated. Exported at ${parsed.exportedAt}. Review the counts before restoring.`)
+    } catch {
+      setBookBackupStatus('Could not read this backup file. No data was changed.')
+    }
+  }
+
+  const restoreBookCatalogueBackup = (mode: 'replace' | 'merge') => {
+    if (!bookBackupPreview?.valid) return
+    const nextRecords = mode === 'replace'
+      ? bookBackupPreview.newRecords.concat(
+        // Replace restores every incoming record, including duplicates of the current catalogue.
+        bookBackupPreview.duplicateBooks.map((item) => {
+          const source = bookBackupPreview.newRecords.find((record) => record.id === item.id)
+          return source
+        }).filter((record): record is BookRecord => Boolean(record)),
+      )
+      : mergeBookCatalogueRecords(bookCatalogue.records, bookBackupPreview.newRecords)
+    const recordsToRestore = mode === 'replace'
+      ? (window as Window & { __pendingBookRestoreRecords?: BookRecord[] }).__pendingBookRestoreRecords ?? nextRecords
+      : nextRecords
+    if (!window.confirm(mode === 'replace'
+      ? `Replace the current Books Library catalogue with the backup? Current: ${bookCatalogue.records.length}; backup: ${bookBackupPreview.incomingCount}. This affects only Books Library metadata.`
+      : `Merge this backup into Books Library? Existing records will be kept. New records: ${bookBackupPreview.newRecords.length}; duplicate candidates skipped: ${bookBackupPreview.duplicateIds.length + bookBackupPreview.duplicateBooks.length}. This affects only Books Library metadata.`)) return
+    const result = saveBookCatalogue(localStorage, recordsToRestore)
+    if (!result.saved) {
+      setBookBackupStatus(`Restore failed: ${result.errors.join('; ')}. Existing data was not changed.`)
+      return
+    }
+    setBookCatalogue({ records: recordsToRestore, valid: true, errors: [] })
+    setBookBackupPreview(null)
+    setBookBackupStatus(`Books Catalogue ${mode === 'replace' ? 'replaced' : 'merged'} successfully. Please verify your book list.`)
   }
 
   const toggleTheme = () => {
@@ -950,6 +1023,37 @@ function App() {
                 const query = bookSearch.trim().toLowerCase()
                 return (!query || record.title.toLowerCase().includes(query) || record.authors.some((author) => author.toLowerCase().includes(query))) && (bookFilter === 'all' || record.format === bookFilter)
               }).length === 0 && <p className="saved-empty-text">No books match this search or filter.</p>}
+            </section>
+            <section className="books-catalogue-list" aria-labelledby="books-backup-title">
+              <h2 id="books-backup-title">Books Catalogue Backup</h2>
+              <p className="saved-empty-text">Export or restore Books Library metadata only. PDF/EPUB file contents are never included. Personal Notes and Bible Scripture data are not affected.</p>
+              <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button className="library-open-button" type="button" onClick={exportBookCatalogueBackup} disabled={!bookCatalogue.valid}>Download Books Backup</button>
+                <label className="library-open-button" htmlFor="books-backup-file">Preview Restore</label>
+                <input id="books-backup-file" type="file" accept="application/json,.json" onChange={(event) => {
+                  void previewBookCatalogueBackup(event.target.files?.[0])
+                  event.currentTarget.value = ''
+                }} />
+              </div>
+              {bookBackupStatus && <p role="status">{bookBackupStatus}</p>}
+              {bookBackupPreview?.valid && (
+                <div className="books-backup-preview" aria-label="Books backup preview">
+                  <h3>Restore Preview</h3>
+                  <p>Current records: {bookBackupPreview.existingCount}</p>
+                  <p>Backup records: {bookBackupPreview.incomingCount}</p>
+                  <p>Duplicate IDs: {bookBackupPreview.duplicateIds.length}</p>
+                  <p>Matching title and author: {bookBackupPreview.duplicateBooks.length}</p>
+                  <p>New records for merge: {bookBackupPreview.newRecords.length}</p>
+                  {bookBackupPreview.duplicateBooks.length > 0 && (
+                    <ul>{bookBackupPreview.duplicateBooks.map((record) => <li key={record.id}>{record.title} — {record.authors.join(', ') || 'Author not recorded'}</li>)}</ul>
+                  )}
+                  <div className="library-backup-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button className="library-open-button" type="button" onClick={() => restoreBookCatalogueBackup('merge')}>Merge New Records</button>
+                    <button className="library-open-button" type="button" onClick={() => restoreBookCatalogueBackup('replace')}>Replace Catalogue</button>
+                    <button className="library-open-button" type="button" onClick={() => { setBookBackupPreview(null); setBookBackupStatus('Restore preview dismissed. No data was changed.') }}>Cancel Preview</button>
+                  </div>
+                </div>
+              )}
             </section>
           </section>
         )}
