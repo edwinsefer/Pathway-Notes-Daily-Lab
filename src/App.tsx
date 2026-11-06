@@ -269,18 +269,9 @@ function App() {
 
   const restoreBookCatalogueBackup = (mode: 'replace' | 'merge') => {
     if (!bookBackupPreview?.valid) return
-    const nextRecords = mode === 'replace'
-      ? bookBackupPreview.newRecords.concat(
-        // Replace restores every incoming record, including duplicates of the current catalogue.
-        bookBackupPreview.duplicateBooks.map((item) => {
-          const source = bookBackupPreview.newRecords.find((record) => record.id === item.id)
-          return source
-        }).filter((record): record is BookRecord => Boolean(record)),
-      )
-      : mergeBookCatalogueRecords(bookCatalogue.records, bookBackupPreview.newRecords)
     const recordsToRestore = mode === 'replace'
-      ? (window as Window & { __pendingBookRestoreRecords?: BookRecord[] }).__pendingBookRestoreRecords ?? nextRecords
-      : nextRecords
+      ? bookBackupPreview.incomingRecords
+      : mergeBookCatalogueRecords(bookCatalogue.records, bookBackupPreview.newRecords)
     if (!window.confirm(mode === 'replace'
       ? `Replace the current Books Library catalogue with the backup? Current: ${bookCatalogue.records.length}; backup: ${bookBackupPreview.incomingCount}. This affects only Books Library metadata.`
       : `Merge this backup into Books Library? Existing records will be kept. New records: ${bookBackupPreview.newRecords.length}; duplicate candidates skipped: ${bookBackupPreview.duplicateIds.length + bookBackupPreview.duplicateBooks.length}. This affects only Books Library metadata.`)) return
